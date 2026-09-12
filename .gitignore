@@ -80,3 +80,6 @@ research/notes/
 
 # Exported track geometry, rebuilt with scripts/export_track_geometry.py
 data/geometry/
+
+# Prompt handed to the visualisation agent directly, deliberately not in the repo.
+docs/PROMPT_3D_VISUALISATION.md
