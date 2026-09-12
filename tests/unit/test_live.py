@@ -1,0 +1,282 @@
+"""Tests for the online estimator.
+
+Two properties matter here and neither is about the arithmetic being pretty.
+
+First, the live estimator must agree with the batch one. They share a derivation
+but not a code path -- batch builds transition matrices and folds a whole lap in
+at once, live applies row operations in place and folds one car in at a time.
+Nothing but a test keeps them from drifting apart, and if they drift the platform
+is quietly showing the pit wall a different model from the one it validated.
+
+Second, cost per lap must not grow with session length. A filter that degrades as
+the race goes on is not a real-time system, and the claim is easy to make and
+easy to get wrong.
+"""
+
+from __future__ import annotations
+
+import numpy as np
+import pytest
+
+from tyremind.data.synthetic import SessionConfig, generate_session
+from tyremind.models.ssm.tyre_ssm import fit_tyre_ssm
+from tyremind.stream.live import LapObservation, LiveTyreMonitor, replay
+
+
+@pytest.fixture(scope="module")
+def session():
+    return generate_session(SessionConfig(seed=77, n_drivers=8, session_slots=40))
+
+
+class TestAgreementWithBatch:
+    def test_live_converges_to_the_batch_estimate(self, session) -> None:
+        """After the whole session, live and batch must agree on compound rates.
+
+        Not to machine precision -- the batch model carries one extra track-noise
+        step before its first observation -- but to far inside the posterior
+        uncertainty. Disagreement beyond that means the two implementations have
+        genuinely diverged.
+        """
+        fit = fit_tyre_ssm(session.lap_table)
+
+        monitor = LiveTyreMonitor(
+            drivers=sorted(session.lap_table["driver"].unique().tolist()),
+            compounds=sorted(session.lap_table["compound"].unique().tolist()),
+            hyper=fit.hyper,
+            max_runs_per_driver=int(session.lap_table.groupby("driver")["run_id"].nunique().max())
+            + 2,
+        )
+        for _ in replay(session.lap_table, monitor=monitor):
+            pass
+
+        live = monitor.compound_rates()
+        batch = fit.compound_rates()
+
+        for compound, (batch_mean, batch_sd) in batch.items():
+            live_mean, _ = live[compound]
+            assert abs(live_mean - batch_mean) < 0.5 * batch_sd, (
+                f"{compound}: live {live_mean:.4f} vs batch {batch_mean:.4f}, "
+                f"more than half a posterior sd apart"
+            )
+
+    def test_live_recovers_the_true_degradation_rate(self, session) -> None:
+        """The online path must be useful, not merely self-consistent."""
+        fit = fit_tyre_ssm(session.lap_table)
+        monitor = LiveTyreMonitor(
+            drivers=sorted(session.lap_table["driver"].unique().tolist()),
+            compounds=sorted(session.lap_table["compound"].unique().tolist()),
+            hyper=fit.hyper,
+            max_runs_per_driver=8,
+        )
+        for _ in replay(session.lap_table, monitor=monitor):
+            pass
+
+        for compound, (estimate, _) in monitor.compound_rates().items():
+            truth = session.truth.compound_rates[compound]
+            assert abs(estimate - truth) < 0.04, (
+                f"{compound}: live estimate {estimate:.4f} vs true {truth:.4f}"
+            )
+
+
+class TestRealTimeProperties:
+    def test_update_cost_does_not_grow_with_session_length(self, session) -> None:
+        """Lap 200 must cost what lap 10 cost.
+
+        The whole justification for a recursive estimator over a sampler is O(1)
+        updates. If this regressed -- an accidental full-history recompute, say --
+        the system would still produce correct numbers and stop being real-time,
+        which is exactly the kind of failure that survives every other test.
+        """
+        monitor = LiveTyreMonitor(
+            drivers=sorted(session.lap_table["driver"].unique().tolist()),
+            compounds=sorted(session.lap_table["compound"].unique().tolist()),
+            max_runs_per_driver=8,
+        )
+        for _ in replay(session.lap_table, monitor=monitor):
+            pass
+
+        times = np.array(monitor.update_times_ms)
+        assert times.size > 100
+
+        # Median, not mean. Updates take 40-70 microseconds, which is small
+        # enough that a single OS scheduling hiccup dominates an average and
+        # makes this fail under load while the code is fine. The median still
+        # catches the failure this test exists for -- an accidental
+        # full-history recompute would grow the cost by orders of magnitude,
+        # not by a scheduling jitter.
+        first_quarter = float(np.median(times[: times.size // 4]))
+        last_quarter = float(np.median(times[-times.size // 4 :]))
+
+        # Growth is only meaningful if it is also large in absolute terms. Going
+        # from 0.04 ms to 0.09 ms is not a loss of real-time behaviour; going
+        # from 0.04 ms to 40 ms is.
+        grew_proportionally = last_quarter > 3.0 * first_quarter
+        grew_materially = last_quarter - first_quarter > 1.0
+
+        assert not (grew_proportionally and grew_materially), (
+            f"per-lap cost grew from {first_quarter:.4f} ms to {last_quarter:.4f} ms"
+        )
+
+    def test_updates_are_fast_enough_to_be_called_real_time(self, session) -> None:
+        """A lap takes ~90 seconds. An update budget of 50 ms is generous."""
+        monitor = LiveTyreMonitor(
+            drivers=sorted(session.lap_table["driver"].unique().tolist()),
+            compounds=sorted(session.lap_table["compound"].unique().tolist()),
+            max_runs_per_driver=8,
+        )
+        for _ in replay(session.lap_table, monitor=monitor):
+            pass
+
+        assert monitor.performance_summary()["p95_update_ms"] < 50.0
+
+    def test_uncertainty_shrinks_as_laps_accumulate(self, session) -> None:
+        """More evidence must mean a tighter estimate, monotonically enough to matter."""
+        monitor = LiveTyreMonitor(
+            drivers=sorted(session.lap_table["driver"].unique().tolist()),
+            compounds=sorted(session.lap_table["compound"].unique().tolist()),
+            max_runs_per_driver=8,
+        )
+
+        early: dict[str, float] = {}
+        late: dict[str, float] = {}
+        for i, (_, state) in enumerate(replay(session.lap_table, monitor=monitor)):
+            target = early if i < 30 else late
+            target.setdefault(state.driver, state.degradation_rate_sd)
+            if i >= 30:
+                late[state.driver] = state.degradation_rate_sd
+
+        shared = set(early) & set(late)
+        assert shared
+        assert np.mean([late[d] for d in shared]) < np.mean([early[d] for d in shared])
+
+
+class TestGuardrails:
+    def _monitor(self) -> LiveTyreMonitor:
+        return LiveTyreMonitor(
+            drivers=["A", "B"], compounds=["SOFT", "MEDIUM"], max_runs_per_driver=2
+        )
+
+    def _obs(self, **kwargs) -> LapObservation:
+        base = dict(
+            driver="A",
+            session_lap=1,
+            lap_time=90.0,
+            compound="SOFT",
+            tyre_age=1.0,
+            lap_in_run=0,
+            run_index=0,
+        )
+        base.update(kwargs)
+        return LapObservation(**base)
+
+    def test_rejects_an_unknown_driver(self) -> None:
+        with pytest.raises(ValueError, match="entry list"):
+            self._monitor().observe(self._obs(driver="Z"))
+
+    def test_rejects_an_unknown_compound(self) -> None:
+        with pytest.raises(ValueError, match="not declared"):
+            self._monitor().observe(self._obs(compound="WET"))
+
+    def test_rejects_running_out_of_run_slots(self) -> None:
+        """Silently reusing a slot would pool two unrelated runs into one intercept."""
+        with pytest.raises(ValueError, match="run slots were reserved"):
+            self._monitor().observe(self._obs(run_index=5))
+
+    def test_rejects_an_out_of_order_stream(self) -> None:
+        monitor = self._monitor()
+        monitor.observe(self._obs(session_lap=5))
+        with pytest.raises(ValueError, match="went backwards"):
+            monitor.observe(self._obs(session_lap=3))
+
+    def test_health_index_is_anchored_and_bounded(self) -> None:
+        """A convention, but a bounded one: a fresh tyre reads 100, a dead one 0."""
+        monitor = self._monitor()
+        state = monitor.observe(self._obs())
+
+        state.performance_loss = 0.0
+        assert state.health_index == pytest.approx(100.0)
+
+        state.performance_loss = 1.5
+        assert state.health_index == pytest.approx(0.0)
+
+        state.performance_loss = 10.0
+        assert state.health_index == 0.0  # clipped, never negative
+
+
+class TestCalibratedLapTimeForecast:
+    """The live forecast must be a forecast, and its interval must be auditable.
+
+    The distinction that matters here is not statistical, it is procedural: the
+    interval has to be formed from the state *before* the lap is folded in. A
+    number computed after the update would be a fit dressed up as a prediction,
+    and it would look excellent right up until it was used on a lap that had not
+    happened yet.
+    """
+
+    def test_the_forecast_is_made_before_the_lap_is_folded_in(self, session) -> None:
+        monitor = LiveTyreMonitor(
+            sorted(session.lap_table["driver"].unique().tolist()), sorted(session.lap_table["compound"].unique().tolist())
+        )
+        states = [s for _, s in replay(session.lap_table, monitor=monitor)]
+
+        # Reconstructed from the recorded forecast, so if `observe` ever started
+        # reading the posterior instead of the prior this identity would break.
+        for obs, state in zip(session.lap_table.itertuples(), states, strict=False):
+            if np.isfinite(state.innovation) and np.isfinite(state.predicted_lap_time):
+                assert state.innovation == pytest.approx(
+                    obs.lap_time - state.predicted_lap_time, abs=1e-6
+                )
+
+    def test_the_interval_brackets_the_forecast(self, session) -> None:
+        monitor = LiveTyreMonitor(
+            sorted(session.lap_table["driver"].unique().tolist()), sorted(session.lap_table["compound"].unique().tolist())
+        )
+        for _, state in replay(session.lap_table, monitor=monitor):
+            low, high = state.lap_time_interval
+            assert low <= state.predicted_lap_time <= high
+
+    def test_reported_coverage_matches_the_laps_it_actually_covered(self, session) -> None:
+        """The auditable part. A strategist should be able to check the 95% was
+        95% without taking anyone's word for it."""
+        monitor = LiveTyreMonitor(
+            sorted(session.lap_table["driver"].unique().tolist()), sorted(session.lap_table["compound"].unique().tolist())
+        )
+        states = [s for _, s in replay(session.lap_table, monitor=monitor)]
+        hits = [s.lap_time_covered for s in states]
+        assert states[-1].interval_coverage == pytest.approx(np.mean(hits), abs=1e-9)
+
+    def test_calibration_can_be_switched_off(self, session) -> None:
+        monitor = LiveTyreMonitor(
+            sorted(session.lap_table["driver"].unique().tolist()),
+            sorted(session.lap_table["compound"].unique().tolist()),
+            calibrate_intervals=False,
+        )
+        states = [s for _, s in replay(session.lap_table, monitor=monitor)]
+        assert all(s.lap_time_interval is None for s in states)
+        # The forecast itself is unconditional -- only its interval is optional.
+        assert np.isfinite(states[-1].predicted_lap_time)
+
+    def test_calibration_does_not_disturb_the_filter(self, session) -> None:
+        """Interval calibration observes the filter; it must never feed back into
+        it. Identical state estimates with it on and off is the only way to be
+        sure the audit is not changing what it audits."""
+        drivers = sorted(session.lap_table["driver"].unique().tolist())
+        compounds = sorted(session.lap_table["compound"].unique().tolist())
+
+        on = [s for _, s in replay(session.lap_table, monitor=LiveTyreMonitor(
+            drivers, compounds, calibrate_intervals=True))]
+        off = [s for _, s in replay(session.lap_table, monitor=LiveTyreMonitor(
+            drivers, compounds, calibrate_intervals=False))]
+
+        assert len(on) == len(off)
+        for a, b in zip(on, off, strict=True):
+            assert a.degradation_rate == pytest.approx(b.degradation_rate, abs=1e-12)
+            assert a.performance_loss == pytest.approx(b.performance_loss, abs=1e-12)
+            assert a.innovation == pytest.approx(b.innovation, abs=1e-12)
+
+    def test_coverage_lands_near_nominal_on_a_full_session(self, session) -> None:
+        monitor = LiveTyreMonitor(
+            sorted(session.lap_table["driver"].unique().tolist()), sorted(session.lap_table["compound"].unique().tolist())
+        )
+        states = [s for _, s in replay(session.lap_table, monitor=monitor)]
+        assert states[-1].interval_coverage == pytest.approx(0.95, abs=0.05)

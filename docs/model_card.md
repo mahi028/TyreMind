@@ -1,0 +1,314 @@
+# Model card — TyreMind latent tyre-state estimator
+
+**Version** 0.1.0 · **Updated** 2026-09-05
+
+---
+
+## What it does
+
+Estimates the **latent performance state of a tyre** from lap times and
+telemetry, separating degradation from the conditions that also change lap times.
+
+Output is a degradation rate in **seconds per lap**, with a credible interval,
+per compound and per individual tyre set.
+
+## What it does not do
+
+**It does not measure tread depth.** Public Formula 1 telemetry contains no
+physical wear measurement. There is no sensor reading, no tread gauge, no rubber
+mass. The model estimates how much *performance* a tyre has lost, which is
+related to physical wear but is not the same quantity and is not calibrated
+against it.
+
+**It does not measure tyre temperature.** The thermal model produces estimated
+states calibrated so their output correlates with observed degradation. They are
+not validated against any temperature sensor, because none is available. Absolute
+values in degrees are not trustworthy; the relative structure is what is used.
+
+**It does not perform causal identification.** The decomposition is exact
+arithmetic on an assumed structural model. Two of its three identifying
+assumptions are priors, not evidence. "Structural attribution under the stated
+model" is the accurate description.
+
+---
+
+## Intended use
+
+- Post-session analysis of tyre degradation by race engineers and strategists.
+- Estimating race degradation from practice running.
+- Real-time degradation monitoring during a session, as decision *support*.
+- Research into degradation estimation under confounding.
+
+## Out of scope
+
+- **Any safety decision.** This is not a roadworthiness assessment and must never
+  be used as one. For road or commercial vehicles, physical inspection and
+  certified TPMS remain authoritative.
+- Wet-weather running. Wet compounds are excluded; their degradation is a
+  different physical process the priors do not describe.
+- Circuits, compounds or conditions outside the fitted session, beyond the
+  applicability limits the model reports itself.
+- Regulatory, scrutineering or commercial decisions of any kind.
+
+---
+
+## Data
+
+**Source.** [FastF1](https://docs.fastf1.dev/), which reads Formula 1's official
+timing API. Lap times, tyre compound, tyre age, stint numbering, weather, and —
+for the physics layer — car and position telemetry at roughly 4–10 Hz.
+
+**Filtering.** From a raw session, removed: laps with no time, pit in/out laps,
+laps FastF1 flags as inaccurate, laps with unknown compound, wet compounds, laps
+more than 3 robust deviations slower than the session median (safety cars,
+flags, severe traffic), and runs shorter than 4 laps. At 2024 Monza FP2 this is
+454 laps in, 143 out. Every exclusion is counted and reported.
+
+**Synthetic data** is used *only* for validating recovery of a known truth, and
+is never mixed with real telemetry.
+
+**Cross-domain data:** NASA C-MAPSS turbofan degradation (Saxena & Goebel, 2008).
+
+---
+
+## Assumptions
+
+Listed in descending order of how much the result depends on them.
+
+1. **Fuel costs 0.030 ± 0.005 s/kg, burned at 2.7 ± 0.3 kg/lap.** The largest
+   assumption. Fuel and degradation are perfectly collinear within a run, so this
+   prior is what makes degradation identifiable at all. Uncertainty is carried as
+   state and widens every published interval.
+2. **Track evolution follows a saturating curve, total 0.90 ± 0.45 s.** Resolves
+   the second collinearity. Rubber deposition genuinely saturates, so the shape
+   is physically motivated, but the amplitude is a prior.
+3. **Degradation is smooth in tyre age.** The rate is a random walk, so it can
+   accelerate (a cliff) or plateau, but it cannot jump discontinuously. A
+   puncture or debris strike is not represented.
+4. **Traffic effect is proportional to a saturating gap index.** Cars more than
+   2s apart are treated as being in clean air.
+5. **Observation noise is heavy-tailed.** Lap times contain lock-ups and
+   mistakes, which a Gaussian model would absorb into the tyre state.
+6. **A run's intercept absorbs car pace, setup and starting fuel mass.** Anything
+   constant within a run is not attributed to the tyre.
+
+---
+
+## Performance
+
+### Recovery of a known degradation rate — 25 synthetic sessions
+
+| | Naive (lap time vs tyre age) | TyreMind |
+|---|---:|---:|
+| Mean absolute error | 0.0966 s/lap | **0.0044 s/lap** |
+| Bias | −0.0966 | **+0.0012** |
+| 95% interval coverage | — | **100%** |
+
+The naive bias equals the fuel slope, in the direction theory predicts.
+
+**On coverage:** 100% over 75 comparisons against a nominal 95% suggests the
+intervals are slightly *conservative* — wider than strictly necessary. For a
+decision-support tool that is the safer error, but it is a known
+miscalibration, not a perfect result.
+
+### Practice → race transfer — 2023, 2024 and 2025, 42 events, 94 compound comparisons
+
+| | Naive | TyreMind |
+|---|---:|---:|
+| MAE | 0.1471 s/lap | **0.0807 s/lap** |
+| 95% coverage, as fitted | — | 76% |
+| 95% coverage, conformally calibrated | — | **95%** |
+| Bias | — | **+0.0268 s/lap** |
+
+**This result got worse as the evidence grew.** On 5 events and 10 comparisons
+the MAE was 0.0518 s/lap; on 42 events and 94 comparisons it is 0.0807. The
+small sample was flattering. The naive baseline degraded in step (0.1166 →
+0.1471) and the relative gap held at roughly 45%, which is the part of the claim
+that was real. Anyone quoting the older figure is quoting a number that did not
+replicate.
+
+Three events are excluded as not dry-degradation sessions at all — Canada 2024
+ran 67% of its race laps on wet rubber and produced a fitted rate of −0.151
+s/lap. The exclusion rule is applied to both sides of every comparison, and the
+40% wet-lap threshold was calibrated against 2024 rather than chosen: Britain at
+24.4% wet laps gave entirely ordinary estimates and is kept.
+
+**The bias is systematic** — practice over-predicts race degradation in 63 of 94
+comparisons. An earlier version of this card attributed it to practice race-sims
+holding high fuel throughout. That explanation is not supported and has been
+withdrawn. Nine candidate mechanisms were tested against the signed error with a
+Benjamini–Hochberg correction across all nine (exp10). **One survives**:
+`practice_stint_len` (ρ +0.39, p 0.0017, against a threshold of 0.0056).
+`stops_per_driver` misses by a hair — p 0.0113 against 0.0111 — and is reported
+as a near-miss rather than promoted or dropped. The practice-to-race temperature
+gap, traffic, and the model's own posterior sd all fail outright.
+
+An earlier version of this card said two survive. That was true on the previous
+corpus and is not now, and the change is recorded rather than absorbed.
+
+The causal reading of those two — that practice runs go deeper into the wear
+curve than pitted race stints — was then tested directly and **refuted** (exp11).
+Practice runs are on average 4.4 laps *shallower* than race stints, not deeper,
+and forcing a common tyre-age window made both bias and MAE worse (paired t p = 0.016). Stint length proxies something not yet identified.
+
+So the bias is corrected as a measured offset, not as an explained one, and the
+interval is widened by conformal calibration rather than by a story.
+
+### Lap-time prediction — 20 real races, chronological folds
+
+| Model | CRPS | Coverage | Bias drift |
+|---|---:|---:|---:|
+| Pooled regression (ridge) | **0.396** | 84% | +0.031 |
+| LightGBM | 0.469 | 62% | −0.109 |
+| TyreMind state-space | 0.645 | 81% | **−0.432** |
+| Fuel-corrected regression | 0.878 | 76% | +0.481 |
+| Naive | 0.879 | 76% | +0.439 |
+| Neural network (MLP) | 1.548 | 69% | −2.130 |
+
+**Two rungs predict lap times better than we do, and neither can answer the
+question.** On four races LightGBM led this table; on twenty the leader is plain
+pooled regression, with LightGBM second and TyreMind third. Neither LightGBM nor
+the neural network has a parameter meaning "degradation rate", so there is
+nothing to hand an engineer and nothing to carry from Friday to Sunday — they
+are absent from the degradation table below rather than last in it.
+
+Bias drift measures how much a model's error grows as it forecasts further past
+its training window. TyreMind's falls by **0.432**, the largest fall of any rung
+by a wide margin; LightGBM falls slightly (−0.109) and pooled regression is
+essentially flat (+0.031).
+
+This claim has weakened twice and both weakenings are recorded. It began as
+"TyreMind is the only rung whose error does not grow", which twenty races
+disproved. It then became "the lap-time leader's error grows while ours
+shrinks", which four seasons disproved: the leader's drift fell from +0.262 to
++0.031. What survives is narrower and still worth having — of the six rungs,
+ours extrapolates best, by a margin of roughly 4x over the next.
+The MLP is the most unstable of all at −2.130 — its bias swings wildly between
+folds, which is what unconstrained extrapolation looks like.
+
+The MLP was tuned before being compared (five configurations on held-out folds;
+disabling early stopping, which was validating on ~30 rows, was worth roughly a
+full second of CRPS). Beating a badly-configured competitor would prove nothing.
+
+### Degradation recovery — the task the lap-time table cannot score
+
+| Model | Rate MAE | 95% coverage |
+|---|---:|---:|
+| TyreMind state-space | **0.0041 s/lap** | **100%** |
+| Pooled regression (ridge) | 0.0068 s/lap | 78% |
+| Fuel-corrected regression | 0.0230 s/lap | 44% |
+| Naive | 0.0748 s/lap | 0% |
+| LightGBM | *no degradation parameter* | — |
+| Neural network (MLP) | *no degradation parameter* | — |
+
+The two rungs that beat us on lap time are the two that cannot appear here at
+all. That is the entire argument of the ladder, and it is why both tables are
+always printed together: **predicting lap times well is not the same as
+understanding the tyre.**
+
+### Lap-time interval calibration
+
+Every rung undercovers on lap time — measured across 66,606 held-out laps, none
+reaches 85%. Split conformal is the wrong instrument here, because it needs the
+calibration set to be exchangeable with the test point and lap times inside a
+race are not: the car burns fuel, the track rubbers in, a safety car rearranges
+everything.
+
+Adaptive Conformal Inference drops that assumption, retuning the working
+miss-rate after every lap. Pooled over every rung it reaches **95.2%** against
+the Gaussian's 75.9%, at a median width of 5.74 s. The nonconformity score also
+flips: the *studentised* score that won for degradation rates is wrong here,
+since dividing by a posterior sd that is itself badly wrong amplifies the
+miscalibration instead of correcting it.
+
+### Sensitivity to the assumptions
+
+With the fuel prior wrong by a full standard deviation — the single largest
+assumption — error is **0.0199 s/lap**, still 4.9× better than naive at 0.0966.
+Doubling both prior widths roughly doubles the posterior standard deviation, as
+it should. Coverage holds at 100% across every perturbation.
+
+### Cross-domain — NASA C-MAPSS FD001
+
+RUL RMSE **22.7 cycles** over **all 100** FD001 test engines — the same set
+published figures are quoted on, so this is a like-for-like comparison. MAE 17.9
+cycles, 44% predicted early, NASA prognostics score 2415 (that score is a *sum*
+over engines, so it is only comparable at equal engine counts: 24.2 per engine
+here against 47.3 per engine on the earlier 40-engine run).
+
+Purpose-built deep prognostics models reach 12–20 RMSE on this dataset. This is a
+tyre model pointed at engines with no retuning, so it demonstrates transfer, not
+competitiveness.
+
+The earlier 40-engine figure of 26.5 existed because the estimator fits the test
+set jointly and cost grows faster than linearly: a 100-engine run was abandoned
+after 108 CPU-minutes without converging. Fitting in batches of 25 removes the
+limit. Batching was verified not to move the answer — rerunning the original 40
+in one batch reproduces 26.5/21.1/1893 exactly, and at batch size 20 it gives
+26.6/21.4/1870, a 0.4% difference.
+
+Predictions are capped at 125 cycles, the piecewise-linear RUL convention used
+throughout the C-MAPSS literature. Without the cap the estimator extrapolates a
+near-flat early-life trend to absurd remaining lives, which inflates RMSE to 56
+cycles and the NASA score — which penalises late predictions exponentially — by
+three orders of magnitude.
+
+---
+
+## Known failure modes
+
+| Situation | What happens | Mitigation in the product |
+|---|---|---|
+| **Wet or drying track** | Priors do not describe wet compounds; the model would report nonsense. | Wet compounds excluded at ingestion. Silverstone 2024 (mixed conditions) shows residual noise of 0.82s against Monza's 0.42s — the diagnostic is visible. |
+| **Very short stints** | Fewer than ~5 laps cannot show a trend; the estimate is mostly prior. | Runs under 4 laps dropped; run count and length reported. |
+| **Extrapolating past observed tyre age** | The local linear trend extends a straight line into a cliff it cannot see. | Applicability score decays past the oldest observed age and is shown alongside every projection. |
+| **A compound run only briefly** | Estimate dominated by the compound prior. | Lap count per compound shown; `assess_applicability` flags it. |
+| **Safety car / red flag** | Slow laps corrupt the trend. | Removed as outliers via a robust threshold and counted. |
+| **Single-car analysis** | Loses the run-stagger identification; uncertainty rises. | Measured: halving the field degrades error from 0.0047 to 0.0073. |
+| **A prior that is simply wrong** | The answer shifts. | Quantified in exp02: a full-sd error in the fuel prior costs 0.0199 s/lap. |
+| **New circuit, no telemetry analysed** | Per-corner energy unavailable. | The twin says so rather than showing an even split as a result. |
+
+---
+
+## Uncertainty
+
+Every published estimate carries a posterior standard deviation. Sources:
+
+- **Aleatoric** — lap-time scatter from driver variation, modelled with a
+  heavy-tailed observation distribution.
+- **Epistemic** — state uncertainty from the Kalman recursion, plus the width of
+  the physical priors, which is carried as state and therefore propagates into
+  every derived quantity including strategy outcomes.
+
+Two estimates are reported and never conflated: **filtered** (conditioned only on
+laps so far — what the pit wall could legitimately know) and **smoothed**
+(conditioned on the whole session — what engineers know afterwards).
+
+---
+
+## Ethical and safety notes
+
+- **Decision support only.** Never an autonomous or safety-certifying system.
+- Fleet and passenger-vehicle applications shown in the product are
+  **architecture, not evidence**, and are labelled as such throughout.
+- The narration layer never lets a language model compute a number. Templates
+  generate the text from model output; an LLM may only rewrite prose, and any
+  rewrite introducing an unverifiable number is discarded.
+- No personal data is processed. All inputs are publicly published timing data.
+
+---
+
+## Reproducing these numbers
+
+```bash
+python experiments/exp01_ground_truth_recovery.py --n-seeds 25
+python experiments/exp02_prior_sensitivity.py
+python experiments/exp03_practice_to_race.py --year 2024
+python experiments/exp04_energy_clock.py
+python experiments/exp05_model_ladder.py
+python experiments/exp06_circuit_asymmetry.py
+python experiments/exp07_cross_domain.py --subset FD001
+```
+
+Results are written to `experiments/results/*.json` and read from there by the
+dashboard. No figure in this document or in the product is typed by hand.

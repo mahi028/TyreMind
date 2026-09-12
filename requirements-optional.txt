@@ -1,0 +1,9 @@
+# Optional. The dashboard, the API and every experiment run without these.
+-r requirements.txt
+
+# LLM narration. Without a key, narration falls back to deterministic templates
+# with every number computed before the text is written.
+google-genai>=0.3
+
+# MCP server: exposes TyreMind's estimator as tools an AI agent can call.
+mcp>=2.0

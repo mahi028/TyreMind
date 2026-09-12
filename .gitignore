@@ -1,0 +1,62 @@
+# ---- secrets ----
+.env
+.env.local
+*.key
+credentials.json
+
+# ---- python ----
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+!apps/web/dist/
+!apps/web/dist/**
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ---- data (large / regenerable) ----
+data/raw/
+data/interim/
+data/processed/
+data/external/
+cache/
+fastf1_cache/
+*.parquet
+# Demo cache IS committed: the offline demo must work on a fresh clone.
+!data/demo/*.parquet
+!data/demo/*.json
+
+# ---- node ----
+node_modules/
+# apps/web/dist/ is deliberately NOT ignored. The built dashboard is committed so
+# that a clone runs with Python alone -- no Node, no npm install, no build step.
+# Rebuild and re-commit it after any frontend change:  npm --prefix apps/web run build
+apps/web/.vite/
+*.log
+
+# ---- os / editor ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Internal build notes, kept locally and not published.
+Prompt.md
+
+# Rendered demo video. Kept out of git because a 28 MB binary in history costs
+# every clone forever, and the distribution channel is Drive, not GitHub.
+# Regenerate with: python scripts/record_demo.py docs/video/TyreMind_Demo.mp4
+docs/video/*.mp4
+docs/video/*.webm
+docs/video/*.png
+
+# Research corpus. Hundreds of sessions, gigabytes; rebuilt with
+#     python scripts/build_corpus.py --years 2024 2023 2022 --sessions R FP2 FP1 FP3
+# data/demo/ stays committed so a clone still runs offline.
+data/season/

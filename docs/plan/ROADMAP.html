@@ -1,0 +1,859 @@
+<title>TyreMind Path to First</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+/* ---------------------------------------------------------------------------
+   TyreMind — audit and plan of action.
+
+   Inherits the application's own tokens rather than inventing a fourth
+   identity: the tyre is the only warm value, every confounder and every
+   competitor is cool. Status colour (done / in flight / at risk) is a separate
+   semantic axis and never borrows the accent.
+--------------------------------------------------------------------------- */
+:root {
+  --ground:#f4f6f7; --surface:#ffffff; --raised:#eaeef0;
+  --line:#d4dbdf; --line-hi:#b3bfc6;
+  --ink:#16212a; --ink-2:#4a5b66; --ink-3:#7b8b95;
+  --tyre:#c4501f; --tyre-bg:rgba(196,80,31,.07);
+  --done:#1f8a5c; --flight:#1d7d9c; --risk:#7f4aa0; --hold:#7b8b95;
+  --sans:"Archivo",ui-sans-serif,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+:root:not([data-theme="light"]) { color-scheme: light; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:#0e1418; --surface:#151d23; --raised:#1d272e;
+    --line:#26343d; --line-hi:#354753;
+    --ink:#e4eaed; --ink-2:#8fa3ae; --ink-3:#5d6f7a;
+    --tyre:#ff8a5b; --tyre-bg:rgba(255,138,91,.10);
+    --done:#4bbf8a; --flight:#4fa8c5; --risk:#b47fd0; --hold:#5d6f7a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ground:#0e1418; --surface:#151d23; --raised:#1d272e;
+  --line:#26343d; --line-hi:#354753;
+  --ink:#e4eaed; --ink-2:#8fa3ae; --ink-3:#5d6f7a;
+  --tyre:#ff8a5b; --tyre-bg:rgba(255,138,91,.10);
+  --done:#4bbf8a; --flight:#4fa8c5; --risk:#b47fd0; --hold:#5d6f7a;
+  color-scheme: dark;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+     font-size:15px;line-height:1.58;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding-block:52px 110px;padding-left:22px;padding-right:22px}
+
+h1{font-size:clamp(30px,4.4vw,44px);line-height:1.08;font-weight:700;letter-spacing:-.018em;margin:0;text-wrap:balance}
+h2{font-size:clamp(20px,2.6vw,27px);line-height:1.16;font-weight:600;letter-spacing:-.012em;margin:0 0 14px;text-wrap:balance}
+h3{font-size:16.5px;font-weight:600;margin:0 0 7px}
+h4{font-size:13.5px;font-weight:600;margin:0 0 5px}
+p{margin:0 0 12px;color:var(--ink-2);max-width:70ch}
+p:last-child{margin-bottom:0}
+b,strong{color:var(--ink);font-weight:600}
+code{font-family:var(--mono);font-size:.87em;color:var(--ink)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.hot{color:var(--tyre)}
+.small{font-size:13px;color:var(--ink-3)}
+
+header{border-bottom:2px solid var(--ink);padding-bottom:26px;margin-bottom:34px}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.15em;text-transform:uppercase;
+         color:var(--tyre);margin-bottom:11px}
+header p{font-size:17px;line-height:1.5;color:var(--ink-2);max-width:66ch;margin-top:14px}
+header p b{color:var(--ink)}
+
+section{margin-top:52px}
+.sec-head{display:flex;align-items:baseline;gap:13px;border-top:1px solid var(--line-hi);
+          padding-top:15px;margin-bottom:18px}
+.sec-head .n{font-family:var(--mono);font-size:12.5px;color:var(--tyre);flex:none;padding-top:5px}
+
+/* Scorecard --------------------------------------------------------------- */
+.score{display:grid;gap:2px;background:var(--line);border:1px solid var(--line);margin-top:6px}
+.score .row{display:grid;grid-template-columns:minmax(0,1.35fr) 74px minmax(0,1fr) 88px;
+            gap:16px;background:var(--surface);padding:13px 16px;align-items:center}
+.score .row.head{background:var(--raised);font-size:11.5px;letter-spacing:.06em;
+                 text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.score .w{font-family:var(--mono);font-size:15px;text-align:right;font-variant-numeric:tabular-nums}
+.score .bar{height:8px;background:var(--raised);position:relative;overflow:hidden}
+.score .bar i{display:block;height:100%}
+.score .verdict{font-size:12.5px;font-weight:600;text-align:right}
+@media (max-width:660px){
+  .score .row{grid-template-columns:1fr 60px;gap:8px}
+  .score .bar,.score .verdict{grid-column:1/-1}
+  .score .verdict{text-align:left}
+}
+
+/* Generic grids ----------------------------------------------------------- */
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(232px,1fr))}
+
+.card{background:var(--surface);border:1px solid var(--line);padding:16px 18px}
+.card p{font-size:13.5px;margin-bottom:8px}
+.card.lift{border-left:3px solid var(--tyre)}
+
+.tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+     padding:2px 7px;border:1px solid currentColor;white-space:nowrap}
+.t-done{color:var(--done)} .t-flight{color:var(--flight)}
+.t-risk{color:var(--risk)} .t-hold{color:var(--hold)} .t-new{color:var(--tyre)}
+
+/* Gap register ------------------------------------------------------------ */
+.gap{display:grid;grid-template-columns:26px minmax(0,1fr);gap:14px;padding:15px 0;
+     border-bottom:1px solid var(--line)}
+.gap:first-of-type{border-top:1px solid var(--line)}
+.gap .idx{font-family:var(--mono);font-size:12.5px;color:var(--ink-3);padding-top:3px}
+.gap h4{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+.gap p{font-size:13.5px;margin:0}
+
+/* Moves ------------------------------------------------------------------- */
+.move{border:1px solid var(--line);border-left:3px solid var(--tyre);background:var(--surface);
+      padding:17px 19px;display:grid;gap:9px}
+.move .top{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;justify-content:space-between}
+.move .why{font-size:13.5px;color:var(--ink-2);margin:0;max-width:none}
+.move .test{font-size:12.5px;color:var(--ink-2);background:var(--raised);padding:9px 12px;
+            border-left:2px solid var(--flight)}
+.move .test b{color:var(--ink)}
+
+/* Tables ------------------------------------------------------------------ */
+.scroller{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:560px}
+th{text-align:left;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);
+   font-weight:600;border-bottom:1px solid var(--line-hi);padding:0 13px 8px 0;vertical-align:bottom}
+td{padding:10px 13px 10px 0;border-bottom:1px solid var(--line);color:var(--ink-2);vertical-align:top}
+td b{color:var(--ink)}
+th:last-child,td:last-child{padding-right:0}
+td.n,th.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+th.n{font-family:var(--sans)}
+
+/* Phase timeline ---------------------------------------------------------- */
+.phase{border-top:1px solid var(--line-hi);padding-top:15px;margin-top:26px}
+.phase .bar{display:flex;flex-wrap:wrap;gap:11px;align-items:baseline;margin-bottom:10px}
+.phase .id{font-family:var(--mono);font-size:12px;color:var(--tyre)}
+.phase .when{font-family:var(--mono);font-size:12px;color:var(--ink-3);margin-left:auto}
+
+ul.dash{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+ul.dash li{font-size:13.5px;color:var(--ink-2);padding-left:17px;position:relative;max-width:78ch}
+ul.dash li::before{content:"—";position:absolute;left:0;color:var(--ink-3)}
+ul.dash li b{color:var(--ink)}
+
+.note{background:var(--tyre-bg);border-left:3px solid var(--tyre);padding:15px 18px}
+.note p{max-width:76ch}
+
+footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);
+       font-size:12.5px;color:var(--ink-3)}
+*:focus-visible{outline:2px solid var(--tyre);outline-offset:3px}
+
+/* Print ------------------------------------------------------------------- */
+/* The screen layout letterboxes badly on A4: a 1120px column inside a 210mm
+   page wastes a third of the width, and screen-sized type paginates into
+   orphaned headings. These rules are print-only so the screen version is
+   untouched. Colours stay light regardless of the reader's theme, because a
+   dark ground costs ink and reads worse on paper. */
+@page { size: A4; margin: 15mm 14mm; }
+
+@media print {
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  :root, :root[data-theme="dark"], :root:not([data-theme="light"]) {
+    --ground:#ffffff; --surface:#ffffff; --raised:#f1f4f5;
+    --line:#d4dbdf; --line-hi:#a7b4bb;
+    --ink:#111a20; --ink-2:#3f5058; --ink-3:#6c7f88;
+    --tyre:#c0392b; --tyre-bg:#f9ece9;
+    --done:#1f7a55; --flight:#1d7d9c; --risk:#7f4aa0; --hold:#6c7f88;
+  }
+
+  body { font-size: 9.6pt; line-height: 1.5; background:#fff; }
+  .wrap { max-width: none; padding: 0; }
+
+  h1 { font-size: 22pt; }
+  h2 { font-size: 14pt; }
+  h3 { font-size: 11pt; }
+  h4 { font-size: 9.6pt; }
+  p, ul.dash li, .card p, .move .why { font-size: 9.4pt; }
+  .small, .move .test, td, th { font-size: 8.6pt; }
+  table { min-width: 0; font-size: 8.6pt; }
+
+  header { padding-bottom: 6mm; margin-bottom: 7mm; }
+  header p { font-size: 11pt; }
+  section { margin-top: 8mm; break-inside: auto; }
+
+  /* Keep a heading with what it introduces, and never split a self-contained
+     block across a page boundary. */
+  .sec-head, h2, h3, h4 { break-after: avoid; }
+  .move, .card, .gap, .phase, .note, .score .row, tr { break-inside: avoid; }
+
+  /* Sections 04 onward each start a page, so the reader gets the audit, the
+     gap register, the moves and the sequence as discrete spreads. */
+  section:nth-of-type(4), section:nth-of-type(6), section:nth-of-type(8) { break-before: page; }
+
+  .grid { gap: 4mm; }
+  .g2 { grid-template-columns: 1fr 1fr; }
+  .g3 { grid-template-columns: 1fr 1fr 1fr; }
+  .card, .move { padding: 3.5mm 4.5mm; }
+  .scroller { overflow: visible; }
+  footer { margin-top: 8mm; }
+}
+
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">TrackShift · Problem 3 · Top 60 → First</div>
+  <h1>What we have, what would beat us, and the plan to close it</h1>
+  <p>
+    We are not starting from zero and we are not finished. This document is the
+    honest position: an audit against the five judged metrics, the eight places a
+    strong rival would out-argue us, and the five moves that would take this from
+    a very good hackathon build to something that does not currently exist.
+    <b>Every claim below is checked against a committed result file, not memory.</b>
+  </p>
+</header>
+
+<!-- ── SCORECARD ─────────────────────────────────────────────────────── -->
+<section>
+  <div class="sec-head"><span class="n">01</span><div><h2>Where we stand against the judged metrics</h2></div></div>
+  <p>
+    The weighting decides where effort belongs. Technical depth and problem fit
+    are <b>55% between them</b>, so that is where the plan concentrates. Prototype
+    quality is already our strongest asset and needs defending, not growing.
+  </p>
+
+  <div class="score">
+    <div class="row head"><span>Metric</span><span class="w">Weight</span><span>Our position</span><span class="verdict">Grade</span></div>
+
+    <div class="row">
+      <span><b>Technical depth</b></span>
+      <span class="w">30%</span>
+      <span class="bar"><i style="width:74%;background:var(--done)"></i></span>
+      <span class="verdict" style="color:var(--done)">Strong</span>
+    </div>
+    <div class="row" style="padding-top:0">
+      <span class="small" style="grid-column:1/-1;max-width:82ch">
+        Identifiability derived, not asserted — three collinearities, two resolvable only by prior.
+        Hand-written Kalman + RTS with exact likelihood, verified against an independent joint MVN to 1e&minus;9.
+        Physics validated non-circularly. <b>Held back by:</b> a compound specification error, a thermal layer
+        that does not feed the headline number, and an evidence base of four circuits.
+      </span>
+    </div>
+
+    <div class="row">
+      <span><b>Addresses the problem statement</b></span>
+      <span class="w">25%</span>
+      <span class="bar"><i style="width:70%;background:var(--done)"></i></span>
+      <span class="verdict" style="color:var(--done)">Strong, mis-aimed</span>
+    </div>
+    <div class="row" style="padding-top:0">
+      <span class="small" style="grid-column:1/-1;max-width:82ch">
+        The brief is <em>practice → clean curves → validate against race pace</em>. Experiment 03 is literally that.
+        <b>But</b> our demo opens on a race, we use only FP2 and ignore FP1/FP3, and the practice→race pipeline
+        has no dedicated product surface. We are answering the question in an appendix.
+      </span>
+    </div>
+
+    <div class="row">
+      <span><b>Working prototype / feasibility</b></span>
+      <span class="w">20%</span>
+      <span class="bar"><i style="width:88%;background:var(--done)"></i></span>
+      <span class="verdict" style="color:var(--done)">Our best asset</span>
+    </div>
+    <div class="row" style="padding-top:0">
+      <span class="small" style="grid-column:1/-1;max-width:82ch">
+        Runs offline from one command, no Node and no API key. Nine views, 24 endpoints, live streaming replay,
+        MCP server, 326 tests, verified from a clean clone. Most finalists will demo a notebook.
+      </span>
+    </div>
+
+    <div class="row">
+      <span><b>Real-world applicability</b></span>
+      <span class="w">15%</span>
+      <span class="bar"><i style="width:48%;background:var(--flight)"></i></span>
+      <span class="verdict" style="color:var(--flight)">The soft flank</span>
+    </div>
+    <div class="row" style="padding-top:0">
+      <span class="small" style="grid-column:1/-1;max-width:82ch">
+        Adoption path and MCP integration are written and real. Missing the thing teams actually want:
+        <b>a forecast before they arrive at a circuit</b>. No wet handling, no driver effects, no validation
+        against real race outcomes.
+      </span>
+    </div>
+
+    <div class="row">
+      <span><b>Presentation &amp; communication</b></span>
+      <span class="w">10%</span>
+      <span class="bar"><i style="width:85%;background:var(--done)"></i></span>
+      <span class="verdict" style="color:var(--done)">Strong</span>
+    </div>
+    <div class="row" style="padding-top:0">
+      <span class="small" style="grid-column:1/-1;max-width:82ch">
+        36-page dossier, 24-slide deck, self-driving 4:55 demo video, README with screenshots, shareable web pitch.
+        Needs re-cutting once the numbers below change — not rebuilding.
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- ── WHAT WE HOLD ──────────────────────────────────────────────────── -->
+<section>
+  <div class="sec-head"><span class="n">02</span><div><h2>What we actually hold today</h2></div></div>
+
+  <div class="grid g3">
+    <div class="card">
+      <h4>Estimator</h4>
+      <p>Hierarchical linear-Gaussian state-space model in tyre age, fitted across the whole grid.
+         Kalman filter + RTS smoother written in NumPy, six hyperparameters by L-BFGS-B on the exact likelihood.</p>
+      <p class="mono small">10,654 lines in src · 41 modules · 20,354 Python lines in all</p>
+    </div>
+    <div class="card">
+      <h4>Evidence</h4>
+      <p>Eighteen recorded experiments. Ground-truth recovery <span class="mono">0.0044</span> vs naive
+         <span class="mono">0.0966</span> over 25 sessions. Practice→race <span class="mono">0.0807</span> vs
+         <span class="mono">0.1471</span> over <b>42 events and 94 comparisons</b>, two seasons.</p>
+      <p class="mono small">18 result files · 203 sessions · 92,326 laps · every figure read, none typed</p>
+    </div>
+    <div class="card">
+      <h4>Product</h4>
+      <p>Nine views, 3D racing line, live lap-by-lap replay at 0.22 ms/lap, hybrid retrieval over our own
+         research corpus, MCP server with seven read-only tools.</p>
+      <p class="mono small">7,049 lines TypeScript · 24 endpoints · 326 tests</p>
+    </div>
+  </div>
+
+  <div class="note" style="margin-top:20px">
+    <h3>The number that used to worry us &mdash; and what it cost to fix</h3>
+    <p>
+      This section previously read: <i>“our entire real-data claim rests on 10 comparisons across 5 events,
+      all from 2024.”</i> That is now <b>94 comparisons across 42 events over 2023, 2024 and 2025</b>, drawn from a
+      corpus of <b>203 sessions and 92,326 laps</b> spanning four seasons.
+    </p>
+    <p>
+      The risk register below predicted that results might get worse at scale and said that would be
+      <i>“a feature, not a failure”</i>. It was right on both counts. Practice→race MAE went from
+      <span class="mono">0.0518</span> to <span class="mono">0.0807</span> s/lap: the five-event sample had
+      been flattering us. The naive baseline worsened in step (<span class="mono">0.1166</span> →
+      <span class="mono">0.1471</span>) and the <b>45% gap held</b>, which is the part of the claim that was
+      ever real. Interval coverage told the same story &mdash; 90% on ten comparisons was not good calibration,
+      it was too small a sample to detect that the true figure is 76%.
+    </p>
+  </div>
+</section>
+
+<!-- ── GAP REGISTER ──────────────────────────────────────────────────── -->
+<section>
+  <div class="sec-head"><span class="n">03</span><div><h2>Where a strong rival would beat us</h2></div></div>
+  <p>Ordered by how much damage each does under questioning.</p>
+
+  <div style="margin-top:14px">
+    <div class="gap">
+      <span class="idx">01</span>
+      <div>
+        <h4>Compound labels hide the physics <span class="tag t-done">tested — hypothesis not supported</span></h4>
+        <p>
+          Pirelli nominates three of the C1–C5 range for each Grand Prix, so <b>"MEDIUM" at Monza is C4 while
+          "MEDIUM" at Silverstone is C2 — different rubber</b>, and we pooled them as one compound. We predicted
+          that was a specification error costing us accuracy. <b>Experiment 08 says otherwise.</b> Across 58 stint
+          estimates from 23 races, pooling on the compound actually fitted transfers no better than pooling on
+          the relative label — leave-one-event-out MAE 0.0499 against 0.0469, Wilcoxon
+          <span class="mono">p&nbsp;=&nbsp;0.16</span>. The likely mechanism is that Pirelli nominates to
+          <em>equalise</em>: harder compounds for abrasive circuits, softer for gentle ones. The label already
+          carries circuit severity, by design. The compound table is built and tested regardless, because the
+          circuit-transfer model in M3 needs a physical compound to predict <em>for</em>.
+        </p>
+      </div>
+    </div>
+
+    <div class="gap">
+      <span class="idx">02</span>
+      <div>
+        <h4>The evidence base is thin <span class="tag t-done">closed &mdash; 203 sessions, 92,326 laps</span></h4>
+        <p>
+          <s>Four circuits, one season, ten real comparisons.</s> The corpus now spans 2022, 2023, 2024 and 2025;
+          the practice→race claim rests on 42 events and 94 comparisons across two seasons, and the
+          circuit-transfer work on 193 stint estimates at 26 venues. "Would this hold over a full season?"
+          now has an answer, and the answer is that the headline got worse and the margin held.
+        </p>
+      </div>
+    </div>
+
+    <div class="gap">
+      <span class="idx">03</span>
+      <div>
+        <h4>We report the practice→race bias but never explain it <span class="tag t-done">tested &mdash; mechanism still open, consequence closed</span></h4>
+        <p>
+          Nine candidate explanations were tested against the signed error with a Benjamini–Hochberg correction
+          across all nine (exp10). <b>One survives:</b> mean practice stint length (ρ +0.39, p 0.0017 against a
+          threshold of 0.0056). Pit stops per driver <b>misses by a hair</b> &mdash; p 0.0113 against 0.0111 &mdash;
+          and is reported as a near-miss rather than rounded into significance or quietly dropped. The
+          practice&rarr;race temperature gap, traffic and the model's own posterior sd all fail outright, and the
+          fuel-load hypothesis this card proposed is not among them.
+        </p>
+        <p>
+          The causal story those predictors implied &mdash; practice going deeper into the wear curve than a pitted race
+          &mdash; was then built and <b>refuted</b> (exp11). Practice runs are 4.4 laps <i>shallower</i> than race
+          stints, not deeper, and forcing a common tyre-age window made bias and error both worse. The mechanism
+          remains unidentified and is now stated as such rather than guessed at; the <i>consequence</i> is closed
+          by conformal calibration (exp12), which widens the interval until it covers what it claims.
+        </p>
+      </div>
+    </div>
+
+    <div class="gap">
+      <span class="idx">04</span>
+      <div>
+        <h4>The thermal and wear layer is unearned depth <span class="tag t-done">tested &mdash; exploratory, and labelled so</span></h4>
+        <p>
+          The demand was: <i>either wire them into the estimator and show they improve a number, or present
+          them as exploratory. Physics that changes no result is theatre.</i>
+        </p>
+        <p>
+          <b>Tested, and it does not improve a number.</b> exp09 now runs an ablation over feature families
+          through the identical leave-one-circuit-out procedure, so temperature can be judged on its own
+          rather than bundled with four geometric descriptors. Against the label-mean baseline over 193
+          stints at 26 venues:
+        </p>
+        <p class="mono small">
+          geometry only &nbsp;&minus;3.3% &nbsp;p&nbsp;0.22 &nbsp;&nbsp;no effect<br>
+          thermal only &nbsp;&nbsp;&minus;1.5% &nbsp;p&nbsp;0.001 &nbsp;HURTS<br>
+          everything &nbsp;&nbsp;&nbsp;&nbsp;&minus;5.5% &nbsp;p&nbsp;0.056 &nbsp;no effect
+        </p>
+        <p>
+          Track temperature, including the squared term that lets the ridge find the bidirectional
+          cold-graining/hot-abrasion curvature our own wear model predicts, is the <b>only</b> family that
+          still makes out-of-sample prediction significantly worse. The effect is small and highly reliable,
+          which is the worst combination to discover late: it would never have shown up as an obvious
+          regression.
+        </p>
+        <p>
+          <b>Geometry's verdict softened with the fourth season</b> &mdash; from significantly harmful
+          (&minus;7.5%, p&nbsp;0.010) to simply not helpful (&minus;3.3%, p&nbsp;0.22) across 193 stints at
+          26 venues. The conclusion for the product is unchanged, since neither family earns a place, but
+          "hurts" and "does nothing" are different claims and only the second is now supported.
+        </p>
+        <p>
+          So the layer is <b>presented as exploratory</b> and no headline number depends on it. That is the
+          second branch of the demand, taken because the first failed &mdash; not because it was easier.
+        </p>
+      </div>
+    </div>
+
+    <div class="gap">
+      <span class="idx">05</span>
+      <div>
+        <h4>No pre-event capability <span class="tag t-done">tested &mdash; hypothesis not supported</span></h4>
+        <p>
+          Built and tested by leave-one-<i>circuit</i>-out over 193 stint estimates at 26 venues (exp09), so the
+          model has never seen the venue in any form &mdash; exactly Thursday's situation. <b>Circuit geometry does
+          not beat the label mean</b> (&minus;3.3%, p 0.22), and adding compound identity on top is significantly
+          worse. On two seasons we reported geometry as significantly harmful (&minus;7.5%, p 0.010); four seasons
+          walked that back to "does nothing", and the weaker claim is the one that holds.
+        </p>
+        <p>
+          The mechanism is the one exp08 found: <b>Pirelli nominates to equalise</b> &mdash; harder rubber for
+          abrasive venues, softer for gentle ones &mdash; so the weekend label already carries circuit severity by
+          design, and geometry laid on top re-fits severity that is already spoken for. Pre-event prediction is
+          still the right product goal; circuit geometry is not the route to it.
+        </p>
+      </div>
+    </div>
+
+    <div class="gap">
+      <span class="idx">06</span>
+      <div>
+        <h4>Lap-time intervals are undercovered <span class="tag t-done">closed &mdash; 95.2% on 66,606 laps</span></h4>
+        <p>
+          The <b>practice→race</b> half of this is fixed. Coverage was 76% against a nominal 95% &mdash; worse than
+          the 90% previously reported, which was a ten-comparison sample failing to detect the problem. Split
+          conformal prediction (exp12) brings it to <b>95%</b> with a distribution-free finite-sample guarantee,
+          at the honest cost of a wider interval (±0.25 vs ±0.14 s/lap). It is shipped, not just measured:
+          <span class="mono">tyremind.models.conformal</span>, exposed by the API as
+          <span class="mono">race_projection</span>.
+        </p>
+        <p>
+          <b>The lap-time half is now closed too,</b> and it needed a different instrument. Split conformal
+          requires the calibration set to be exchangeable with the test point; lap times inside a race are
+          the opposite, because the car burns fuel, the track rubbers in and a safety car rearranges the
+          order. A fixed quantile calibrated on the first half of a race is calibrated for a race that no
+          longer exists.
+        </p>
+        <p>
+          Adaptive Conformal Inference (exp13) drops that assumption rather than hoping it holds, moving the
+          working miss-rate by <span class="mono">&gamma;(&alpha;&nbsp;&minus;&nbsp;err)</span> after every
+          lap. Measured over <b>66,606 held-out laps from twenty races</b>: Gaussian 75.9%, split conformal
+          89.3%, <b>adaptive conformal 95.2%</b> at a median width of 5.74&nbsp;s. It lifts LightGBM from 63%
+          to 95% at only 3.5&nbsp;s of width &mdash; its predictions were always fine, its sd was wrong.
+        </p>
+        <p>
+          Shipped rather than measured: <span class="mono">AdaptiveConformal</span> lives in the library and
+          the live monitor now carries an adaptive interval around its one-step-ahead forecast <i>together
+          with the coverage it has actually achieved</i>, so the claimed 95% is auditable during the session
+          rather than after it.
+        </p>
+        <p>
+          <b>And the shape has now been inspected too</b> (exp16), because a single coverage figure is a weak
+          check: a model can hit 95% exactly while being far too confident in the middle and far too timid in
+          the tails, and every number reported above would still look perfect.
+        </p>
+        <p>
+          The <b>PIT histogram</b> asks where the truth landed inside its own predicted distribution; under a
+          correct distribution those values are uniform. <b>Five of the six rungs come out U-shaped</b> &mdash;
+          too much mass in the tails &mdash; which is overconfidence seen as a shape rather than inferred from
+          one level.
+        </p>
+        <p>
+          <b>The sixth is ours, and it fails differently.</b> The state-space model is <b>leptokurtic</b>:
+          heavy at both ends <em>and</em> heavy in the middle, drained from the shoulders. The width is not
+          the problem, the assumed shape is &mdash; which is what a Gaussian summary of heavy-tailed residuals
+          looks like, and the model assumes heavy-tailed observation noise by construction. The model knows;
+          the interval it publishes does not carry the knowledge.
+        </p>
+        <div class="note">
+          <h3>Three attempts to diagnose one histogram</h3>
+          <p>
+            This rung's verdict flipped twice before the cause was understood, and each flip was written up as
+            a finding first. On four races it read hump-shaped, on ten U-shaped, and that was blamed on
+            <b>sample size</b>. Fixing the fuel counter restored the hump, and that was blamed on the
+            <b>data defect</b>. Adding 2025 flipped it again.
+          </p>
+          <p>
+            Neither explanation was the real one. Classifying on tails-versus-middle alone, this rung sits on
+            the boundary &mdash; <b>1.38&times;</b> the expected tail mass and <b>1.20&times;</b> the expected
+            middle &mdash; so whichever threshold fired first won, and which one fired depended on noise. The
+            fix is a third region: tails, shoulders, middle. A distribution heavy at both the ends and the
+            centre is leptokurtic, not mis-sized, and that verdict is stable.
+          </p>
+          <p>
+            The lesson is not "use more data". It is that an unstable answer is a statement about the
+            <em>instrument</em>, and two rounds of explaining the instability away cost more than examining
+            the instrument would have.
+          </p>
+        </div>
+        <p>
+          The <b>reliability curve</b> sweeps the nominal level from 50% to 99%. The Gaussian intervals sit a
+          mean <span class="mono">0.189</span> from the diagonal; adaptive conformal sits
+          <span class="mono">0.005</span> away &mdash; <b>37&times; closer, at every level and not only at
+          95%</b>. A method tuned to look right at one level and wrong everywhere else would fail here, and
+          this is the only test in the project that would have caught it. The calibrator is run per race and
+          started cold each time, so it never inherits a head start it would not have on a Sunday morning.
+        </p>
+      </div>
+    </div>
+
+    <div class="gap">
+      <span class="idx">07</span>
+      <div>
+        <h4>Rain is excluded, not handled <span class="tag t-risk">partly closed &mdash; detected, not modelled</span></h4>
+        <p>
+          Wet and intermediate compounds are still dropped at ingestion, and modelling wet degradation remains
+          out of scope: it is a different physical process and the priors do not describe it.
+        </p>
+        <p>
+          <b>What has changed is that we now notice.</b> Dropping the wet laps and fitting whatever remained
+          was quietly producing nonsense: Canada 2024 ran 846 of 1,272 laps on wet rubber, and the dry
+          remainder &mdash; which sits on a <i>drying</i> track, improving faster and for longer than the
+          saturating basis can represent &mdash; yielded <b>&minus;0.151&nbsp;s/lap</b>. A tyre getting faster
+          with age. Precisely the impossible number we criticise the naive method for, produced by us, in
+          silence.
+        </p>
+        <p>
+          <span class="mono">session_conditions.json</span> now records the wet-lap fraction of every session
+          and every experiment refuses sessions above 40%. The threshold is <b>calibrated, not chosen</b>:
+          Canada at 66.5% gave the impossible number, Britain at 24.4% gave +0.12 to +0.15 which is entirely
+          ordinary, so the boundary sits between them. Rainfall alone is deliberately not a criterion &mdash;
+          Spain and Austria both recorded rain with zero wet-tyre laps and unremarkable estimates, so rain
+          that never forces a wet tyre is carried as an advisory rather than an exclusion.
+        </p>
+        <p>
+          <b>Still open:</b> a wet Friday is exactly when a team most needs help reading a dry race, and we
+          still cannot offer one. Detecting that we should keep quiet is a floor, not a product.
+        </p>
+      </div>
+    </div>
+
+    <div class="gap">
+      <span class="idx">08</span>
+      <div>
+        <h4>No driver effect <span class="tag t-done">tested &mdash; reliable but not useful</span></h4>
+        <p>
+          Tested across <b>1,458 driver-races, 31 drivers, 77 races</b> (exp15), and the result is the most
+          interesting negative in the project because it splits into two halves that disagree.
+        </p>
+        <p>
+          <b>Reliable.</b> Split the corpus into random halves and the ranking of drivers reproduces:
+          split-half r = <b>+0.36</b>, with a 5th percentile of +0.09, so the correlation stays positive
+          across 500 random partitions. Some drivers genuinely are harder on tyres than others, measurably so.
+        </p>
+        <p>
+          <b>Not useful.</b> Knowing that does not help. Predicting a driver's deviation at a held-out race
+          from their own history scores 0.0251&nbsp;s/lap against <b>0.0248 for simply predicting the field
+          mean</b> &mdash; slightly worse, p&nbsp;=&nbsp;0.27. The reason is the ratio: the spread of driver
+          means is 0.0092&nbsp;s/lap while the race-to-race scatter around them is 0.0248. The trait is real
+          and about <b>half the size of the noise it must be read through</b>, so on any single race a
+          driver's history is worth less than the average.
+        </p>
+        <p>
+          <b>And it may not be the driver at all.</b> Driver and car are perfectly confounded. Teammates share
+          a car, so the within-team difference removes it &mdash; and that contrast is <em>not</em> stable
+          (5&ndash;95%: &minus;0.14 to +0.70). Even the reliable part cannot be attributed to the driver
+          rather than the machinery.
+        </p>
+        <p>
+          A per-driver term would add a parameter, a maintenance burden and a persuasive story, and would not
+          improve a forecast. <b>Not built, deliberately.</b>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── THE FIVE MOVES ────────────────────────────────────────────────── -->
+<section>
+  <div class="sec-head"><span class="n">04</span><div><h2>The five moves that decide this</h2></div></div>
+  <p>
+    Each states what it buys, which metric it moves, and — the part that matters —
+    <b>the result that would prove it wrong</b>. A plan without falsifiable tests is a wish list.
+  </p>
+
+  <div class="grid" style="gap:15px;margin-top:16px">
+
+    <div class="move">
+      <div class="top">
+        <h3>M1 · Season-scale evidence</h3>
+        <span class="tag t-new">Technical depth · Problem fit</span>
+      </div>
+      <p class="why">
+        Pull the full 2024 season — 24 events × FP1/FP2/FP3/Q/R — then 2023 and 2022. Re-run every experiment
+        at scale. Ten practice→race comparisons become several hundred; four circuits become twenty-four.
+        This is the foundation the other four moves stand on, and it is mostly download time rather than
+        research risk.
+      </p>
+      <div class="test"><b>Falsified if:</b> error grows or interval coverage falls when the sample grows.
+        That would mean our current numbers are a small-sample artefact — which we would then have to report.</div>
+    </div>
+
+    <div class="move">
+      <div class="top">
+        <h3>M2 · Model the compound that was actually fitted</h3>
+        <span class="tag t-done">Complete · negative result</span>
+      </div>
+      <p class="why">
+        <b>Done, and the hypothesis did not survive.</b> The per-event C1–C5 allocation table is built, cited
+        row by row and covered by tests. But identity pooling does not beat label pooling on held-out events
+        (0.0499 against 0.0469 s/lap, <span class="mono">p&nbsp;=&nbsp;0.16</span>), and the mechanism is
+        interesting on its own: Pirelli nominates to equalise, so the relative label is already a
+        circuit-adjusted compound index. The table stays because M3 needs a physical compound to predict for —
+        but the claim is now a published negative result, not a correction.
+      </p>
+      <div class="test"><b>Falsified if:</b> identity pooling does not beat label pooling on held-out events.
+        <b>Outcome:</b> exactly that. Reported rather than retried until it agreed with us.</div>
+    </div>
+
+    <div class="move">
+      <div class="top">
+        <h3>M3 · Predict a circuit we have never run</h3>
+        <span class="tag t-new">Applicability · Technical depth</span>
+      </div>
+      <p class="why">
+        Regress compound degradation on circuit characteristics we already compute from GPS — per-corner
+        frictional energy, lateral load spectrum, corner count, the share of the lap spent above a load
+        threshold — and predict the degradation rate for a compound at a circuit absent from training.
+        <b>This is the product.</b> It is the difference between explaining Friday and being useful on Tuesday.
+      </p>
+      <div class="test"><b>Falsified if:</b> leave-one-circuit-out prediction is no better than the global
+        compound mean. That is the baseline to beat, and it is not a soft one.</div>
+    </div>
+
+    <div class="move">
+      <div class="top">
+        <h3>M4 · Explain the practice→race bias, or characterise it properly</h3>
+        <span class="tag t-flight">Problem fit · Technical depth</span>
+      </div>
+      <p class="why">
+        Test the fuel-load hypothesis across sessions rather than within a stint, where we already proved it
+        cannot work (per-lap energy varies only 2.3% inside a stint). If a fuel-weighted degradation clock
+        removes the offset out-of-sample, the brief's central validation question goes from "honestly reported
+        caveat" to "solved". If it does not, we will know why, on a season of data instead of five events.
+      </p>
+      <div class="test"><b>Falsified if:</b> the bias survives the correction on held-out events, or flips sign
+        across the season — which would mean it is not a fuel effect at all.</div>
+    </div>
+
+    <div class="move">
+      <div class="top">
+        <h3>M5 · Calibration rigour</h3>
+        <span class="tag t-flight">Technical depth</span>
+      </div>
+      <p class="why">
+        Replace coverage counting with proper probabilistic diagnostics: PIT histograms, reliability diagrams,
+        sharpness against calibration. Diagnose the 73% lap-time undercoverage — most likely a heavy-tailed
+        observation model fitted with Gaussian assumptions, which is testable. A model that reports intervals
+        must be able to defend them.
+      </p>
+      <div class="test"><b>Falsified if:</b> the PIT histogram is uniform and the undercoverage turns out to be
+        a scoring artefact rather than a model defect. That is a fine outcome — it just needs proving.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PHASES ────────────────────────────────────────────────────────── -->
+<section>
+  <div class="sec-head"><span class="n">05</span><div><h2>Sequence</h2></div></div>
+  <p>
+    Ordered by dependency, not preference. Nothing in Phase 2 can start before the data in Phase 0 exists.
+    The durations assume focused work and will move; the <em>order</em> should not.
+  </p>
+
+  <div class="phase">
+    <div class="bar"><span class="id">PHASE 0</span><h3>Foundation</h3><span class="when">~1 day, mostly unattended</span></div>
+    <ul class="dash">
+      <li><b>Season scrape.</b> All 24 events of 2024, every session type, cached as Parquet. Then 2023 and 2022. Runs unattended; start it first so it downloads while other work proceeds.</li>
+      <li><b>Compound allocation table.</b> Per-event C1–C5 nomination, committed as data with its source cited, plus a test that every event in the cache resolves.</li>
+      <li><b>Quality audit at scale.</b> Our exclusion rules were tuned on four circuits. Re-check the discard rate across twenty-four — a rule that drops 68% at Monza may drop 95% at Monaco.</li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <div class="bar"><span class="id">PHASE 1</span><h3>Re-establish every claim at scale</h3><span class="when">~2 days</span></div>
+    <ul class="dash">
+      <li><b>Re-run experiments 01–07</b> on the full corpus. Publish the deltas honestly, including any that get worse.</li>
+      <li><b>Compound-identity re-specification (M2)</b> and the head-to-head against label pooling.</li>
+      <li><b>Full C-MAPSS test set.</b> Batch the fit per engine so all 100 engines score, removing the "indicative, not like-for-like" caveat.</li>
+      <li><b>Fix the practice emphasis.</b> The brief is about practice sessions; make FP1/FP2/FP3 first-class and lead the demo with them.</li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <div class="bar"><span class="id">PHASE 2</span><h3>The two new capabilities</h3><span class="when">~3 days · highest risk, highest return</span></div>
+    <ul class="dash">
+      <li><b>Circuit transfer model (M3)</b> with leave-one-circuit-out validation, and a product surface that answers "what will C3 do here on Sunday" before anyone has run.</li>
+      <li><b>Practice→race bias resolution (M4)</b>, tested out-of-sample across the season.</li>
+      <li><b>Driver random effect.</b> Does attributing part of the stint deviation to the driver improve recovery? Cheap to add, and either answer is publishable.</li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <div class="bar"><span class="id">PHASE 3</span><h3>Rigour and honesty</h3><span class="when">~2 days</span></div>
+    <ul class="dash">
+      <li><b>Calibration suite (M5)</b> — PIT, reliability, sharpness — surfaced in the product, not just the appendix.</li>
+      <li><b>Wet regime.</b> At minimum a detector that says "this model does not apply and here is why". Better: a wet degradation model, which nobody expects and everybody will notice.</li>
+      <li><b>Thermal layer decision.</b> Wire it into the estimator and prove it improves a number, or relabel it exploratory. No middle position.</li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <div class="bar"><span class="id">PHASE 4</span><h3>Product and story</h3><span class="when">~2 days</span></div>
+    <ul class="dash">
+      <li><b>Practice→race workflow view</b> — the literal deliverable of the brief, as a first-class screen rather than a section inside "Does it work".</li>
+      <li><b>Cost of a wrong call</b>, quantified against real 2024 race outcomes rather than illustrative arithmetic.</li>
+      <li><b>Re-cut everything</b> — dossier, deck, video, README — against the new numbers. The self-driving demo regenerates from one command, so this is cheaper than it sounds.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ── IF TIME IS SHORT ──────────────────────────────────────────────── -->
+<section>
+  <div class="sec-head"><span class="n">06</span><div><h2>If there is less time than the plan assumes</h2></div></div>
+  <p>The order that maximises judged score per hour, if we have to stop early at any point.</p>
+
+  <div class="scroller">
+    <table>
+      <thead><tr><th style="width:6%">#</th><th style="width:30%">Do this</th><th class="n" style="width:14%">Metric weight</th><th>Why it is first</th></tr></thead>
+      <tbody>
+        <tr><td class="n">1</td><td><b>Season scrape</b></td><td class="n">30 + 25</td><td>Unattended, and every other claim gets stronger for free. Start it before anything else.</td></tr>
+        <tr><td class="n">2</td><td><b>Compound identity</b></td><td class="n">30</td><td>Fixes a genuine specification error. Defensible as a contribution on its own.</td></tr>
+        <tr><td class="n">3</td><td><b>Practice-first reframing</b></td><td class="n">25</td><td>Cheapest large gain in the whole plan. We already do what the brief asks; we present it as an appendix.</td></tr>
+        <tr><td class="n">4</td><td><b>Circuit transfer</b></td><td class="n">15 + 30</td><td>The business case. Risky, so it needs a real time box — but nothing else differentiates us this much.</td></tr>
+        <tr><td class="n">5</td><td><b>Calibration suite</b></td><td class="n">30</td><td>Turns our weakest technical answer into a strength, and it is bounded work.</td></tr>
+        <tr><td class="n">6</td><td><b>Re-cut the story</b></td><td class="n">10</td><td>Last, because it depends on final numbers, and our presentation is already strong.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── RISKS ─────────────────────────────────────────────────────────── -->
+<section>
+  <div class="sec-head"><span class="n">07</span><div><h2>What could go wrong, and what we do about it</h2></div></div>
+
+  <div class="grid g2">
+    <div class="card lift">
+      <h4>The season scrape is slow or rate-limited</h4>
+      <p>FastF1 caches per session and telemetry is heavy. <b>Mitigation:</b> start it first, run it unattended,
+      and prioritise race + FP2 for all 24 events before adding FP1/FP3 and prior seasons. Partial coverage is
+      still a large improvement on four circuits.</p>
+    </div>
+    <div class="card lift">
+      <h4>Results get worse at scale</h4>
+      <p>Entirely possible — four circuits may have flattered us. <b>Mitigation:</b> this is a feature, not a
+      failure. Report the honest revised number and the reason. A model whose error is stable across 24 circuits
+      at a slightly worse level is more credible than one that looks perfect on four.</p>
+    </div>
+    <div class="card lift">
+      <h4>Circuit transfer does not beat the compound mean</h4>
+      <p>The highest-risk item. <b>Mitigation:</b> time-box it, and publish the negative result with the mechanism
+      if it fails — as we did with the energy clock. A characterised failure is worth more than a silent retreat,
+      and we already have a track record of doing exactly that.</p>
+    </div>
+    <div class="card lift">
+      <h4>Scope creep eats the presentation</h4>
+      <p>The plan is deliberately larger than the time. <b>Mitigation:</b> the priority ladder in section 06 is
+      the contract. Everything below the line we reach is documented as future work with its falsifiable test
+      attached, which reads as rigour rather than omission.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── DONE ──────────────────────────────────────────────────────────── -->
+<section>
+  <div class="sec-head"><span class="n">08</span><div><h2>What "finished" looks like</h2></div></div>
+  <p>Written now, so we are not deciding it under time pressure later.</p>
+
+  <div class="scroller">
+    <table>
+      <thead><tr><th style="width:26%">Metric</th><th>The sentence we want to be able to say, and defend</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>Technical depth</b><br><span class="mono small">30%</span></td>
+          <td>"We derived why this problem is unidentifiable, resolved what can be resolved, corrected a compound
+              specification error nobody else models, and validated on a full season with proper probabilistic
+              calibration — publishing the results that went against us."</td>
+        </tr>
+        <tr>
+          <td><b>Problem fit</b><br><span class="mono small">25%</span></td>
+          <td>"From practice alone we produce a clean degradation curve per compound, and we validate it against
+              race-day pace across a full season — which is precisely what the brief asked for, as the first
+              screen of the product."</td>
+        </tr>
+        <tr>
+          <td><b>Prototype</b><br><span class="mono small">20%</span></td>
+          <td>"One command, no network, no key. It runs live at 0.22 ms a lap and an agent can call it. Here is a
+              clean clone doing it."</td>
+        </tr>
+        <tr>
+          <td><b>Applicability</b><br><span class="mono small">15%</span></td>
+          <td>"We can tell a team what the tyres will do at a circuit before they arrive, and we can show the
+              leave-one-circuit-out error on that claim."</td>
+        </tr>
+        <tr>
+          <td><b>Presentation</b><br><span class="mono small">10%</span></td>
+          <td>"Every number on every slide is read from a committed file. Regenerate the experiments and the
+              claims regenerate with them — including the ones that do not flatter us."</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note" style="margin-top:24px">
+    <h3>The one-sentence version, for the room</h3>
+    <p style="font-size:16px;line-height:1.5">
+      Everyone in this final will show a model that predicts tyre degradation.
+      <b>We are the only ones who can show whether the reason our model gives is the right one</b> —
+      and, by the end of this plan, the only ones who can predict a circuit we have never run.
+    </p>
+  </div>
+</section>
+
+<footer>
+  TyreMind · TrackShift Innovation Challenge, Problem 3 · Audit taken at commit <span class="mono">aa0cc57</span> ·
+  Figures verified against <span class="mono">experiments/results/*.json</span>, not recalled.
+</footer>
+
+</div>

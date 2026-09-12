@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TyreMind — auto demo</title>
+<style>
+/* ---------------------------------------------------------------------------
+   Self-driving demo.
+
+   Loads the real application in a same-origin frame and drives it on a fixed
+   timeline while captioning what it is doing. Nothing here is a mock-up: every
+   number on screen is computed by the running estimator.
+
+   Total runtime is exactly 4:55 at the default speed. The timeline is authored
+   in "natural" seconds and divided by ?speed, so ?speed=1 gives the leisurely
+   6:23 version for anyone who would rather speed it up in an editor.
+--------------------------------------------------------------------------- */
+:root {
+  --ground:#0e1418; --ink:#e4eaed; --ink-2:#8fa3ae; --ink-3:#5d6f7a;
+  --tyre:#ff8a5b; --line:#26343d;
+  --sans:'Archivo',ui-sans-serif,system-ui,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--ground);color:var(--ink);font-family:var(--sans);overflow:hidden}
+
+/* Explicit width AND height. An iframe carries an intrinsic height attribute
+   of 150px, and the `inset` shorthand does not override it -- the app then
+   renders into a 150px sliver and collapses its own responsive layout. */
+#app{position:fixed;top:0;left:0;display:block;border:0;background:var(--ground);
+     width:100vw;height:calc(100vh - 132px)}
+
+/* Pointer ------------------------------------------------------------------ */
+#ring{position:fixed;width:74px;height:74px;margin:-37px 0 0 -37px;border-radius:50%;
+      border:2px solid var(--tyre);opacity:0;pointer-events:none;z-index:12;
+      transition:left .75s cubic-bezier(.22,.61,.36,1),top .75s cubic-bezier(.22,.61,.36,1),opacity .3s}
+#ring::after{content:'';position:absolute;inset:-9px;border-radius:50%;
+      border:1px solid var(--tyre);opacity:.35;animation:pulse 1.9s ease-out infinite}
+@keyframes pulse{0%{transform:scale(.82);opacity:.5}100%{transform:scale(1.25);opacity:0}}
+#cursor{position:fixed;width:26px;height:26px;pointer-events:none;z-index:13;opacity:0;
+     transition:left .75s cubic-bezier(.22,.61,.36,1),top .75s cubic-bezier(.22,.61,.36,1),opacity .3s;
+     filter:drop-shadow(0 2px 4px rgba(0,0,0,.75))}
+
+/* Caption dock ------------------------------------------------------------- */
+#dock{position:fixed;left:0;right:0;bottom:0;height:132px;background:#0a0f12;
+      border-top:1px solid var(--line);padding:16px 34px 0;display:flex;flex-direction:column}
+#action{font-family:var(--mono);font-size:12.5px;letter-spacing:.13em;text-transform:uppercase;
+        color:var(--tyre);height:16px;white-space:nowrap;overflow:hidden}
+#caption{font-size:29px;line-height:1.24;font-weight:600;letter-spacing:-.011em;
+         margin-top:9px;max-width:1600px;text-wrap:balance}
+#caption b{color:var(--tyre)}
+#caption .cool{color:#4fa8c5}
+
+#meter{position:fixed;left:0;right:0;bottom:0;height:4px;background:#162026}
+#bar{height:100%;width:0;background:var(--tyre);transition:width .25s linear}
+#clock{position:fixed;right:30px;bottom:100px;font-family:var(--mono);font-size:12.5px;color:var(--ink-3)}
+
+/* Start gate --------------------------------------------------------------- */
+#gate{position:fixed;inset:0;background:var(--ground);display:flex;flex-direction:column;
+      align-items:center;justify-content:center;gap:22px;z-index:20;text-align:center}
+#gate h1{font-size:58px;font-weight:700;letter-spacing:.02em}
+#gate h1 span{color:var(--tyre)}
+#gate p{color:var(--ink-2);font-size:16px;max-width:640px;line-height:1.55}
+#gate kbd{font-family:var(--mono);background:#1d272e;border:1px solid var(--line);
+          border-radius:3px;padding:2px 8px;font-size:14px;color:var(--ink)}
+#count{font-family:var(--mono);font-size:150px;line-height:1;color:var(--tyre);height:150px}
+#ready{font-family:var(--mono);font-size:14px;color:var(--ink-3);height:20px}
+#ready.go{color:#4bbf8a}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<iframe id="app" src="/" title="TyreMind"></iframe>
+
+<div id="ring"></div>
+<svg id="cursor" viewBox="0 0 24 24" fill="none">
+  <path d="M4 2 L4 19 L8.6 14.8 L11.4 21.4 L14.4 20.1 L11.7 13.7 L18 13.4 Z"
+        fill="#ffffff" stroke="#0a0f12" stroke-width="1.4" stroke-linejoin="round"/>
+</svg>
+
+<div id="dock">
+  <div id="action"></div>
+  <div id="caption"></div>
+</div>
+<div id="clock">0:00 / 4:55</div>
+<div id="meter"><div id="bar"></div></div>
+
+<div id="gate">
+  <h1>TYRE<span>MIND</span></h1>
+  <p>Self-driving demo. Runs for exactly <strong>4:55</strong> and captions itself.<br>
+     Start your screen recorder, then press <kbd>Space</kbd>.</p>
+  <div id="ready">Preparing the session…</div>
+  <div id="count"></div>
+  <p style="font-size:13.5px;color:var(--ink-3)">
+     <kbd>Space</kbd> start / pause &nbsp;·&nbsp; <kbd>R</kbd> restart &nbsp;·&nbsp; <kbd>F11</kbd> fullscreen first
+  </p>
+</div>
+
+<script>
+const SPEED = parseFloat(new URLSearchParams(location.search).get('speed') || '1.3');
+const frame  = document.getElementById('app');
+const elAct  = document.getElementById('action');
+const elCap  = document.getElementById('caption');
+const elBar  = document.getElementById('bar');
+const elClock= document.getElementById('clock');
+const gate   = document.getElementById('gate');
+const count  = document.getElementById('count');
+const ring   = document.getElementById('ring');
+const cursor = document.getElementById('cursor');
+
+const doc = () => frame.contentDocument;
+const win = () => frame.contentWindow;
+
+/* Drive helpers. Each is defensive: a missing control skips rather than
+   derailing the timeline, because one late-rendering chart should not cost
+   the remaining four minutes. */
+function go(hash) { try { win().location.hash = hash; } catch (e) {} }
+
+/* Switching view and scrolling in the same breath does not work: the app has
+   not laid out the new view yet, so scrollHeight is still small and the target
+   clamps to nearly zero. The caption then describes a screen the viewer is not
+   looking at. Give the render a beat first. */
+function goScroll(hash, px, delay = 1500) {
+  go(hash);
+  setTimeout(() => scrollTo(px), delay);
+}
+
+function scrollTo(px) {
+  try {
+    const m = doc().querySelector('main');
+    if (m) m.scrollTo({ top: px, behavior: 'smooth' });
+  } catch (e) {}
+}
+
+function findButton(text) {
+  try {
+    return [...doc().querySelectorAll('button')]
+      .find(x => x.textContent.trim().toLowerCase().startsWith(text.toLowerCase())) || null;
+  } catch (e) { return null; }
+}
+
+/* Any small element whose text contains the needle. The pointer aims at the very
+   number a caption is quoting, so the two cannot drift apart. */
+function findText(needle, tags = 'div,span,td,h2,h3,h4,button,p') {
+  try {
+    const hit = [...doc().querySelectorAll(tags)]
+      .filter(e => e.children.length <= 2 && e.textContent.trim().includes(needle));
+    return hit.length ? hit[hit.length - 1] : null;
+  } catch (e) { return null; }
+}
+
+/* Move the pointer onto a target inside the frame. The frame sits at 0,0 so its
+   client coordinates map straight through. */
+let pointTimer = null;
+function pointAt(finder, delay = 420) {
+  clearTimeout(pointTimer);
+  pointTimer = setTimeout(() => {
+    let el = null;
+    try { el = typeof finder === 'function' ? finder() : finder; } catch (e) {}
+    if (!el) { hidePointer(); return; }
+    let r; try { r = el.getBoundingClientRect(); } catch (e) { return; }
+    if (!r || (r.width === 0 && r.height === 0)) { hidePointer(); return; }
+    const x = Math.min(Math.max(r.left + r.width / 2, 40), innerWidth - 40);
+    const y = Math.min(Math.max(r.top + r.height / 2, 40), frame.clientHeight - 40);
+    ring.style.left = x + 'px'; ring.style.top = y + 'px'; ring.style.opacity = 1;
+    cursor.style.left = (x + 16) + 'px'; cursor.style.top = (y + 12) + 'px'; cursor.style.opacity = 1;
+  }, delay);
+}
+function hidePointer() { ring.style.opacity = 0; cursor.style.opacity = 0; }
+
+function clickText(text) { const b = findButton(text); if (b) b.click(); return b; }
+
+/* Timeline. `at` is in natural seconds; SPEED compresses it. --------------- */
+const SCRIPT = [
+  { at:0,   act:'Start here \u00b7 Monza 2024 \u00b7 race',
+    cap:'This is a real Formula 1 race. Monza, 2024. <b>921 laps</b>.',
+    do:()=>{ go('#/overview'); scrollTo(0); hidePointer(); } },
+
+  { at:8,   act:'The standard method',
+    cap:'And this number says the tyres got <b>faster</b> the longer they ran.',
+    do:()=>pointAt(()=>findText('-0.004')) },
+
+  { at:18,  act:'Both compounds',
+    cap:'Minus <b>0.004</b> seconds a lap on the hard. Minus <b>0.034</b> on the medium.',
+    do:()=>pointAt(()=>findText('-0.034')) },
+
+  { at:28,  act:'Not my model \u2014 the standard one',
+    cap:'That is not my model. That is a line fitted through lap time against tyre age.',
+    do:()=>pointAt(()=>findText('Fit a straight line')) },
+
+  { at:38,  act:'What TyreMind reports instead',
+    cap:'What every team and every public analysis does. And here it says tyres improve with use.',
+    do:()=>pointAt(()=>findText('0.113')) },
+
+  { at:48,  act:'Why is the car slow \u00b7 peel the causes',
+    cap:'Here is why. One stint \u2014 Ricciardo, <b>41 laps</b> on the hard.',
+    do:()=>{ go('#/explain'); scrollTo(0); hidePointer(); } },
+
+  { at:57,  act:'Stage 1 \u2014 lap times as driven',
+    cap:'The grey line is what the stopwatch saw. Watch as I take the causes away one at a time.',
+    do:()=>pointAt(()=>clickText('Lap times as driven'), 250) },
+
+  { at:69,  act:'Stage 2 \u2014 fuel burn-off removed',
+    cap:'Fuel burn-off. The car sheds <span class="cool">2.7 kg a lap</span> and gets about eight hundredths quicker.',
+    do:()=>pointAt(()=>clickText('Fuel burn-off removed'), 250) },
+
+  { at:81,  act:'Stage 3 \u2014 track evolution removed',
+    cap:'Track evolution \u2014 rubber goes down, and the whole circuit speeds up.',
+    do:()=>pointAt(()=>clickText('Track evolution removed'), 250) },
+
+  { at:92,  act:'Stage 4 \u2014 traffic removed',
+    cap:'Traffic. And what is left standing is the tyre.',
+    do:()=>pointAt(()=>clickText('Traffic removed'), 250) },
+
+  { at:103, act:'The reveal',
+    cap:'It lost <b>2.15 seconds</b>. The car was <b>1.78 seconds faster</b> at the end of that stint.',
+    do:()=>pointAt(()=>findText('2.15')) },
+
+  { at:114, act:'Lap-by-lap decomposition',
+    cap:'The fuel gain was bigger than the tyre loss. Read lap times alone and you miss a dying tyre.',
+    do:()=>{ scrollTo(780); hidePointer(); } },
+
+  { at:126, act:'Orange is tyre, blue is fuel',
+    cap:'Every lap, split into causes. Orange is the tyre going away; blue is fuel handing time back.',
+    do:()=>pointAt(()=>findText('Fuel burn-off')) },
+
+  { at:138, act:'Does it work \u00b7 the hard part',
+    cap:'So the confounders are not noise around the signal. They are <b>bigger</b> than the signal.',
+    do:()=>{ go('#/evidence'); scrollTo(0); hidePointer(); } },
+
+  { at:148, act:'Three causes, one direction',
+    cap:'Every published model here is graded on how well it predicts lap times.',
+    do:()=>pointAt(()=>findText('Fuel vs degradation')) },
+
+  { at:158, act:'The identification problem',
+    cap:'That metric cannot see this failure. <b>Many wrong answers add up to the same right total.</b>',
+    do:()=>pointAt(()=>findText('Track evolution')) },
+
+  { at:169, act:'Why nobody checks',
+    cap:'A model can predict lap times almost perfectly while blaming entirely the wrong cause.',
+    do:()=>pointAt(()=>findText('Tyre age')) },
+
+  { at:179, act:'No ground truth exists',
+    cap:'And nobody checks, because public Formula 1 data contains no measured tyre wear.',
+    do:()=>{ scrollTo(620); hidePointer(); } },
+
+  { at:189, act:'Ground-truth recovery \u00b7 25 sessions',
+    cap:'So I built one. Synthetic sessions where <b>I</b> set the degradation rate, then bury it.',
+    do:()=>{ scrollTo(900); } },
+
+  { at:200, act:'The headline result',
+    cap:'The standard method misses by <b>0.0966</b> seconds a lap. Mine misses by <b>0.0044</b>.',
+    do:()=>pointAt(()=>findText('0.0044')) },
+
+  { at:211, act:'95.5% error reduction',
+    cap:'A <b>95.5%</b> reduction \u2014 and the true value falls inside my interval every single time.',
+    do:()=>pointAt(()=>findText('95.5')) },
+
+  { at:222, act:'Practice \u2192 race \u00b7 42 events, 2024+2023',
+    cap:'Then the question the brief asks: estimate from Friday, score it against Sunday.',
+    do:()=>{ scrollTo(1500); hidePointer(); } },
+
+  { at:233, act:'Out-of-distribution transfer',
+    cap:'No race data reaches the practice fit. <b>0.0807</b> against the naive <b>0.1471</b> \u2014 94 comparisons.',
+    do:()=>pointAt(()=>findText('TyreMind error')) },
+
+  { at:244, act:'The bias we report, not remove',
+    cap:'And a systematic <b>+0.027</b> bias, in 42 comparisons of 62. Reported, not tuned away.',
+    do:()=>pointAt(()=>findText('Systematic bias')) },
+
+  { at:255, act:'Live monitor \u00b7 streaming replay',
+    cap:'This is the part that matters on a pit wall.',
+    do:()=>{ go('#/live'); scrollTo(0); hidePointer(); } },
+
+  { at:262, act:'Starting the replay',
+    cap:'The same model runs forward a lap at a time, with no access to anything that happens later.',
+    do:()=>pointAt(()=>clickText('Start live replay'), 250) },
+
+  { at:274, act:'Per-car degradation, updating',
+    cap:'That is the real session replaying. Per-car degradation, updating every lap.',
+    do:()=>pointAt(()=>findText('Tyre state, as known right now')) },
+
+  { at:286, act:'Confidence collapsing',
+    cap:'Watch the uncertainty collapse \u2014 <b>\u00b10.200</b> down to <b>\u00b10.025</b> over about 23 laps.',
+    do:()=>pointAt(()=>findText('Confidence, as laps arrive')) },
+
+  { at:298, act:'Honest about what it knows',
+    cap:'The model starts by telling you it does not know, and is honest about when that changes.',
+    do:()=>hidePointer() },
+
+  { at:308, act:'Where it wears \u00b7 3D racing line',
+    cap:'<b>0.22 milliseconds</b> per lap. Flat in session length \u2014 lap 80 costs what lap 1 costs.',
+    do:()=>{ go('#/circuit'); scrollTo(0); hidePointer(); } },
+
+  { at:319, act:'Physics recovered from GPS',
+    cap:'The real racing line, coloured by how hard the tyres are working at each point.',
+    do:()=>pointAt(()=>doc().querySelector('canvas')) },
+
+  { at:330, act:'A check it cannot fake',
+    cap:'From GPS alone it recovers which <b>direction</b> a circuit runs \u2014 on <b>7 of 8</b> tracks.',
+    do:()=>hidePointer() },
+
+  { at:340, act:'Beyond racing \u00b7 NASA C-MAPSS',
+    cap:'And this is not really a tyre problem. Something wears out, and you cannot see it directly.',
+    do:()=>{ goScroll('#/beyond', 320); hidePointer(); } },
+
+  { at:351, act:'Cross-domain validation',
+    cap:'The identical estimator predicts jet engine remaining life, with no tyre-specific code.',
+    do:()=>pointAt(()=>findText('26.5')) },
+
+  { at:361, act:'Does it work \u00b7 the model ladder',
+    cap:'Last thing, and it is the one I would want to hear if I were judging.',
+    do:()=>{ goScroll('#/evidence', 2350); hidePointer(); } },
+
+  { at:369, act:'Where I lose',
+    cap:'Two models beat me. <b>Pooled regression and LightGBM predict lap times better than my model does.</b>',
+    do:()=>pointAt(()=>findText('CRPS')) },
+
+  { at:377, act:'Why it does not matter',
+    cap:'But neither has a parameter meaning \u201cdegradation rate\u201d \u2014 there is nothing in them to score.',
+    do:()=>pointAt(()=>findText('Rate MAE')) },
+
+  { at:383.5, act:'TyreMind \u00b7 causal tyre intelligence',
+    cap:'The hard part was never building a model. <b>It was building a test that could fail.</b>',
+    do:()=>hidePointer(), end:true },
+];
+
+const TOTAL = SCRIPT[SCRIPT.length - 1].at / SPEED;
+let t0 = null, timer = null, paused = false, elapsed = 0, fired = new Set();
+
+const mmss = s => `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+elClock.textContent = `0:00 / ${mmss(TOTAL)}`;
+
+/* setInterval against a wall-clock timestamp, not requestAnimationFrame.
+   rAF is paused entirely while the tab is unfocused, so the timeline froze the
+   moment you alt-tabbed to start a screen recorder. An interval keeps firing
+   (throttled in the background, which is harmless) and elapsed time is read
+   from performance.now(), so the schedule stays accurate either way. */
+function tick() {
+  if (paused) return;
+  const now = performance.now();
+  if (t0 === null) t0 = now;
+  elapsed = (now - t0) / 1000;
+
+  for (let i = 0; i < SCRIPT.length; i++) {
+    const step = SCRIPT[i];
+    if (elapsed >= step.at / SPEED && !fired.has(i)) {
+      fired.add(i);
+      elAct.textContent = step.act;
+      elCap.innerHTML = step.cap;
+      if (step.do) step.do();
+      if (step.end) {
+        elBar.style.width = '100%';
+        elClock.textContent = `${mmss(TOTAL)} / ${mmss(TOTAL)}`;
+        document.body.dataset.done = '1';
+        clearInterval(timer);
+        return;
+      }
+    }
+  }
+  elBar.style.width = Math.min(100, (elapsed / TOTAL) * 100) + '%';
+  elClock.textContent = `${mmss(elapsed)} / ${mmss(TOTAL)}`;
+}
+
+/* The framed app takes about twelve seconds to boot, fetch and render. Starting
+   the timeline before that produced a first shot of a half-empty page, so the
+   gate stays shut until the app's own navigation and panels exist. */
+let appReady = false;
+const elReady = document.getElementById('ready');
+
+function frameReady() {
+  try {
+    const d0 = doc();
+    return !!d0 && d0.querySelectorAll('nav button, nav a').length >= 15
+               && !!d0.querySelector('main');
+  } catch (e) { return false; }
+}
+
+const readyPoll = setInterval(() => {
+  if (!frameReady()) return;
+  clearInterval(readyPoll);
+  // Pin the opening shot: Monza, the race, scrolled to the top.
+  try {
+    const b = [...doc().querySelectorAll('nav button, nav a')]
+      .find(x => /monza/i.test(x.textContent) && /race/i.test(x.textContent));
+    if (b) b.click();
+  } catch (e) {}
+  go('#/overview');
+  setTimeout(() => {
+    scrollTo(0);
+    appReady = true;
+    document.body.dataset.ready = '1';
+    elReady.textContent = 'Ready — press Space';
+    elReady.classList.add('go');
+  }, 2500);
+}, 400);
+
+function start() {
+  gate.classList.add('hidden');
+  t0 = null; fired.clear(); paused = false;
+  clearInterval(timer);
+  timer = setInterval(tick, 100);
+  tick();
+}
+
+window.startDemo = start;   // lets a recorder trigger it without a keypress
+
+function countdownThenStart() {
+  let n = 3;
+  count.textContent = n;
+  const iv = setInterval(() => {
+    n -= 1;
+    if (n === 0) { clearInterval(iv); count.textContent = ''; start(); }
+    else count.textContent = n;
+  }, 1000);
+}
+
+addEventListener('keydown', e => {
+  if (e.code === 'Space') {
+    e.preventDefault();
+    if (!gate.classList.contains('hidden')) { if (appReady) countdownThenStart(); }
+    else { paused = !paused; if (!paused) t0 = performance.now() - elapsed * 1000; }
+  }
+  if (e.key.toLowerCase() === 'r') location.reload();
+});
+</script>
+</body>
+</html>

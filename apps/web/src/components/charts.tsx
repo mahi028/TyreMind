@@ -1,0 +1,1118 @@
+/**
+ * The chart set.
+ *
+ * Every chart here answers a question the surrounding numbers cannot. None of
+ * them is decoration, and where one would only restate a table it is not built.
+ *
+ * All of them share `useAxis`, which reads concrete colours from the theme —
+ * ECharts draws to canvas and cannot resolve CSS custom properties, so a chart
+ * that hard-codes hex values is invisible in the other theme.
+ */
+
+import { useMemo } from 'react'
+import ReactECharts from 'echarts-for-react'
+import { useCompoundColour, useThemeColours } from '../lib/theme'
+
+/** Axis and tooltip styling shared by every chart, so they read as one system. */
+function useAxis() {
+  const c = useThemeColours()
+
+  return useMemo(() => {
+    const axisLabel = { color: c.inkFaint, fontSize: 10 }
+    const nameTextStyle = { color: c.inkFaint, fontSize: 10 }
+    return {
+      colours: c,
+      base: {
+        // No entry animation. These are analytical charts, not a title
+        // sequence, and every one of them is re-initialised with `notMerge`
+        // when the session or theme changes -- an interrupted entry animation
+        // leaves the line's expanding clip path frozen part-way, which renders
+        // as a curve that silently stops early. That is indistinguishable from
+        // a data bug, so the animation is not worth its risk here.
+        animation: false,
+        tooltip: {
+          backgroundColor: c.surface,
+          borderColor: c.line,
+          textStyle: { color: c.ink, fontSize: 11.5 },
+        },
+        legend: {
+          top: 0,
+          textStyle: { color: c.inkDim, fontSize: 10.5 },
+          itemWidth: 14,
+          itemHeight: 2,
+        },
+      },
+      xAxis: (name: string) => ({
+        name,
+        nameLocation: 'middle' as const,
+        nameGap: 22,
+        nameTextStyle,
+        axisLabel,
+        axisLine: { lineStyle: { color: c.line } },
+        splitLine: { show: false },
+      }),
+      yAxis: (name: string) => ({
+        name,
+        nameTextStyle,
+        axisLabel,
+        axisLine: { show: false },
+        splitLine: { lineStyle: { color: c.raised } },
+      }),
+    }
+  }, [c])
+}
+
+// --------------------------------------------------------------------------
+// Overview
+// --------------------------------------------------------------------------
+
+export interface CompoundCurve {
+  compound: string
+  rate: number
+  sd: number
+  maxAge: number
+}
+
+/**
+ * The fitted degradation curve per compound, with its uncertainty fanning out.
+ *
+ * Plots the model's own estimate -- rate x age, with the band from the rate's
+ * posterior -- rather than an average of per-car latent states at each age.
+ *
+ * That distinction matters and the first version got it wrong. Cars start runs
+ * at different tyre ages, because a scrubbed set arrives with laps already on
+ * it. So at "age 5" one car is five laps into a stint and another has just
+ * fitted a set, and averaging their accumulated loss produces a number that
+ * describes neither. Requiring three observations per age then truncated the
+ * curve wherever the field thinned out, which was almost immediately.
+ *
+ * The band widening with age is the honest part: uncertainty in a *rate*
+ * compounds the further you extrapolate it.
+ */
+export function DegradationCurves({ curves }: { curves: CompoundCurve[] }) {
+  const { base, xAxis, yAxis } = useAxis()
+  const compoundColour = useCompoundColour()
+
+  const option = useMemo(() => {
+    const horizon = Math.max(...curves.map((c) => c.maxAge), 10)
+    const ages = Array.from({ length: Math.ceil(horizon) + 1 }, (_, i) => i)
+
+    const series = curves.flatMap((c) => {
+      const colour = compoundColour(c.compound)
+      // Only draw as far as this compound was actually run. Extending every
+      // curve to the longest stint in the session would show extrapolation as
+      // if it were estimate.
+      const own = ages.filter((a) => a <= c.maxAge)
+      const mean = own.map((a) => [a, c.rate * a])
+      const halfBand = own.map((a) => 1.96 * c.sd * a)
+
+      return [
+        {
+          name: `${c.compound} base`,
+          type: 'line',
+          stack: `band-${c.compound}`,
+          symbol: 'none',
+          lineStyle: { opacity: 0 },
+          data: own.map((a, i) => [a, c.rate * a - halfBand[i]]),
+          silent: true,
+          tooltip: { show: false },
+          legendHoverLink: false,
+        },
+        {
+          name: `${c.compound} band`,
+          type: 'line',
+          stack: `band-${c.compound}`,
+          symbol: 'none',
+          lineStyle: { opacity: 0 },
+          areaStyle: { color: colour, opacity: 0.13 },
+          data: own.map((a, i) => [a, 2 * halfBand[i]]),
+          silent: true,
+          tooltip: { show: false },
+          legendHoverLink: false,
+        },
+        {
+          name: c.compound,
+          type: 'line',
+          data: mean,
+          symbol: 'none',
+          smooth: false,
+          lineStyle: { color: colour, width: 2.6 },
+          z: 5,
+        },
+      ]
+    })
+
+    return {
+      ...base,
+      legend: { ...base.legend, data: curves.map((c) => c.compound) },
+      grid: { left: 54, right: 20, top: 28, bottom: 38 },
+      xAxis: { type: 'value', min: 0, ...xAxis('tyre age (laps)') },
+      yAxis: { type: 'value', ...yAxis('seconds lost vs fresh') },
+      tooltip: {
+        ...base.tooltip,
+        trigger: 'axis',
+        valueFormatter: (v: number) => (v == null ? '—' : `${v.toFixed(2)} s`),
+      },
+      series,
+    }
+  }, [curves, base, xAxis, yAxis, compoundColour])
+
+  return <ReactECharts option={option} style={{ height: 260 }} notMerge />
+}
+
+/** How many laps survived filtering, and what removed the rest. */
+export function QualityBreakdown({
+  retained,
+  exclusions,
+  labels,
+}: {
+  retained: number
+  exclusions: Record<string, number>
+  labels: Record<string, string>
+}) {
+  const { base, colours } = useAxis()
+
+  const option = useMemo(() => {
+    const entries = Object.entries(exclusions).sort((a, b) => b[1] - a[1])
+    const data = [
+      { name: 'Analysed', value: retained, itemStyle: { color: colours.alert } },
+      ...entries.map(([reason, count], i) => ({
+        name: labels[reason] ?? reason,
+        value: count,
+        itemStyle: {
+          // Excluded reasons share one cool hue at decreasing opacity, so the
+          // retained slice is the only thing that reads as a result.
+          color: colours.residual,
+          opacity: 0.85 - i * 0.11,
+        },
+      })),
+    ]
+
+    return {
+      ...base,
+      legend: { show: false },
+      tooltip: {
+        ...base.tooltip,
+        formatter: (p: { name: string; value: number; percent: number }) =>
+          `${p.name}<br/>${p.value} laps (${p.percent.toFixed(0)}%)`,
+      },
+      series: [
+        {
+          type: 'pie',
+          radius: ['52%', '78%'],
+          center: ['50%', '52%'],
+          itemStyle: { borderColor: colours.surface, borderWidth: 2 },
+          label: {
+            show: true,
+            color: colours.inkFaint,
+            fontSize: 10,
+            formatter: '{b}\n{c}',
+          },
+          labelLine: { lineStyle: { color: colours.line } },
+          data,
+        },
+      ],
+    }
+  }, [retained, exclusions, labels, base, colours])
+
+  return <ReactECharts option={option} style={{ height: 250 }} notMerge />
+}
+
+// --------------------------------------------------------------------------
+// Explain
+// --------------------------------------------------------------------------
+
+export interface DecompositionRow {
+  tyre_age: number
+  tyre?: number
+  fuel?: number
+  track?: number
+  traffic?: number
+  residual: number
+  observed_delta: number
+}
+
+/**
+ * Where the lap time went, lap by lap across a stint.
+ *
+ * The waterfall shows one lap. This shows the whole stint, so you can watch the
+ * tyre contribution grow while the fuel contribution falls — and see the exact
+ * lap where the tyre overtakes fuel, which is the moment a stint turns.
+ *
+ * Positive and negative terms are stacked separately, because a single stack
+ * containing both would cancel and hide the size of each.
+ */
+export function StintDecomposition({ rows }: { rows: DecompositionRow[] }) {
+  const { base, xAxis, yAxis, colours } = useAxis()
+
+  const option = useMemo(() => {
+    const ages = rows.map((r) => r.tyre_age)
+    const terms: { key: keyof DecompositionRow; label: string; colour: string }[] = [
+      { key: 'tyre', label: 'Tyre', colour: colours.alert },
+      { key: 'fuel', label: 'Fuel burn-off', colour: colours.fuel },
+      { key: 'track', label: 'Track evolution', colour: colours.track },
+      { key: 'traffic', label: 'Traffic', colour: colours.traffic },
+      { key: 'residual', label: 'Unexplained', colour: colours.residual },
+    ]
+
+    return {
+      ...base,
+      legend: { ...base.legend, data: [...terms.map((t) => t.label), 'Observed'] },
+      grid: { left: 52, right: 18, top: 28, bottom: 36 },
+      xAxis: { type: 'category', data: ages, ...xAxis('tyre age (laps)') },
+      yAxis: { type: 'value', ...yAxis('seconds vs stint start') },
+      tooltip: {
+        ...base.tooltip,
+        trigger: 'axis',
+        valueFormatter: (v: number) =>
+          v == null ? '—' : `${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(2)} s`,
+      },
+      series: [
+        ...terms.map((t) => ({
+          name: t.label,
+          type: 'bar',
+          stack: 'terms',
+          data: rows.map((r) => (r[t.key] as number) ?? 0),
+          itemStyle: { color: t.colour, opacity: t.key === 'tyre' ? 1 : 0.8 },
+          barCategoryGap: '18%',
+        })),
+        {
+          name: 'Observed',
+          type: 'line',
+          data: rows.map((r) => r.observed_delta),
+          symbol: 'none',
+          lineStyle: { color: colours.ink, width: 2, type: 'dashed' },
+          z: 8,
+        },
+      ],
+    }
+  }, [rows, base, xAxis, yAxis, colours])
+
+  return <ReactECharts option={option} style={{ height: 280 }} notMerge />
+}
+
+/** The circuit gaining grip over the session, with its uncertainty. */
+export function TrackEvolutionChart({
+  rows,
+}: {
+  rows: { session_lap: number; track_effect: number; track_effect_sd: number }[]
+}) {
+  const { base, xAxis, yAxis, colours } = useAxis()
+
+  const option = useMemo(
+    () => ({
+      ...base,
+      legend: { show: false },
+      grid: { left: 52, right: 18, top: 18, bottom: 36 },
+      xAxis: {
+        type: 'category',
+        data: rows.map((r) => r.session_lap),
+        ...xAxis('session lap'),
+        // A label per lap is unreadable over a 53-lap race and carries nothing:
+        // the shape is the message, not any individual lap number.
+        axisLabel: { ...xAxis('session lap').axisLabel, interval: (i: number) => i % 5 === 0 },
+      },
+      yAxis: { type: 'value', ...yAxis('seconds the circuit has gained') },
+      tooltip: {
+        ...base.tooltip,
+        trigger: 'axis',
+        valueFormatter: (v: number) => (v == null ? '—' : `${v.toFixed(2)} s`),
+      },
+      series: [
+        {
+          name: 'base',
+          type: 'line',
+          stack: 'band',
+          symbol: 'none',
+          lineStyle: { opacity: 0 },
+          data: rows.map((r) => -r.track_effect - 1.96 * r.track_effect_sd),
+          silent: true,
+          tooltip: { show: false },
+        },
+        {
+          name: 'band',
+          type: 'line',
+          stack: 'band',
+          symbol: 'none',
+          lineStyle: { opacity: 0 },
+          areaStyle: { color: colours.track, opacity: 0.15 },
+          data: rows.map((r) => 2 * 1.96 * r.track_effect_sd),
+          silent: true,
+          tooltip: { show: false },
+        },
+        {
+          name: 'Track effect',
+          type: 'line',
+          data: rows.map((r) => -r.track_effect),
+          symbol: 'none',
+          smooth: 0.3,
+          lineStyle: { color: colours.track, width: 2.2 },
+          z: 5,
+        },
+      ],
+    }),
+    [rows, base, xAxis, yAxis, colours],
+  )
+
+  return <ReactECharts option={option} style={{ height: 210 }} notMerge />
+}
+
+// --------------------------------------------------------------------------
+// Strategy
+// --------------------------------------------------------------------------
+
+export interface PitSweepRow {
+  pit_lap: number
+  expected_time: number
+  downside: number
+  best_case: number
+  runs_past_cliff: number
+}
+
+/**
+ * Expected race time for every possible pit lap.
+ *
+ * The most useful strategy picture there is. A table of four options says which
+ * is best; the sweep says how *sharp* the optimum is — whether stopping two laps
+ * late costs a tenth or costs the race. A flat curve is itself the answer:
+ * the decision does not matter much, so spend the attention elsewhere.
+ */
+export function PitWindowChart({
+  sweep,
+  optimum,
+  window,
+  stayOut,
+}: {
+  sweep: PitSweepRow[]
+  optimum: number
+  window: [number, number] | null
+  stayOut: number
+}) {
+  const { base, xAxis, yAxis, colours } = useAxis()
+
+  const option = useMemo(() => {
+    const bestStop = Math.min(...sweep.map((r) => r.expected_time))
+    // Baseline on the best action available, which is not always a stop. When
+    // staying out wins, baselining on the best pit lap puts the stay-out
+    // reference line below zero and off the axis -- hiding the one fact the
+    // screen exists to deliver. Absolute race time is a four-digit number whose
+    // interesting variation is in the last two, so something has to be zero.
+    const baseline = Math.min(bestStop, stayOut)
+    const relative = sweep.map((r) => [r.pit_lap, r.expected_time - baseline])
+    const downside = sweep.map((r) => [r.pit_lap, r.downside - baseline])
+
+    return {
+      ...base,
+      legend: { ...base.legend, data: ['Expected', 'Bad case'] },
+      grid: { left: 52, right: 18, top: 28, bottom: 36 },
+      // Only the candidate laps exist -- letting the axis run from zero would
+      // spend half the width on laps the car has already completed.
+      xAxis: {
+        type: 'value',
+        min: sweep[0].pit_lap - 1,
+        max: sweep[sweep.length - 1].pit_lap + 1,
+        ...xAxis('pit on lap'),
+      },
+      yAxis: { type: 'value', ...yAxis('seconds vs the best option') },
+      tooltip: {
+        ...base.tooltip,
+        trigger: 'axis',
+        valueFormatter: (v: number) => (v == null ? '—' : `+${v.toFixed(2)} s`),
+      },
+      series: [
+        {
+          name: 'Bad case',
+          type: 'line',
+          data: downside,
+          symbol: 'none',
+          smooth: 0.2,
+          lineStyle: { color: colours.residual, width: 1.2, type: 'dashed' },
+        },
+        {
+          name: 'Expected',
+          type: 'line',
+          data: relative,
+          symbol: 'none',
+          smooth: 0.2,
+          lineStyle: { color: colours.alert, width: 2.6 },
+          areaStyle: { color: colours.alert, opacity: 0.1 },
+          markPoint: {
+            symbol: 'circle',
+            symbolSize: 9,
+            itemStyle: { color: colours.good },
+            label: { show: false },
+            data: [{ xAxis: optimum, yAxis: bestStop - baseline }],
+          },
+          markArea: window
+            ? {
+                itemStyle: { color: colours.good, opacity: 0.08 },
+                data: [[{ xAxis: window[0] }, { xAxis: window[1] }]],
+              }
+            : undefined,
+          markLine: {
+            symbol: 'none',
+            label: {
+              color: colours.inkFaint,
+              fontSize: 10,
+              formatter: 'stay out — no stop at all',
+              position: 'insideEndTop',
+            },
+            lineStyle: { color: colours.inkFaint, type: 'dotted' },
+            data: [{ yAxis: stayOut - baseline }],
+          },
+          z: 5,
+        },
+      ],
+    }
+  }, [sweep, optimum, window, stayOut, base, xAxis, yAxis, colours])
+
+  return <ReactECharts option={option} style={{ height: 260 }} notMerge />
+}
+
+// --------------------------------------------------------------------------
+// Beyond racing
+// --------------------------------------------------------------------------
+
+/**
+ * Predicted against actual remaining life, on NASA's turbofan benchmark.
+ *
+ * The honest way to show a prognostics result. Points on the diagonal are exact;
+ * points *below* it predicted less life than the engine had, which is the safe
+ * direction to be wrong. The asymmetry is the whole point of the NASA scoring
+ * function, and a scatter shows it where an RMSE cannot.
+ */
+export function RulScatter({
+  predictions,
+  truths,
+}: {
+  predictions: number[]
+  truths: number[]
+}) {
+  const { base, xAxis, yAxis, colours } = useAxis()
+
+  const option = useMemo(() => {
+    const points = truths.map((t, i) => [t, predictions[i]])
+    const limit = Math.ceil(Math.max(...truths, ...predictions) / 25) * 25
+
+    return {
+      ...base,
+      legend: { show: false },
+      grid: { left: 52, right: 20, top: 20, bottom: 36 },
+      xAxis: { type: 'value', min: 0, max: limit, ...xAxis('actual cycles remaining') },
+      yAxis: { type: 'value', min: 0, max: limit, ...yAxis('predicted') },
+      tooltip: {
+        ...base.tooltip,
+        formatter: (p: { value: [number, number] }) =>
+          `Predicted ${p.value[1].toFixed(0)} cycles<br/>Actual ${p.value[0].toFixed(0)}<br/>` +
+          `${p.value[1] < p.value[0] ? 'early — the safe direction' : 'late'}`,
+      },
+      series: [
+        {
+          name: 'perfect',
+          type: 'line',
+          data: [
+            [0, 0],
+            [limit, limit],
+          ],
+          symbol: 'none',
+          lineStyle: { color: colours.inkFaint, width: 1, type: 'dashed' },
+          silent: true,
+        },
+        {
+          type: 'scatter',
+          data: points,
+          symbolSize: 7,
+          itemStyle: {
+            color: (p: { value: [number, number] }) =>
+              p.value[1] < p.value[0] ? colours.good : colours.alert,
+            opacity: 0.75,
+          },
+        },
+      ],
+    }
+  }, [predictions, truths, base, xAxis, yAxis, colours])
+
+  return <ReactECharts option={option} style={{ height: 280 }} notMerge />
+}
+
+// --------------------------------------------------------------------------
+// Circuit
+// --------------------------------------------------------------------------
+
+/**
+ * The hardest-working sections of a lap, ranked.
+ *
+ * The 3D line shows where the load is; this says how much, and how concentrated.
+ * On a power circuit a handful of braking zones account for most of the damage;
+ * on a flowing one it is spread out. That difference is why the same compound
+ * behaves so differently between them.
+ */
+export function LoadHotspots({
+  tyreLoad,
+  speed,
+  topN = 10,
+}: {
+  tyreLoad: number[]
+  speed: number[]
+  topN?: number
+}) {
+  const { base, xAxis, yAxis, colours } = useAxis()
+
+  const option = useMemo(() => {
+    // Group contiguous high-load samples into "sections", so the ranking lists
+    // corners rather than individual telemetry points.
+    const threshold = 0.45
+    const sections: { start: number; end: number; peak: number; energy: number }[] = []
+    let current: { start: number; end: number; peak: number; energy: number } | null = null
+
+    tyreLoad.forEach((v, i) => {
+      if (v >= threshold) {
+        if (!current) current = { start: i, end: i, peak: v, energy: 0 }
+        current.end = i
+        current.peak = Math.max(current.peak, v)
+        current.energy += v
+      } else if (current) {
+        sections.push(current)
+        current = null
+      }
+    })
+    if (current) sections.push(current)
+
+    const ranked = sections.sort((a, b) => b.energy - a.energy).slice(0, topN).reverse()
+    const total = tyreLoad.reduce((a, b) => a + b, 0) || 1
+
+    return {
+      ...base,
+      legend: { show: false },
+      grid: { left: 92, right: 26, top: 14, bottom: 36 },
+      xAxis: { type: 'value', ...xAxis('share of the lap total (%)') },
+      yAxis: {
+        type: 'category',
+        data: ranked.map(
+          (s) =>
+            `${Math.round((s.start / tyreLoad.length) * 100)}% · ${Math.round(
+              speed[Math.round((s.start + s.end) / 2)] ?? 0,
+            )} km/h`,
+        ),
+        axisLabel: { color: colours.inkFaint, fontSize: 9.5 },
+        axisLine: { show: false },
+        splitLine: { show: false },
+      },
+      tooltip: {
+        ...base.tooltip,
+        formatter: (p: { name: string; value: number }) =>
+          `${p.name} into the lap<br/>${p.value.toFixed(1)}% of total tyre loading`,
+      },
+      series: [
+        {
+          type: 'bar',
+          data: ranked.map((s) => (100 * s.energy) / total),
+          itemStyle: { color: colours.alert, opacity: 0.85 },
+          barWidth: '62%',
+        },
+      ],
+    }
+  }, [tyreLoad, speed, topN, base, xAxis, yAxis, colours])
+
+  return <ReactECharts option={option} style={{ height: 250 }} notMerge />
+}
+
+// --------------------------------------------------------------------------
+// Ask the method
+// --------------------------------------------------------------------------
+
+export interface FusionHit {
+  citation: string
+  kind: string
+  lexical_rank: number | null
+  semantic_rank: number | null
+}
+
+/**
+ * Where each answer came from: keyword rank against meaning rank.
+ *
+ * This is the argument for hybrid retrieval, drawn rather than asserted. A
+ * passage on the diagonal was found by both retrievers and needs no defending.
+ * The interesting ones are off it -- found strongly by one and weakly or not at
+ * all by the other. Those are the passages a single-retriever system loses, and
+ * they are the reason the two rankings are fused instead of one being picked.
+ *
+ * Passages a retriever never returned are pinned to the outer edge and labelled,
+ * because "ranked last" and "never seen" are different facts.
+ */
+export function RankFusion({ hits }: { hits: FusionHit[] }) {
+  const { base, xAxis, yAxis, colours } = useAxis()
+
+  const option = useMemo(() => {
+    const ranks = hits.flatMap((h) => [h.lexical_rank, h.semantic_rank])
+    const deepest = Math.max(1, ...ranks.filter((r): r is number => r != null))
+    const anyMissing = hits.some((h) => h.lexical_rank == null || h.semantic_rank == null)
+    // One step beyond the deepest real rank is the "not returned" lane.
+    const missing = deepest + 2
+
+    const points = hits.map((h, i) => ({
+      value: [
+        h.lexical_rank == null ? missing : h.lexical_rank + 1,
+        h.semantic_rank == null ? missing : h.semantic_rank + 1,
+      ],
+      name: h.citation,
+      label: {
+        show: true,
+        formatter: String(i + 1),
+        color: colours.ground,
+        fontSize: 10,
+        fontWeight: 600,
+      },
+      itemStyle: {
+        color: h.kind === 'result' ? colours.good : colours.alert,
+        opacity: 0.9,
+      },
+    }))
+
+    return {
+      ...base,
+      legend: { show: false },
+      grid: { left: 52, right: 22, top: 22, bottom: 40 },
+      xAxis: {
+        type: 'value',
+        min: 0,
+        max: missing + 0.5,
+        ...xAxis('keyword rank'),
+        splitLine: { show: false },
+      },
+      yAxis: {
+        type: 'value',
+        min: 0,
+        max: missing + 0.5,
+        inverse: false,
+        ...yAxis('meaning rank'),
+      },
+      tooltip: {
+        ...base.tooltip,
+        formatter: (p: { data: { name: string; value: [number, number] } }) => {
+          const fmt = (v: number) => (v === missing ? 'not returned' : `#${v}`)
+          return `${p.data.name}<br/>keyword ${fmt(p.data.value[0])} · meaning ${fmt(
+            p.data.value[1],
+          )}`
+        },
+      },
+      series: [
+        {
+          type: 'line',
+          data: [
+            [0, 0],
+            [missing + 0.5, missing + 0.5],
+          ],
+          symbol: 'none',
+          silent: true,
+          lineStyle: { color: colours.line, type: 'dashed', width: 1 },
+        },
+        {
+          type: 'scatter',
+          data: points,
+          symbolSize: 22,
+          // The "not returned" lane is only drawn when something is actually
+          // in it. An empty labelled lane reads as a result that is not there.
+          markLine: anyMissing
+            ? {
+                symbol: 'none',
+                silent: true,
+                label: {
+                  color: colours.inkFaint,
+                  fontSize: 9.5,
+                  formatter: 'not returned',
+                  position: 'insideStartTop',
+                },
+                lineStyle: { color: colours.line, type: 'dotted' },
+                data: [
+                  ...(hits.some((h) => h.lexical_rank == null) ? [{ xAxis: missing }] : []),
+                  ...(hits.some((h) => h.semantic_rank == null) ? [{ yAxis: missing }] : []),
+                ],
+              }
+            : undefined,
+        },
+      ],
+    }
+  }, [hits, base, xAxis, yAxis, colours])
+
+  return <ReactECharts option={option} style={{ height: 250 }} notMerge />
+}
+
+/**
+ * What the corpus is made of, per file.
+ *
+ * A passage total is easy to inflate and hard to check. The breakdown is not:
+ * it shows immediately that the answers come from the research audit, the model
+ * card and the recorded experiment outputs, and how much each contributes.
+ */
+export function CorpusComposition({
+  bySource,
+}: {
+  bySource: { source: string; n_passages: number }[]
+}) {
+  const { base, xAxis, yAxis, colours } = useAxis()
+
+  const option = useMemo(() => {
+    const rows = [...bySource].sort((a, b) => a.n_passages - b.n_passages)
+    const label = (s: string) => s.replace(/^docs\//, '').replace(/\.(md|json)$/, '')
+
+    return {
+      ...base,
+      legend: { show: false },
+      grid: { left: 168, right: 30, top: 8, bottom: 30 },
+      xAxis: { type: 'value', ...xAxis('passages') },
+      yAxis: {
+        type: 'category',
+        data: rows.map((r) => label(r.source)),
+        ...yAxis(''),
+        axisLabel: { color: colours.inkDim, fontSize: 10 },
+        splitLine: { show: false },
+      },
+      tooltip: { ...base.tooltip, trigger: 'item' },
+      series: [
+        {
+          type: 'bar',
+          data: rows.map((r) => ({
+            value: r.n_passages,
+            itemStyle: {
+              // Recorded experiment output reads as evidence; prose reads as
+              // documentation. Colouring them apart says which is which.
+              color: r.source.startsWith('experiments/') ? colours.good : colours.alert,
+              opacity: 0.75,
+            },
+          })),
+          barWidth: '62%',
+        },
+      ],
+    }
+  }, [bySource, base, xAxis, yAxis, colours])
+
+  return <ReactECharts option={option} style={{ height: 340 }} notMerge />
+}
+
+// --------------------------------------------------------------------------
+// Validation
+// --------------------------------------------------------------------------
+
+export interface TransferPoint {
+  event: string
+  compound: string
+  predicted: number
+  predicted_sd: number
+  actual: number
+  covered_95: boolean
+}
+
+/**
+ * Friday's prediction against Sunday's measurement.
+ *
+ * A table of 62 comparisons states the systematic bias; this shows it. Points
+ * sitting consistently above the diagonal rather than scattered around it is
+ * what "systematic" means, and it is a different claim from "inaccurate" —
+ * a consistent offset is correctable, whereas scatter is not.
+ *
+ * Each point carries its own 95% interval as a vertical whisker, so a reader can
+ * see whether a miss was a miss or a case the model had already flagged as
+ * uncertain.
+ */
+export function PracticeVsRace({
+  points,
+  bias,
+}: {
+  points: TransferPoint[]
+  bias: number
+}) {
+  const { base, xAxis, yAxis, colours } = useAxis()
+  const compoundColour = useCompoundColour()
+
+  const option = useMemo(() => {
+    // Scale to the estimates, not to the whiskers. One comparison carries a
+    // very wide interval, and letting it set the extent squeezes every point
+    // into a corner -- the whisker is still drawn, it is simply allowed to run
+    // off the top, which is itself legible.
+    const values = points.flatMap((p) => [p.actual, p.predicted])
+    const pad = 0.02
+    const round = (v: number, up: boolean) =>
+      (up ? Math.ceil(v * 20) : Math.floor(v * 20)) / 20
+    const lo = Math.max(0, round(Math.min(...values) - pad, false))
+    const hi = round(Math.max(...values) + pad, true)
+
+    return {
+      ...base,
+      legend: { show: false },
+      grid: { left: 58, right: 22, top: 20, bottom: 40 },
+      xAxis: {
+        type: 'value',
+        min: lo,
+        max: hi,
+        ...xAxis('measured in the race (s/lap)'),
+        axisLabel: { ...xAxis('').axisLabel, formatter: (v: number) => v.toFixed(2) },
+      },
+      yAxis: {
+        type: 'value',
+        min: lo,
+        max: hi,
+        ...yAxis('predicted from practice'),
+        axisLabel: { ...yAxis('').axisLabel, formatter: (v: number) => v.toFixed(2) },
+      },
+      tooltip: {
+        ...base.tooltip,
+        formatter: (p: { data: { name: string; value: [number, number] } }) =>
+          `${p.data.name}<br/>race ${p.data.value[0].toFixed(3)} · practice ${p.data.value[1].toFixed(3)}`,
+      },
+      series: [
+        {
+          name: 'perfect',
+          type: 'line',
+          data: [
+            [lo, lo],
+            [hi, hi],
+          ],
+          symbol: 'none',
+          silent: true,
+          lineStyle: { color: colours.line, type: 'dashed', width: 1 },
+        },
+        {
+          // The measured bias, drawn parallel to the diagonal. Points hugging
+          // this line rather than the diagonal is the finding.
+          name: 'bias',
+          type: 'line',
+          data: [
+            [lo, lo + bias],
+            [hi, hi + bias],
+          ],
+          symbol: 'none',
+          silent: true,
+          lineStyle: { color: colours.alert, type: 'dotted', width: 1.4 },
+          endLabel: {
+            show: true,
+            formatter: `practice runs +${bias.toFixed(3)} s/lap high`,
+            color: colours.alert,
+            fontSize: 10,
+            offset: [-6, -12],
+            align: 'right',
+          },
+        },
+        {
+          // Vertical 95% whiskers, one custom-rendered bar per point.
+          name: 'interval',
+          type: 'custom',
+          silent: true,
+          renderItem: (
+            _params: unknown,
+            api: {
+              value: (i: number) => number
+              coord: (p: [number, number]) => [number, number]
+              style: (s: Record<string, unknown>) => unknown
+            },
+          ) => {
+            const [x, top] = api.coord([api.value(0), api.value(1)])
+            const [, bottom] = api.coord([api.value(0), api.value(2)])
+            return {
+              type: 'line',
+              shape: { x1: x, y1: top, x2: x, y2: bottom },
+              style: api.style({ stroke: colours.inkFaint, lineWidth: 1 }),
+            }
+          },
+          data: points.map((p) => [
+            p.actual,
+            p.predicted + 1.96 * p.predicted_sd,
+            p.predicted - 1.96 * p.predicted_sd,
+          ]),
+          z: 2,
+        },
+        {
+          name: 'comparison',
+          type: 'scatter',
+          symbolSize: 11,
+          data: points.map((p) => ({
+            value: [p.actual, p.predicted],
+            name: `${p.event.replace(' Grand Prix', '')} · ${p.compound}`,
+            itemStyle: {
+              color: compoundColour(p.compound),
+              borderColor: p.covered_95 ? 'transparent' : colours.alert,
+              borderWidth: p.covered_95 ? 0 : 2,
+            },
+          })),
+          z: 6,
+        },
+      ],
+    }
+  }, [points, bias, base, xAxis, yAxis, colours, compoundColour])
+
+  return <ReactECharts option={option} style={{ height: 300 }} notMerge />
+}
+
+// --------------------------------------------------------------------------
+// Calibration
+// --------------------------------------------------------------------------
+
+export interface ReliabilityRow {
+  model: string
+  levels: number[]
+  gaussian: number[]
+  adaptive: number[]
+}
+
+/**
+ * Nominal confidence against the coverage actually achieved.
+ *
+ * A single coverage figure at 95% is a weak check: a method can be tuned to
+ * look right at one level and be wrong everywhere else, and nothing in a
+ * headline number would show it. Sweeping the level turns calibration from a
+ * claim into a curve, and a calibrated method traces the diagonal.
+ *
+ * The Gaussian rungs sag well below it — the model is confident about a world
+ * it has slightly wrong — while the adaptive-conformal line sits on it. Drawing
+ * the diagonal rather than describing it is the whole point: the reader checks
+ * the claim by eye instead of trusting a percentage.
+ */
+export function ReliabilityCurve({ rows }: { rows: ReliabilityRow[] }) {
+  const { base, xAxis, yAxis, colours } = useAxis()
+
+  const option = useMemo(() => {
+    const levels = rows[0]?.levels ?? []
+    const pct = (v: number) => Math.round(v * 100)
+
+    return {
+      ...base,
+      legend: { ...base.legend, data: ['perfect', 'as reported', 'calibrated'] },
+      grid: { left: 54, right: 18, top: 26, bottom: 42 },
+      xAxis: {
+        type: 'value',
+        min: 45,
+        max: 100,
+        ...xAxis('nominal confidence (%)'),
+      },
+      yAxis: {
+        type: 'value',
+        min: 20,
+        max: 100,
+        ...yAxis('coverage achieved (%)'),
+      },
+      tooltip: {
+        ...base.tooltip,
+        trigger: 'axis',
+        valueFormatter: (v: number) => `${v.toFixed(0)}%`,
+      },
+      series: [
+        {
+          name: 'perfect',
+          type: 'line',
+          data: [
+            [45, 45],
+            [100, 100],
+          ],
+          symbol: 'none',
+          silent: true,
+          lineStyle: { color: colours.line, type: 'dashed', width: 1 },
+        },
+        // One faint line per rung, so the spread of the uncalibrated intervals
+        // is visible as a band rather than averaged into a single tidy curve
+        // that would hide how differently the rungs behave.
+        ...rows.map((row, i) => ({
+          name: 'as reported',
+          type: 'line' as const,
+          data: row.gaussian.map((v, j) => [pct(levels[j]), pct(v)]),
+          symbol: 'none',
+          smooth: true,
+          lineStyle: { color: colours.alert, width: 1, opacity: 0.5 },
+          silent: true,
+          legendHoverLink: false,
+          // Only the first contributes to the legend; the rest are the same series.
+          showInLegend: i === 0,
+        })),
+        ...rows.map((row) => ({
+          name: 'calibrated',
+          type: 'line' as const,
+          data: row.adaptive.map((v, j) => [pct(levels[j]), pct(v)]),
+          symbol: 'none',
+          smooth: true,
+          lineStyle: { color: colours.good, width: 1.6, opacity: 0.85 },
+          silent: true,
+        })),
+      ],
+    }
+  }, [rows, base, xAxis, yAxis, colours])
+
+  return <ReactECharts option={option} style={{ height: 260 }} notMerge />
+}
+
+export interface RegimeShare {
+  regime: string
+  n: number
+  share: number
+  slopeBefore: number | null
+  delta: number | null
+  position: number | null
+}
+
+/**
+ * The four shapes a stint's degradation curve actually takes.
+ *
+ * Not a pie chart of categories — the bars carry the archetypal curve alongside
+ * each share, because "12% cliff" means nothing without the shape it refers to.
+ * A cliff and a warm-up are both changepoints and are opposite physical events:
+ * one is a tyre giving up, the other is a tyre coming to temperature. Pooling
+ * them, which an earlier analysis did, reports a "cliff" a third of the way
+ * through a stint and describes neither.
+ */
+export function DegradationRegimes({ rows }: { rows: RegimeShare[] }) {
+  const { base, xAxis, yAxis, colours } = useAxis()
+
+  const tone: Record<string, string> = {
+    linear: colours.inkFaint,
+    'warm-up': colours.fuel,
+    cliff: colours.alert,
+    recovery: colours.good,
+  }
+
+  const option = useMemo(() => {
+    const ordered = ['linear', 'warm-up', 'cliff', 'recovery']
+      .map((name) => rows.find((r) => r.regime === name))
+      .filter((r): r is RegimeShare => Boolean(r))
+
+    return {
+      ...base,
+      legend: { show: false },
+      grid: { left: 78, right: 46, top: 12, bottom: 34 },
+      xAxis: { type: 'value', min: 0, ...xAxis('share of stints (%)') },
+      yAxis: {
+        type: 'category',
+        data: ordered.map((r) => r.regime),
+        ...yAxis(''),
+        axisLabel: { color: colours.inkDim, fontSize: 11 },
+      },
+      tooltip: {
+        ...base.tooltip,
+        formatter: (p: { dataIndex: number }) => {
+          const r = ordered[p.dataIndex]
+          const step =
+            r.delta === null ? '' : `<br/>step ${r.delta > 0 ? '+' : ''}${r.delta.toFixed(3)} s/lap`
+          const where =
+            r.position === null ? '' : `<br/>at ${Math.round(r.position * 100)}% through the stint`
+          return `<b>${r.regime}</b><br/>${r.n} stints (${Math.round(r.share * 100)}%)${step}${where}`
+        },
+      },
+      series: [
+        {
+          type: 'bar',
+          data: ordered.map((r) => ({
+            value: r.share * 100,
+            itemStyle: { color: tone[r.regime] ?? colours.inkDim },
+          })),
+          barWidth: 16,
+          label: {
+            show: true,
+            position: 'right',
+            color: colours.inkDim,
+            fontSize: 10,
+            formatter: (p: { value: number }) => `${p.value.toFixed(0)}%`,
+          },
+        },
+      ],
+    }
+  }, [rows, base, xAxis, yAxis, colours, tone])
+
+  return <ReactECharts option={option} style={{ height: 190 }} notMerge />
+}
