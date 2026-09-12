@@ -13,9 +13,12 @@ pyarrow>=15.0          # pandas Parquet engine — the cached sessions are Parqu
 fastf1>=3.4
 
 # Modelling. scikit-learn provides the MLP challenger and the retrieval index's
-# TF-IDF/SVD; lightgbm is the gradient-boosted challenger in the model ladder.
+# TF-IDF/SVD; lightgbm is the gradient-boosted challenger in the model ladder;
+# statsmodels provides the ARIMA(2,1,2) challenger -- the baseline the closest
+# published prior art (Cappello & Hoegh 2025) uses.
 scikit-learn>=1.4
 lightgbm>=4.3
+statsmodels>=0.14
 
 # API / serving
 fastapi>=0.110

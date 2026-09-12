@@ -15,14 +15,25 @@ would reasonably use, not a straw man:
                           latent state.
   4. `GradientBoosted`    LightGBM on engineered features. Represents "throw ML
                           at it", and will predict lap times well.
-  5. `TyreStateModel`     the state-space model.
+  5. `NeuralNetwork`      an MLP on the same features. The "have you tried deep
+                          learning" answer.
+  6. `ARIMABaseline`      ARIMA(2,1,2) fitted independently per driver, blind to
+                          tyre age, fuel or compound. This is the baseline the
+                          closest published prior art -- Cappello & Hoegh 2025,
+                          arXiv:2512.00640, the only other state-space model of
+                          F1 tyre degradation we found -- compares its own model
+                          against, so it belongs here for the same reason.
+  7. `TyreStateModel`     the state-space model.
 
 Rung 4 is the interesting comparison. Gradient boosting will likely predict lap
 times *better* than the SSM, because it can exploit any pattern in the data
 including ones with no causal reading. What it cannot do is answer the question
 the product is for -- it has no parameter that means "degradation rate", so
 there is nothing to report and nothing to carry to Sunday. Documenting that is
-more useful than pretending the SSM wins everywhere.
+more useful than pretending the SSM wins everywhere. Rung 6 makes a related but
+distinct point: it is a *time-series* method rather than a regression, and it
+still has no notion of tyre age -- so it can only ever be as good as the
+autocorrelation already present in the raw lap-time sequence.
 
 Every model exposes the same two things: a predictive distribution over lap
 times, and a per-compound degradation rate where one is even definable.
@@ -465,6 +476,110 @@ class NeuralNetwork(DegradationModel):
         return mean, np.maximum(spread, 1e-3)
 
 
+class ARIMABaseline(DegradationModel):
+    """ARIMA(2,1,2) fitted independently per driver on the raw lap-time series.
+
+    This is the baseline the closest published prior art uses -- Cappello &
+    Hoegh, *A State-Space Approach to Modeling Tire Degradation in Formula 1
+    Racing* (arXiv:2512.00640, Nov 2025), the only other state-space treatment
+    of F1 tyre degradation found in a literature search -- so it belongs in the
+    ladder for the same reason ARIMA belongs in their paper: it is what a
+    reasonable time-series analyst reaches for before building anything bespoke.
+
+    It sees lap time as a bare univariate sequence. No tyre age, no fuel, no
+    compound, no driver-to-driver pooling -- each driver gets their own model,
+    fit on nothing but their own past lap times. Order (2,1,2) is fixed rather
+    than searched, matching the paper's choice, so this is "the standard
+    off-the-shelf answer" rather than a tuned competitor.
+
+    Like the ML rungs, `compound_rates` returns nothing: there is no parameter
+    here that means "degradation", only a forecast of the next few lap times.
+    """
+
+    name = "ARIMA(2,1,2) per driver"
+
+    ORDER = (2, 1, 2)
+
+    #: Below this many laps, ARIMA(2,1,2) is over-parameterised for what it is
+    #: being asked to fit -- five coefficients plus a variance from a handful of
+    #: points is fitting noise, not a model. Falls back to a persistence forecast
+    #: instead of returning something that merely converged.
+    MIN_OBS = 8
+
+    def __init__(self) -> None:
+        self._results: dict[str, object] = {}
+        self._fallback_mean: dict[str, float] = {}
+        self._fallback_sd: dict[str, float] = {}
+        self._global_mean = 0.0
+        self._global_sd = 1.0
+
+    def fit(self, lap_table: pd.DataFrame) -> ARIMABaseline:
+        import warnings
+
+        from statsmodels.tsa.arima.model import ARIMA
+
+        y_all = lap_table["lap_time"].to_numpy(dtype=float)
+        self._global_mean = float(np.median(y_all)) if len(y_all) else 0.0
+        self._global_sd = float(max(y_all.std(), 1e-3)) if len(y_all) else 1.0
+
+        for driver, group in lap_table.groupby("driver"):
+            series = group.sort_values("session_lap")["lap_time"].to_numpy(dtype=float)
+            self._fallback_mean[str(driver)] = (
+                float(series[-1]) if len(series) else self._global_mean
+            )
+            self._fallback_sd[str(driver)] = (
+                float(max(series.std(), 1e-3)) if len(series) > 1 else self._global_sd
+            )
+
+            if len(series) < self.MIN_OBS:
+                continue
+            try:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    model = ARIMA(
+                        series,
+                        order=self.ORDER,
+                        enforce_stationarity=False,
+                        enforce_invertibility=False,
+                    )
+                    self._results[str(driver)] = model.fit()
+            except Exception:  # noqa: BLE001
+                # A handful of drivers per season fail to converge (a run of
+                # near-identical lap times leaves nothing for the MA terms to
+                # explain). Falling back to persistence for that one driver beats
+                # discarding the whole model for every driver in the session.
+                continue
+        return self
+
+    def predict(self, lap_table: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
+        mean = pd.Series(index=lap_table.index, dtype=float)
+        sd = pd.Series(index=lap_table.index, dtype=float)
+
+        for driver, group in lap_table.groupby("driver"):
+            ordered = group.sort_values("session_lap")
+            n = len(ordered)
+            result = self._results.get(str(driver))
+
+            if result is not None:
+                forecast = result.get_forecast(steps=n)
+                m = np.asarray(forecast.predicted_mean, dtype=float)
+                s = np.asarray(forecast.se_mean, dtype=float)
+            else:
+                base_mean = self._fallback_mean.get(str(driver), self._global_mean)
+                base_sd = self._fallback_sd.get(str(driver), self._global_sd)
+                m = np.full(n, base_mean)
+                # A persistence forecast does not know how far ahead it is
+                # reaching, so the spread is widened with each step -- otherwise
+                # a ten-lap-ahead guess would report the same confidence as a
+                # one-lap-ahead one, which no method actually has.
+                s = base_sd * np.sqrt(np.arange(1, n + 1))
+
+            mean.loc[ordered.index] = m
+            sd.loc[ordered.index] = np.maximum(s, 1e-3)
+
+        return mean.to_numpy(), sd.to_numpy()
+
+
 class TyreStateModel(DegradationModel):
     """The TyreMind state-space model, wrapped for the benchmark harness."""
 
@@ -566,5 +681,6 @@ def model_ladder() -> list[DegradationModel]:
         PooledRegression(),
         GradientBoosted(),
         NeuralNetwork(),
+        ARIMABaseline(),
         TyreStateModel(),
     ]

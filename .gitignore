@@ -60,3 +60,4 @@ docs/video/*.png
 #     python scripts/build_corpus.py --years 2024 2023 2022 --sessions R FP2 FP1 FP3
 # data/demo/ stays committed so a clone still runs offline.
 data/season/
+f1-telemetry/
