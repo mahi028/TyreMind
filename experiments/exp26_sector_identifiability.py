@@ -327,54 +327,83 @@ def split_half_stability(frame: pd.DataFrame, n_splits: int, seed: int) -> dict:
 
 
 def identifiability_gain(frame: pd.DataFrame) -> dict:
-    """Step 3. How much better conditioned is the sector system?
+    """Step 4. What do sectors actually identify, and what do they not?
 
-    The whole-lap design within a stint is `[1, a, -f]` with `a = a0 + f`, which
-    is rank 2 for 3 columns -- singular by construction, which is exp18's result.
+    **The first version of this test was circular and its answer meant nothing.**
+    It took the observed sector-slope direction as the tyre loading and time share
+    as the fuel loading, then reported that the resulting 2x2 system was well
+    posed in 40 of 40 races. Of course it was: a direction read off the data is
+    not going to be parallel to time share, so the test could only ever pass. It
+    proved that two vectors were different, not that anything was identified.
 
-    The sector design stacks three rows per lap with sector-specific loadings.
-    Estimating those loadings from the data itself (the mean sector-slope
-    direction per circuit, and time share as the fuel direction) gives a 2x2
-    system for (beta, phi). Its condition number says how well posed that is.
+    The structure is `slope_jk = beta_j * wT_k - phi * wF_k`, and what makes it
+    tractable is an asymmetry: **the degradation rate varies from stint to stint
+    while the fuel coefficient is one constant for the whole session.** So
+    centring the slope matrix across stints leaves
 
-    Reported as a ratio of Cramer-Rao bounds, which is the quantity a reader can
-    compare against exp18's 1.38x figure. A singular whole-lap system has an
-    infinite bound, so the honest statement is "finite versus infinite" plus the
-    conditioning of what replaces it.
+        centred_jk = (beta_j - beta_bar) * wT_k
+
+    which is rank one, and its leading right singular vector is `wT`. That is
+    identified from data with no prior of any kind, and it is genuinely new --
+    a whole-lap fit has no `wT` to estimate because it has one observation.
+
+    The level is a different story and the honest answer is negative. Averaging
+    over stints leaves
+
+        m_k = beta_bar * wT_k - phi * wF_k
+
+    which is three equations in four unknowns once `wF` is normalised, so it is
+    underdetermined by exactly one. **Sectors alone do not break the collinearity
+    exp18 measured.** The 6% figure for how much of the *level* comes from data
+    stands untouched.
+
+    What closes it is a measured fuel loading. Per-sector acceleration is
+    observable from car telemetry, and with `wF` supplied the level system has a
+    condition number around 5 -- well posed where the whole-lap system is
+    singular. That is a real route and it is reported as a route, not a result,
+    because this experiment has not measured `wF` from telemetry yet.
+
+    Returns the rank-one fraction (how cleanly `wT` separates), the conditioning
+    of the level system given a measured `wF`, and an explicit flag that the
+    level is not identified without one.
     """
-    per_event = frame.groupby(["year", "event"]).agg(
-        {**{f"slope_{s}": "mean" for s in SECTORS},
-         **{f"mean_{s}": "mean" for s in SECTORS},
-         "total_slope": "mean"}).reset_index()
+    rank_one_fractions, level_conditions = [], []
 
-    conditions, singular_lap, well_posed = [], 0, 0
-    for _, row in per_event.iterrows():
-        share = np.array([row[f"mean_{s}"] for s in SECTORS], dtype=float)
-        share = share / share.sum()
-        slope = np.array([row[f"slope_{s}"] for s in SECTORS], dtype=float)
-
-        # Whole-lap: one equation, two unknowns. Always singular.
-        singular_lap += 1
-
-        # Sector: tyre direction taken as the observed slope shape, fuel direction
-        # as time share. Two columns; if they are parallel the system is singular
-        # too and sectors have bought nothing.
-        tyre_direction = slope / np.linalg.norm(slope) if np.linalg.norm(slope) > 1e-12 else share
-        design = np.column_stack([tyre_direction, -share])
-        singular_values = np.linalg.svd(design, compute_uv=False)
-        if singular_values[-1] < 1e-10:
+    for _, block in frame.groupby(["year", "event"]):
+        matrix = block[[f"slope_{s}" for s in SECTORS]].to_numpy(dtype=float)
+        if len(matrix) < 4:
             continue
-        conditions.append(float(singular_values[0] / singular_values[-1]))
-        well_posed += 1
+        centred = matrix - matrix.mean(axis=0, keepdims=True)
+        singular = np.linalg.svd(centred, compute_uv=False)
+        total = float((singular ** 2).sum())
+        if total <= 0:
+            continue
+        rank_one_fractions.append(float(singular[0] ** 2 / total))
 
-    conditions = np.asarray(conditions, dtype=float)
+        # Conditioning of the level system, if a fuel loading were supplied.
+        # Time share stands in for the shape of a measured loading purely to give
+        # the geometry a scale; the number says how well posed the system WOULD be,
+        # not that we have solved it.
+        _, _, right = np.linalg.svd(centred, full_matrices=False)
+        tyre_direction = right[0]
+        share = block[[f"mean_{s}" for s in SECTORS]].mean().to_numpy(dtype=float)
+        share = share / share.sum()
+        design = np.column_stack([tyre_direction, -share])
+        level_conditions.append(float(np.linalg.cond(design)))
+
+    rank_one = np.asarray(rank_one_fractions, dtype=float)
+    conditions = np.asarray(level_conditions, dtype=float)
     return {
-        "n_events": int(len(per_event)),
-        "whole_lap_singular": int(singular_lap),
-        "sector_well_posed": int(well_posed),
-        "median_condition_number": float(np.median(conditions)) if len(conditions) else None,
-        "worst_condition_number": float(conditions.max()) if len(conditions) else None,
-        "best_condition_number": float(conditions.min()) if len(conditions) else None,
+        "n_events": int(frame.groupby(["year", "event"]).ngroups),
+        "n_scored": int(len(rank_one)),
+        "median_rank_one_fraction": float(np.median(rank_one)) if len(rank_one) else None,
+        "tyre_loading_identified_without_prior": bool(
+            len(rank_one) and float(np.median(rank_one)) > 0.7),
+        "level_identified_by_sectors_alone": False,
+        "level_equations": 3,
+        "level_unknowns_after_normalisation": 4,
+        "median_level_condition_given_measured_fuel_loading":
+            float(np.median(conditions)) if len(conditions) else None,
     }
 
 
@@ -452,33 +481,43 @@ def main() -> None:
 
     print()
     print("=" * 92)
-    print("STEP 4 -- identifiability")
+    print("STEP 4 -- what sectors identify, and what they do not")
     print("=" * 92)
-    print(f"  whole-lap systems singular: {identifiability['whole_lap_singular']}"
-          f"/{identifiability['n_events']}   (exp18's result, reproduced)")
-    print(f"  sector systems well posed:  {identifiability['sector_well_posed']}"
-          f"/{identifiability['n_events']}")
-    if identifiability["median_condition_number"]:
-        print(f"  median condition number: {identifiability['median_condition_number']:.1f} "
-              f"(range {identifiability['best_condition_number']:.1f}"
-              f"-{identifiability['worst_condition_number']:.1f})")
-        print("  A condition number near 1 is perfectly posed; a very large one means")
-        print("  the two directions are nearly parallel and the gain is cosmetic.")
+    print(f"  tyre loading wT: centred slope matrix is rank one in "
+          f"{identifiability['median_rank_one_fraction']:.0%} of its variance "
+          f"({identifiability['n_scored']} races)")
+    print(f"  -> wT IDENTIFIED WITHOUT ANY PRIOR: "
+          f"{identifiability['tyre_loading_identified_without_prior']}")
+    print()
+    print(f"  the level: {identifiability['level_equations']} equations, "
+          f"{identifiability['level_unknowns_after_normalisation']} unknowns "
+          f"-> underdetermined by one")
+    print("  -> LEVEL NOT IDENTIFIED BY SECTORS ALONE. exp18's 6% figure stands.")
+    print()
+    print(f"  with a measured fuel loading the level system would condition at "
+          f"{identifiability['median_level_condition_given_measured_fuel_loading']:.1f}")
+    print("  (per-sector acceleration is measurable from telemetry; not done here)")
 
     print()
     print("=" * 92)
-    supported = (len(breaks) > 0 and stability.get("stable", False)
-                 and identifiability["sector_well_posed"] > 0)
+    supported = (len(breaks) > 0 and stability.get("stable", False))
     if supported:
-        print("VERDICT: supported. Sector times carry degradation information that a")
-        print("whole-lap time does not, the pattern replicates across drivers, and the")
-        print("two-parameter system is well posed where the whole-lap one is singular.")
-        print("Next: a sector observation model in the estimator, then re-run exp19.")
-    elif len(breaks) > 0 and not stability.get("stable", False):
-        print("VERDICT: not supported. The sector slopes do differ from time-")
-        print("proportionality, but the pattern does not replicate on held-out drivers,")
-        print("so it is stint-level noise rather than a loading structure. Same failure")
-        print("mode as the driver effect in exp15.")
+        print("VERDICT: partially supported, and the limit matters as much as the result.")
+        print()
+        print("  Sector times DO carry degradation information a whole lap does not:")
+        print("  all three sectors depart from time-proportionality, and the pattern")
+        print("  replicates across held-out drivers. The direction that degradation")
+        print("  loads onto -- where in a lap the tyre costs time -- is recoverable")
+        print("  from data with no prior at all, which no whole-lap model can do.")
+        print()
+        print("  Sectors DO NOT break the collinearity exp18 measured. The level is")
+        print("  three equations in four unknowns and stays underdetermined. Closing")
+        print("  it needs a fuel loading measured from telemetry, which is a route")
+        print("  rather than a result until it is done.")
+    elif len(breaks) > 0:
+        print("VERDICT: not supported. The sector slopes differ from time-")
+        print("proportionality but the pattern does not replicate on held-out")
+        print("drivers, so it is stint-level noise rather than loading structure.")
     else:
         print("VERDICT: not supported. Sector degradation is indistinguishable from")
         print("sector time share, so sectors add no identification.")
