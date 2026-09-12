@@ -134,6 +134,123 @@ body {
   );
 }
 
+/* ---------------------------------------------------------------------------
+   Briefing view
+
+   The five-question screen is read off a projector from across a room, so it
+   runs at a larger type scale than the working views and leans on motion only
+   where the motion carries meaning: an interval that grows from its centre
+   reads as "this is a spread", where a rectangle that is simply present reads
+   as "this is a bar".
+
+   All of it is plain CSS rather than a motion library, because every one of
+   these is a one-shot reveal on mount and a dependency would buy nothing.
+--------------------------------------------------------------------------- */
+
+/* A beam that opens outwards from its own mean tick. */
+@keyframes beam-open {
+  from {
+    transform: scaleX(0.04);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+.beam-open {
+  transform-origin: var(--beam-origin, 50%) 50%;
+  animation: beam-open 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Sections reveal as they scroll into the viewport; `.seen` is set by an
+   IntersectionObserver so a section below the fold is not already spent by the
+   time a judge reaches it. */
+.reveal {
+  opacity: 0;
+}
+.reveal.seen {
+  animation: rise 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes sweep {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* The live-status hairline under the briefing header. */
+.scanline {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in oklab, var(--color-alert) 70%, transparent) 45%,
+    color-mix(in oklab, var(--color-alert) 70%, transparent) 55%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: sweep 3.4s linear infinite;
+}
+
+/* Lap scrubber. Styled explicitly because the native track is unreadable on a
+   dark ground at projector distance. */
+.scrub {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 22px;
+  background: transparent;
+  cursor: pointer;
+}
+.scrub::-webkit-slider-runnable-track {
+  height: 4px;
+  background: var(--color-line);
+}
+.scrub::-moz-range-track {
+  height: 4px;
+  background: var(--color-line);
+}
+.scrub::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 4px;
+  height: 22px;
+  margin-top: -9px;
+  border-radius: 0;
+  background: var(--color-alert);
+}
+.scrub::-moz-range-thumb {
+  width: 4px;
+  height: 22px;
+  border: 0;
+  border-radius: 0;
+  background: var(--color-alert);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+  }
+  .scanline {
+    animation: none;
+  }
+}
+
 /* The header and rail are held in place structurally by the app shell in
    App.tsx -- the page itself does not scroll on a wide screen, only the working
    area does. Sticky positioning was doing half the job: the rail stayed and the

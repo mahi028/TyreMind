@@ -139,10 +139,21 @@ export interface DecompositionRow {
   compound: string
   observed_delta: number
   residual: number
+  /** Null on the reference lap of a run, where the share is 0/0. */
+  tyre_share?: number | null
   tyre?: number
   fuel?: number
   track?: number
   traffic?: number
+  /**
+   * Per-term posterior spreads. `/decompose-run` returns these alongside the
+   * means; without them a stacked bar is a point estimate pretending to be a
+   * measurement, which is exactly what this product exists not to ship.
+   */
+  tyre_sd?: number
+  fuel_sd?: number
+  track_sd?: number
+  traffic_sd?: number
 }
 
 export interface Scenario {
@@ -168,8 +179,16 @@ export interface ProjectionResult {
   horizon: number[]
   loss: number[]
   loss_sd: number[]
+  /**
+   * Per-horizon, not scalar. The handoff document describes `rate`/`rate_sd` as
+   * single numbers; the running API returns one value per horizon step. The API
+   * is the authority, so these are arrays.
+   */
+  rate: number[]
+  rate_sd: number[]
   breach_probability: number[]
   applicability: number[]
+  is_model_estimate: boolean
 }
 
 export interface DegradationRow {
@@ -357,6 +376,7 @@ export interface TrustResult {
     laps: number
     regime: string
     confidence: number
+    evidence?: Record<string, number>
     meaning: string
   }[]
   value_of_information: {
@@ -492,8 +512,15 @@ export interface PitWindow {
     downside: number
     best_case: number
     runs_past_cliff: number
+    /** Share of simulated races in which this lap was the fastest choice. */
+    probability_optimal: number
   }[]
   n_sims: number
+  /** How often the single recommended lap actually won. Usually modest. */
+  confidence_in_optimum: number
+  /** How often the winner fell inside the shaded window. The honest headline. */
+  confidence_in_window: number
+  probability_box_within_3_laps: number
   note: string
 }
 

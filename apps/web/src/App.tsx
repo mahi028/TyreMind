@@ -31,10 +31,12 @@ import { BeyondRacing } from './components/BeyondRacing'
 import { Explainer } from './components/Explainer'
 import { StintDecomposition, TrackEvolutionChart } from './components/charts'
 import { CircuitView } from './components/CircuitView'
+import { Briefing } from './components/briefing/Briefing'
 import { AskPanel } from './components/AskPanel'
 import { ThemeToggle } from './lib/theme'
 
 type View =
+  | 'briefing'
   | 'overview'
   | 'explain'
   | 'circuit'
@@ -46,6 +48,7 @@ type View =
   | 'beyond'
 
 const VIEWS: { key: View; label: string; blurb: string }[] = [
+  { key: 'briefing', label: 'The five questions', blurb: 'The whole product, one screen' },
   { key: 'overview', label: 'Start here', blurb: 'What this is, in plain terms' },
   { key: 'explain', label: 'Why is the car slow', blurb: 'Split pace into its causes' },
   { key: 'circuit', label: 'Where it wears', blurb: '3D lap, coloured by load' },
@@ -70,7 +73,7 @@ const VIEW_KEYS = new Set<string>(VIEWS.map((v) => v.key))
  */
 function viewFromHash(): View {
   const key = window.location.hash.replace(/^#\/?/, '')
-  return VIEW_KEYS.has(key) ? (key as View) : 'overview'
+  return VIEW_KEYS.has(key) ? (key as View) : 'briefing'
 }
 
 export default function App() {
@@ -195,6 +198,8 @@ export default function App() {
         <main className="min-w-0 flex-1 p-3 lg:overflow-y-auto">
           {!sessionId ? (
             <Loading what="the session catalogue" />
+          ) : view === 'briefing' ? (
+            <Briefing sessionId={sessionId} session={current} />
           ) : view === 'beyond' ? (
             <BeyondRacing />
           ) : view === 'ask' ? (

@@ -103,6 +103,7 @@ export function useThemeColours() {
       inkDim: read('--color-ink-dim', '#8fa3ae'),
       inkFaint: read('--color-ink-faint', '#5d6f7a'),
       line: read('--color-line', '#26343d'),
+      lineBright: read('--color-line-bright', '#354753'),
       raised: read('--color-raised', '#1d272e'),
       surface: read('--color-surface', '#151d23'),
       ground: read('--color-ground', '#0e1418'),
