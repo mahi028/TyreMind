@@ -1,0 +1,36 @@
+{
+  "_meta": {
+    "description": "Circuit elevation above mean sea level, used to correct the flat ISA air-density constant in configs/physics.yaml for altitude. Keyed the same way as tyremind.data.f1_loader.CIRCUIT_ALIASES so the two tables stay in sync.",
+    "epistemic": "literature",
+    "source": "Public geographic record (circuit surveys, race-preview altitude explainers). Elevation varies by tens of metres across the length of some circuits (Spa most notably, ~400-500m); the single figure here is the start/finish line, which is what matters for the pressure a session was actually run at.",
+    "low_confidence": ["baku", "monaco"],
+    "generated_at": "2026-09-13"
+  },
+  "elevation_m": {
+    "sakhir": 7,
+    "jeddah": 10,
+    "melbourne": 15,
+    "shanghai": 4,
+    "suzuka": 45,
+    "miami": 2,
+    "imola": 35,
+    "monaco": 25,
+    "barcelona": 135,
+    "montreal": 35,
+    "spielberg": 700,
+    "silverstone": 153,
+    "hungaroring": 264,
+    "spa": 470,
+    "zandvoort": 4,
+    "monza": 162,
+    "baku": 0,
+    "marina bay": 5,
+    "austin": 150,
+    "mexico city": 2285,
+    "sao paulo": 800,
+    "las vegas": 610,
+    "lusail": 10,
+    "bahrain": 7,
+    "yas marina": 5
+  }
+}

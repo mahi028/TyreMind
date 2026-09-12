@@ -110,7 +110,12 @@ environment:
     epistemic: literature
     value: 1.225
     sd: 0.05
-    source: "ISA sea level, 15 C. Recomputed per-session from air temp + pressure when available."
+    source: "ISA sea level, 15 C. This flat default is only correct for
+              circuits near sea level. tyremind.physics.environment.session_air_density
+              replaces it with an altitude- and session-temperature-corrected value
+              from data/reference/circuit_elevations.json -- material at Mexico City
+              (2285 m, ~20-23% less dense), Sao Paulo (800 m) and the Red Bull Ring
+              (700 m). Use the flat constant only where a circuit is unknown."
   gravity_m_s2:
     epistemic: measured
     value: 9.81
@@ -213,4 +218,10 @@ strategy:
     value: 21.0
     sd: 3.0
     source: "Circuit-specific; measured directly from FastF1 pit in/out lap deltas
-             where available. Falls back to this prior otherwise."
+             where available. Falls back to this prior otherwise.
+             data/reference/pit_stop_official.json (built by
+             scripts/build_pitstop_reference.py from FIA's own Race Pit Stop
+             Summary documents -- pit-lane entry-to-exit time, not just the
+             stationary stop) gives a tighter, circuit-specific alternative
+             per event where it has been fetched; prefer clean_median_s from
+             that file over this flat prior when it is present."

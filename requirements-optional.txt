@@ -7,3 +7,7 @@ google-genai>=0.3
 
 # MCP server: exposes TyreMind's estimator as tools an AI agent can call.
 mcp>=2.0
+
+# scripts/build_pitstop_reference.py: reads FIA's official pit-stop-summary
+# PDFs. Pure Python, no system deps (unlike pdfplumber/camelot).
+pypdf>=4.0
