@@ -125,6 +125,21 @@ CATALOGUE: list[tuple[str, str, str, str]] = [
      "Tibshirani, Barber, Candes, Ramdas (2019). Conformal Prediction Under Covariate "
      "Shift. NeurIPS 2019."),
 
+    # ---- 11 pit stop prediction: the direct benchmark for exp22 ----
+    ("11_pit_stop_prediction", "Frontiers2025_PitStopDecisionSupport_DeepLearning",
+     "https://www.frontiersin.org/journals/artificial-intelligence/articles/10.3389/frai.2025.1673148/pdf",
+     "Data-driven pit stop decision support for Formula 1 using deep learning models. "
+     "Frontiers in Artificial Intelligence (2025), doi:10.3389/frai.2025.1673148.  "
+     "*** Bi-LSTM precision 0.77, recall 0.86, F1 0.81 on 3% positive class. "
+     "THE NUMBER exp22 MUST BEAT ***"),
+    ("11_pit_stop_prediction", "NCIRL_PitstopStrategyEnsembleLearning",
+     "https://norma.ncirl.ie/7601/1/anikethmaheshrao.pdf",
+     "Predictive Model for Pitstop Strategy in Formula 1 using Ensemble Learning. "
+     "National College of Ireland thesis."),
+    ("11_pit_stop_prediction", "Preprints2025_MachineLearningPredictingF1",
+     "https://www.preprints.org/manuscript/202504.1471/v1/download",
+     "The Use of Machine Learning in Predicting Formula 1 Results. Preprints 2025."),
+
     # ---- 07 prognostics / RUL: the cross-domain evidence base ----
     ("07_prognostics_rul", "UncertaintyAwareRUL_TurbofanAleatoric",
      "https://arxiv.org/pdf/2511.19124",

@@ -1,216 +1,26 @@
 {
   "downloaded": [
     {
-      "folder": "01_race_strategy_simulation",
-      "stem": "Heilmeier2020_VirtualStrategyEngineer",
-      "url": "https://www.mdpi.com/2076-3417/10/21/7805/pdf",
-      "citation": "Heilmeier, Thomaser, Graf, Betz, Lienkamp (2020). Virtual Strategy Engineer: Using Artificial Neural Networks for Making Race Strategy Decisions in Circuit Motorsport. Applied Sciences 10(21):7805.",
-      "status": "skip (have 461 KB)"
+      "folder": "11_pit_stop_prediction",
+      "stem": "Frontiers2025_PitStopDecisionSupport_DeepLearning",
+      "url": "https://www.frontiersin.org/journals/artificial-intelligence/articles/10.3389/frai.2025.1673148/pdf",
+      "citation": "Data-driven pit stop decision support for Formula 1 using deep learning models. Frontiers in Artificial Intelligence (2025), doi:10.3389/frai.2025.1673148.  *** Bi-LSTM precision 0.77, recall 0.86, F1 0.81 on 3% positive class. THE NUMBER exp22 MUST BEAT ***",
+      "status": "ok 3383 KB"
     },
     {
-      "folder": "01_race_strategy_simulation",
-      "stem": "Heilmeier2020_MonteCarloRaceSimulation",
-      "url": "https://www.mdpi.com/2076-3417/10/12/4229/pdf",
-      "citation": "Heilmeier, Graf, Betz, Lienkamp (2020). Application of Monte Carlo Methods to Consider Probabilistic Effects in a Race Simulation for Circuit Motorsport. Applied Sciences 10(12):4229.",
-      "status": "skip (have 412 KB)"
+      "folder": "11_pit_stop_prediction",
+      "stem": "NCIRL_PitstopStrategyEnsembleLearning",
+      "url": "https://norma.ncirl.ie/7601/1/anikethmaheshrao.pdf",
+      "citation": "Predictive Model for Pitstop Strategy in Formula 1 using Ensemble Learning. National College of Ireland thesis.",
+      "status": "ok 1075 KB"
     },
     {
-      "folder": "01_race_strategy_simulation",
-      "stem": "Bassi2023_MasteringNordschleife",
-      "url": "https://arxiv.org/pdf/2306.16088",
-      "citation": "Mastering Nordschleife: A comprehensive race simulation for AI strategy decision-making in motorsports. arXiv:2306.16088.",
-      "status": "skip (have 2925 KB)"
-    },
-    {
-      "folder": "01_race_strategy_simulation",
-      "stem": "Pitwall_CalibratedMonteCarloBriefings",
-      "url": "https://arxiv.org/pdf/2607.06495",
-      "citation": "Pitwall: Faithful Natural-Language Race-Strategy Briefings from a Calibrated Real-Time Monte Carlo Engine. arXiv:2607.06495.",
-      "status": "skip (have 399 KB)"
-    },
-    {
-      "folder": "01_race_strategy_simulation",
-      "stem": "TowardsLearningBasedF1RaceStrategies",
-      "url": "https://arxiv.org/pdf/2512.21570",
-      "citation": "Towards Learning-Based Formula 1 Race Strategies. arXiv:2512.21570.",
-      "status": "skip (have 601 KB)"
-    },
-    {
-      "folder": "02_tyre_wear_physics",
-      "stem": "RubberWear_HistoryMechanismsPerspectives",
-      "url": "https://arxiv.org/pdf/2503.19494",
-      "citation": "Rubber Wear: History, Mechanisms, and Perspectives. arXiv:2503.19494.",
-      "status": "skip (have 2286 KB)"
-    },
-    {
-      "folder": "02_tyre_wear_physics",
-      "stem": "Farroni2023_TireWearSensitivityAnalysis",
-      "url": "https://www.megaride.eu/wp-content/uploads/2023/07/lubricants-11-00269.pdf",
-      "citation": "Tire Wear Sensitivity Analysis and Modeling Based on a Statistical Multidisciplinary Approach for High-Performance Vehicles. Lubricants 11(6):269.",
-      "status": "skip (have 1724 KB)"
-    },
-    {
-      "folder": "02_tyre_wear_physics",
-      "stem": "Wear_IrreversibleEntropyGeneration",
-      "url": "https://arxiv.org/pdf/1008.0412",
-      "citation": "The Relation Between Wear and Irreversible Entropy Generation in the Dry Sliding of Metals. arXiv:1008.0412.",
-      "status": "skip (have 798 KB)"
-    },
-    {
-      "folder": "03_tyre_friction_grip",
-      "stem": "StringTyreModels_DistributedFrBD",
-      "url": "https://arxiv.org/pdf/2603.02869",
-      "citation": "Bare and stretched string tyre models with distributed FrBD dynamics. arXiv:2603.02869.",
-      "status": "skip (have 1843 KB)"
-    },
-    {
-      "folder": "05_lap_time_modelling",
-      "stem": "RealTimeOptimalTrajectory_LapTimeML",
-      "url": "https://arxiv.org/pdf/2102.02315",
-      "citation": "Real-Time Optimal Trajectory Planning for Autonomous Vehicles and Lap Time Simulation Using Machine Learning. arXiv:2102.02315.",
-      "status": "skip (have 1610 KB)"
-    },
-    {
-      "folder": "06_ml_degradation",
-      "stem": "Sulsters2025_ExplainableTyreEnergyF1",
-      "url": "https://arxiv.org/pdf/2501.04067",
-      "citation": "Explainable Time Series Prediction of Tyre Energy in Formula One Race Strategy. arXiv:2501.04067 / ACM SAC 2025.",
-      "status": "skip (have 4459 KB)"
-    },
-    {
-      "folder": "03_tyre_friction_grip",
-      "stem": "Farroni2019_TRT_EVO_ThermodynamicTireModel",
-      "url": "https://www.megaride.eu/wp-content/uploads/2022/06/0954407018808992.pdf",
-      "citation": "Farroni, Russo, Sakhnevych, Timpone (2019). TRT EVO: Advances in real-time thermodynamic tire modeling for vehicle dynamics simulations. Proc IMechE Part D.",
-      "status": "skip (have 4272 KB)"
-    },
-    {
-      "folder": "03_tyre_friction_grip",
-      "stem": "LoadTransferMitigation_MPC",
-      "url": "https://arxiv.org/pdf/2606.26313",
-      "citation": "Racing a Wheeled Quadruped: Active Load Transfer Mitigation via Model Predictive Control. arXiv:2606.26313.  Load-transfer ratio formulation.",
-      "status": "skip (have 1158 KB)"
-    },
-    {
-      "folder": "03_tyre_friction_grip",
-      "stem": "GM3_GeneralPhysicalModel",
-      "url": "https://arxiv.org/pdf/2510.07807",
-      "citation": "GM3: A General Physical Model for Micro-Mobility Vehicles. arXiv:2510.07807.  Longitudinal and lateral load transfer with CoG height, wheelbase, track width.",
-      "status": "skip (have 1901 KB)"
-    },
-    {
-      "folder": "03_tyre_friction_grip",
-      "stem": "AutoRally_DoubleTrackModel",
-      "url": "https://arxiv.org/pdf/1806.00678",
-      "citation": "AutoRally: An Open Platform for Aggressive Autonomous Driving. arXiv:1806.00678.  Double-track model with per-side load difference.",
-      "status": "skip (have 7743 KB)"
-    },
-    {
-      "folder": "03_tyre_friction_grip",
-      "stem": "MultichamberSuspension_LoadTransfer",
-      "url": "https://arxiv.org/pdf/2304.08201",
-      "citation": "Handling-Oriented Stiffness Control of a Multichamber Suspension. arXiv:2304.08201.",
-      "status": "skip (have 2544 KB)"
-    },
-    {
-      "folder": "09_conformal_uncertainty",
-      "stem": "GibbsCandes2021_AdaptiveConformalInference",
-      "url": "https://arxiv.org/pdf/2106.00170",
-      "citation": "Gibbs & Candes (2021). Adaptive Conformal Inference Under Distribution Shift. NeurIPS 2021.  *** THE ACI UPDATE RULE WE IMPLEMENT ***",
-      "status": "skip (have 1182 KB)"
-    },
-    {
-      "folder": "09_conformal_uncertainty",
-      "stem": "AngelopoulosBates_GentleIntroConformal",
-      "url": "https://arxiv.org/pdf/2107.07511",
-      "citation": "Angelopoulos & Bates. A Gentle Introduction to Conformal Prediction and Distribution-Free Uncertainty Quantification. arXiv:2107.07511.",
-      "status": "skip (have 5235 KB)"
-    },
-    {
-      "folder": "09_conformal_uncertainty",
-      "stem": "Lei2016_DistributionFreePredictiveInference",
-      "url": "https://arxiv.org/pdf/1604.04173",
-      "citation": "Lei, G'Sell, Rinaldo, Tibshirani, Wasserman (2018). Distribution-Free Predictive Inference for Regression. JASA.  *** SPLIT CONFORMAL, THE FINITE-SAMPLE QUANTILE ***",
-      "status": "skip (have 1308 KB)"
-    },
-    {
-      "folder": "09_conformal_uncertainty",
-      "stem": "Tibshirani2019_ConformalCovariateShift",
-      "url": "https://arxiv.org/pdf/1904.06019",
-      "citation": "Tibshirani, Barber, Candes, Ramdas (2019). Conformal Prediction Under Covariate Shift. NeurIPS 2019.",
-      "status": "skip (have 413 KB)"
-    },
-    {
-      "folder": "07_prognostics_rul",
-      "stem": "UncertaintyAwareRUL_TurbofanAleatoric",
-      "url": "https://arxiv.org/pdf/2511.19124",
-      "citation": "Uncertainty-Aware Deep Learning Framework for RUL Prediction in Turbofan Engines with Learned Aleatoric Uncertainty. arXiv:2511.19124.  Reports 93.5-95.2% coverage on 95% intervals -- the direct comparator for our conformal RUL.",
-      "status": "ok 822 KB"
-    },
-    {
-      "folder": "07_prognostics_rul",
-      "stem": "BenchmarkUQ_DeepLearningPrognostics",
-      "url": "https://arxiv.org/pdf/2302.04730",
-      "citation": "A Benchmark on Uncertainty Quantification for Deep Learning Prognostics. arXiv:2302.04730.",
-      "status": "ok 1358 KB"
-    },
-    {
-      "folder": "07_prognostics_rul",
-      "stem": "UQ_Tutorial_EngineeringDesignHealthPrognostics",
-      "url": "https://arxiv.org/pdf/2305.04933",
-      "citation": "Uncertainty Quantification in Machine Learning for Engineering Design and Health Prognostics: A Tutorial. arXiv:2305.04933.",
-      "status": "ok 12939 KB"
-    },
-    {
-      "folder": "07_prognostics_rul",
-      "stem": "RUL_UQ_NonstationaryGaussianProcess",
-      "url": "https://arxiv.org/pdf/2109.12111",
-      "citation": "Accurate RUL Prediction with Uncertainty Quantification: a Deep Learning and Nonstationary Gaussian Process Approach. arXiv:2109.12111.",
-      "status": "ok 1953 KB"
-    },
-    {
-      "folder": "07_prognostics_rul",
-      "stem": "BayesianDL_RUL_SteinVariational",
-      "url": "https://arxiv.org/pdf/2402.01098",
-      "citation": "Bayesian Deep Learning for RUL Estimation via Stein Variational Gradient Descent. arXiv:2402.01098.",
-      "status": "ok 647 KB"
-    },
-    {
-      "folder": "10_theses_reports",
-      "stem": "Sulsters_SimulatingF1RaceStrategies",
-      "url": "https://vu-business-analytics.github.io/internship-office/papers/paper-sulsters.pdf",
-      "citation": "Sulsters, C. Simulating Formula One Race Strategies. VU Amsterdam Business Analytics internship paper.",
-      "status": "ok 685 KB"
-    },
-    {
-      "folder": "10_theses_reports",
-      "stem": "PitStopStrategyOptimizationModel_SimulationFramework",
-      "url": "https://optimization-online.org/wp-content/uploads/2026/02/Pit_Stop_Strategy_Optimization_Model.pdf",
-      "citation": "A simulation framework for Formula 1 race strategy. Optimization Online (2026).",
-      "status": "ok 514 KB"
-    },
-    {
-      "folder": "08_state_space_filtering",
-      "stem": "StateSpaceApproach_TireDegradationF1",
-      "url": "https://arxiv.org/pdf/2512.00640",
-      "citation": "A State-Space Approach to Modeling Tire Degradation in Formula 1 Racing. arXiv:2512.00640.  *** CLOSEST PRIOR ART TO TYREMIND -- READ FIRST ***",
-      "status": "skip (have 584 KB)"
+      "folder": "11_pit_stop_prediction",
+      "stem": "Preprints2025_MachineLearningPredictingF1",
+      "url": "https://www.preprints.org/manuscript/202504.1471/v1/download",
+      "citation": "The Use of Machine Learning in Predicting Formula 1 Results. Preprints 2025.",
+      "status": "ok 982 KB"
     }
   ],
-  "failed": [
-    {
-      "folder": "04_thermal_models",
-      "stem": "TireThermalCharacterization_TestProcedureModel",
-      "url": "https://www.iaeng.org/publication/WCE2016/WCE2016_pp1199-1204.pdf",
-      "citation": "Tire Thermal Characterization: Test Procedure and Model Parameters Evaluation. Proc. World Congress on Engineering 2016, pp.1199-1204.",
-      "status": "FAILED <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1006)>"
-    },
-    {
-      "folder": "10_theses_reports",
-      "stem": "UChile_OptimizationPitStopStrategiesF1",
-      "url": "https://repositorio.uchile.cl/bitstream/handle/2250/199664/Optimization-of-pit-stop-strategies-in-Formula-1-racing.pdf?sequence=1&isAllowed=y",
-      "citation": "Optimization of Pit Stop Strategies in Formula 1 Racing. Universidad de Chile.",
-      "status": "FAILED not a PDF (7310 bytes, starts b'<!doctype html><html')"
-    }
-  ]
+  "failed": []
 }
