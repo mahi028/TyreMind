@@ -306,8 +306,8 @@ def main() -> None:
 
     fair, n_common = common_subset(all_rows)
     if not fair.empty:
-        print("
-" + "=" * 104)
+        print()
+        print("=" * 104)
         print(f"LIKE FOR LIKE -- the {n_common} stops every model answered. "
               "Declining is legitimate; being graded on an easier subset is not.")
         print("=" * 104)

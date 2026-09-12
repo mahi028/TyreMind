@@ -1,6 +1,6 @@
 {
  "experiment": "exp22_pit_stop_validation",
- "generated_at": "2026-09-12T17:26:37.140779+00:00",
+ "generated_at": "2026-09-12T17:33:34.404592+00:00",
  "n_sessions": 14,
  "n_stops_scored": 274,
  "n_stops_excluded": 93,
@@ -142,6 +142,75 @@
    "mean_confidence": NaN
   }
  ],
+ "like_for_like": [
+  {
+   "model": "TyreMind state-space",
+   "n_common": 49,
+   "mae_laps": 5.918367346938775,
+   "mae_se": 0.5215074424155361,
+   "median_abs_error": 6.0,
+   "bias_laps": -4.8979591836734695,
+   "hit_rate_within_2": 0.24489795918367346,
+   "answered": 246,
+   "answer_rate": 0.8978102189781022
+  },
+  {
+   "model": "Cappello & Hoegh state-space",
+   "n_common": 49,
+   "mae_laps": 5.979591836734694,
+   "mae_se": 0.5171298636212686,
+   "median_abs_error": 5.0,
+   "bias_laps": -4.428571428571429,
+   "hit_rate_within_2": 0.16326530612244897,
+   "answered": 274,
+   "answer_rate": 1.0
+  },
+  {
+   "model": "Fuel-corrected regression",
+   "n_common": 49,
+   "mae_laps": 6.3061224489795915,
+   "mae_se": 0.7238667436847753,
+   "median_abs_error": 5.0,
+   "bias_laps": -4.26530612244898,
+   "hit_rate_within_2": 0.2857142857142857,
+   "answered": 271,
+   "answer_rate": 0.9890510948905109
+  },
+  {
+   "model": "Heilmeier additive (linear tyre)",
+   "n_common": 49,
+   "mae_laps": 7.551020408163265,
+   "mae_se": 0.6527422690497745,
+   "median_abs_error": 7.0,
+   "bias_laps": -7.1020408163265305,
+   "hit_rate_within_2": 0.14285714285714285,
+   "answered": 222,
+   "answer_rate": 0.8102189781021898
+  },
+  {
+   "model": "Naive (lap time vs tyre age)",
+   "n_common": 49,
+   "mae_laps": 10.857142857142858,
+   "mae_se": 0.6738557951469002,
+   "median_abs_error": 11.0,
+   "bias_laps": -1.8775510204081634,
+   "hit_rate_within_2": 0.061224489795918366,
+   "answered": 119,
+   "answer_rate": 0.4343065693430657
+  },
+  {
+   "model": "Pooled regression",
+   "n_common": 49,
+   "mae_laps": 11.122448979591837,
+   "mae_se": 0.6996310088335489,
+   "median_abs_error": 11.0,
+   "bias_laps": -2.306122448979592,
+   "hit_rate_within_2": 0.061224489795918366,
+   "answered": 137,
+   "answer_rate": 0.5
+  }
+ ],
+ "n_common_stops": 49,
  "rows": [
   {
    "driver": "ALB",
