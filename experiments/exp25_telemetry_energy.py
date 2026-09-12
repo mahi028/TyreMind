@@ -42,7 +42,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from tyremind.data.corpus import read_lap_table
+from tyremind.data.corpus import read_lap_table, read_telemetry_table
 
 RESULTS = Path(__file__).parent / "results" / "exp25_telemetry_energy.json"
 TELEMETRY_DIR = Path("data/telemetry")
@@ -80,7 +80,7 @@ def build_stints() -> pd.DataFrame:
         if not lap_path.exists():
             continue
         merged = read_lap_table(lap_path).merge(
-            pd.read_parquet(path), on=["driver", "session_lap"], how="inner")
+            read_telemetry_table(Path(path)), on=["driver", "session_lap"], how="inner")
         if merged.empty:
             continue
 
