@@ -529,12 +529,67 @@ def pit_window(
     winners = np.argmin(matrix, axis=0)
     counts = np.bincount(winners, minlength=len(candidates)).astype(float)
     probabilities = counts / max(counts.sum(), 1.0)
-    for row, probability in zip(sweep, probabilities):
-        row["probability_optimal"] = float(probability)
+    # Named `entry`, not `row`: `row` is the lap Series holding tyre_age and
+    # compound, and shadowing it here left a latent KeyError that only fired once
+    # something downstream read it again.
+    for entry, probability in zip(sweep, probabilities):
+        entry["probability_optimal"] = float(probability)
 
-    best = min(sweep, key=lambda r: r["expected_time"])
+    # The recommendation comes from the ANALYTIC optimiser, not from this sweep.
+    #
+    # There were two recommenders in this repository and they disagreed. For
+    # Antonelli at Bahrain lap 5 the simulation answered lap 20 and the analytic
+    # sweep answered lap 11; he boxed on lap 11. The analytic one is what exp22
+    # and exp30 score, so every published figure -- 5.92 laps mean error, lift
+    # 1.97 over chance, a 7.9-point calibration gap -- describes it and not this.
+    # Serving a different number from the one we validated would make all of
+    # those figures describe something the product does not do.
+    #
+    # The simulation is kept for what it is good at: a cost curve over the whole
+    # remaining race, including traffic and the cliff, which the analytic form
+    # does not model. It gives the SHAPE. The analytic optimiser gives the CALL.
+    from tyremind.models.pit_decision import recommend_pit_lap
+
+    current_rate = tyres[current]
+    alternatives_rates = [tyres[c].degradation_rate for c in tyres if c != current]
+    analytic = recommend_pit_lap(
+        current_rate=float(current_rate.degradation_rate),
+        current_rate_sd=float(getattr(current_rate, "degradation_rate_sd", 0.05) or 0.05),
+        fresh_rate=float(np.mean(alternatives_rates)) if alternatives_rates
+        else float(current_rate.degradation_rate),
+        current_age=float(row["tyre_age"]),
+        decision_lap=int(lap),
+        final_lap=total_laps,
+        pit_loss_s=DEFAULT_PIT_LOSS_S,
+    )
+
+    if analytic.reason:
+        # The optimiser declined -- degradation is not what decides this stop.
+        # That refusal is the honest answer and must survive to the caller rather
+        # than being quietly replaced by the simulation's pick.
+        return {
+            "driver": driver,
+            "from_lap": int(lap),
+            "total_laps": total_laps,
+            "new_compound": fresh,
+            "optimum_lap": None,
+            "declined": True,
+            "reason": analytic.reason,
+            "sweep": sweep,
+            "n_sims": n_sims,
+            "note": "No recommendation: the tyre is not what decides this stop.",
+        }
+
+    best = next((r for r in sweep if r["pit_lap"] == analytic.lap), None)
+    if best is None:
+        best = min(sweep, key=lambda r: r["expected_time"])
     # How wide is the window that costs less than a second against the optimum?
     tolerable = [r["pit_lap"] for r in sweep if r["expected_time"] <= best["expected_time"] + 1.0]
+    # Probabilities from the analytic optimiser, so the confidence figures match
+    # the ones exp30 measured a calibration gap for.
+    analytic_probabilities = analytic.distribution
+    for row_ in sweep:
+        row_["probability_optimal"] = float(analytic_probabilities.get(row_["pit_lap"], 0.0))
 
     return {
         "driver": driver,
@@ -548,9 +603,8 @@ def pit_window(
         "sweep": sweep,
         "n_sims": n_sims,
         # The headline confidence: how often the recommended lap actually won.
-        "confidence_in_optimum": float(
-            next(r["probability_optimal"] for r in sweep if r["pit_lap"] == best["pit_lap"])
-        ),
+        "declined": False,
+        "confidence_in_optimum": float(analytic.confidence),
         # And the same for the window, which is usually the number a strategist
         # wants: not "is lap 34 exactly right" but "am I in the right window".
         "confidence_in_window": float(

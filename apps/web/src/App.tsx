@@ -32,11 +32,13 @@ import { Explainer } from './components/Explainer'
 import { StintDecomposition, TrackEvolutionChart } from './components/charts'
 import { CircuitView } from './components/CircuitView'
 import { Briefing } from './components/briefing/Briefing'
+import { RaceTheatre } from './components/track3d'
 import { AskPanel } from './components/AskPanel'
 import { ThemeToggle } from './lib/theme'
 
 type View =
   | 'briefing'
+  | 'race'
   | 'overview'
   | 'explain'
   | 'circuit'
@@ -49,6 +51,7 @@ type View =
 
 const VIEWS: { key: View; label: string; blurb: string }[] = [
   { key: 'briefing', label: 'The five questions', blurb: 'The whole product, one screen' },
+  { key: 'race', label: 'Run the race', blurb: 'Our call against his, live' },
   { key: 'overview', label: 'Start here', blurb: 'What this is, in plain terms' },
   { key: 'explain', label: 'Why is the car slow', blurb: 'Split pace into its causes' },
   { key: 'circuit', label: 'Where it wears', blurb: '3D lap, coloured by load' },
@@ -200,6 +203,11 @@ export default function App() {
             <Loading what="the session catalogue" />
           ) : view === 'briefing' ? (
             <Briefing sessionId={sessionId} session={current} />
+          ) : view === 'race' ? (
+            // Self-contained: it picks its own session, because the case it
+            // demonstrates is a specific race and a specific driver, and the
+            // session rail would otherwise silently change what is being shown.
+            <RaceTheatre />
           ) : view === 'beyond' ? (
             <BeyondRacing />
           ) : view === 'ask' ? (
