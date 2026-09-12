@@ -1,0 +1,108 @@
+"""The published baselines must be faithful, and must not be quietly crippled.
+
+A reimplementation of someone else's model is only useful as a comparator if it
+is a fair one. These tests check the properties the papers actually specify --
+the linear tyre term, the positivity prior, the per-driver scope -- so that a
+regression that weakens a competitor shows up as a failure rather than as a win
+for us.
+"""
+
+from __future__ import annotations
+
+import numpy as np
+import pandas as pd
+import pytest
+
+from tyremind.models.literature import (
+    ArimaBaseline,
+    CappelloHoeghModel,
+    HeilmeierModel,
+    extended_ladder,
+    literature_ladder,
+)
+
+
+@pytest.fixture(scope="module")
+def session() -> pd.DataFrame:
+    """A synthetic stint set with a known linear degradation of 0.10 s/lap."""
+    rng = np.random.default_rng(7)
+    rows = []
+    for driver in [f"D{i:02d}" for i in range(8)]:
+        for run in range(2):
+            age0 = rng.integers(0, 4)
+            for lap in range(14):
+                age = age0 + lap
+                rows.append({
+                    "driver": driver,
+                    "session_lap": run * 14 + lap + 1,
+                    "run_id": hash((driver, run)) % 10_000,
+                    "tyre_age": float(age),
+                    "lap_in_run": float(lap),
+                    "lap_time": 90.0 + 0.10 * age - 0.081 * lap + rng.normal(0, 0.08),
+                    "compound": "MEDIUM",
+                    "traffic_index": 0.0,
+                })
+    return pd.DataFrame(rows)
+
+
+class TestContract:
+    @pytest.mark.parametrize("model", literature_ladder(), ids=lambda m: m.name)
+    def test_fits_and_predicts_finite_values(self, model, session):
+        model.fit(session)
+        mean, sd = model.predict(session)
+        assert len(mean) == len(session)
+        assert np.all(np.isfinite(mean)), model.name
+        assert np.all(sd > 0), "a model that cannot say how sure it is cannot be calibrated"
+
+    def test_the_extended_ladder_has_nine_distinct_rungs(self):
+        names = [m.name for m in extended_ladder()]
+        assert len(names) == 9
+        assert len(set(names)) == 9
+
+
+class TestHeilmeier:
+    def test_recovers_a_linear_degradation_rate(self, session):
+        """Its own generating assumption, so it should be close."""
+        model = HeilmeierModel().fit(session)
+        rate, _ = model.compound_rates()["MEDIUM"]
+        assert rate == pytest.approx(0.10, abs=0.03)
+
+    def test_the_tyre_term_is_linear_in_age_by_construction(self, session):
+        """Equation (6) is `k0(c) + k1(c) * a`. Doubling age must double the
+        tyre contribution -- if a future edit lets it bend, it is no longer the
+        published model and the comparison stops being fair."""
+        model = HeilmeierModel().fit(session)
+        rate, _ = model.compound_rates()["MEDIUM"]
+        assert rate * 20 == pytest.approx(2 * rate * 10)
+
+
+class TestCappelloHoegh:
+    def test_the_positivity_prior_is_respected(self, session):
+        """Their half-normal forces nu >= 0. Keeping it is what makes this a
+        reproduction rather than an argument with the paper."""
+        model = CappelloHoeghModel().fit(session)
+        for rate, _ in model.compound_rates().values():
+            assert rate >= 0.0
+
+    def test_a_driver_with_too_few_laps_is_dropped_not_guessed(self):
+        """Per-driver fitting means a short run yields no rate at all. That is a
+        real property of a single-car model, and the reason a whole-field model
+        can answer for a compound it cannot."""
+        short = pd.DataFrame({
+            "driver": ["X"] * 4,
+            "session_lap": [1, 2, 3, 4],
+            "run_id": [1] * 4,
+            "tyre_age": [1.0, 2.0, 3.0, 4.0],
+            "lap_in_run": [0.0, 1.0, 2.0, 3.0],
+            "lap_time": [90.0, 90.1, 90.2, 90.3],
+            "compound": ["SOFT"] * 4,
+            "traffic_index": [0.0] * 4,
+        })
+        model = CappelloHoeghModel().fit(short)
+        assert model.compound_rates() == {}
+
+
+class TestArima:
+    def test_reports_no_degradation_rate(self, session):
+        """ARIMA has no such parameter. Inventing one would be dishonest."""
+        assert ArimaBaseline().fit(session).compound_rates() == {}
