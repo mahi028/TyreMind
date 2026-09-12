@@ -11,6 +11,8 @@ import json
 import logging
 from pathlib import Path
 
+from functools import lru_cache
+
 import numpy as np
 from fastapi import FastAPI, HTTPException
 
@@ -436,6 +438,47 @@ def health_timeline(session_id: str, driver: str, run_id: int) -> dict:
     }
 
 
+@lru_cache(maxsize=1)
+def _pit_calibration() -> dict:
+    """Conformal pit-window thresholds, or empty when the artefact is absent.
+
+    Absent is a normal state on a fresh clone -- the artefact is built by
+    `scripts/build_pit_calibration.py` from exp30 -- and the endpoint degrades to
+    serving no calibrated window rather than inventing one.
+    """
+    path = Path("data/reference/pit_calibration.json")
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def _calibrated_windows(centre: int, final_lap: int) -> list[dict]:
+    """Windows at each calibrated coverage level, widest guarantee last.
+
+    Each carries the coverage actually measured on held-out stops alongside the
+    coverage targeted, so a reader can see the two agree instead of taking the
+    target on trust.
+    """
+    artefact = _pit_calibration()
+    out = []
+    for entry in artefact.get("entries", {}).values():
+        half = entry.get("half_width_laps")
+        if half is None:
+            continue
+        out.append({
+            "target_coverage": entry["target_coverage"],
+            "measured_coverage": entry.get("measured_coverage_held_out"),
+            "half_width_laps": half,
+            "low": max(centre - int(half), 1),
+            "high": min(centre + int(half), final_lap),
+            "n_calibration": entry.get("n_calibration"),
+        })
+    return sorted(out, key=lambda w: w["target_coverage"])
+
+
 def pit_window(
     session_id: str,
     driver: str,
@@ -605,6 +648,11 @@ def pit_window(
         # The headline confidence: how often the recommended lap actually won.
         "declined": False,
         "confidence_in_optimum": float(analytic.confidence),
+        # The calibrated window, which is the one a strategist should act on.
+        # Its stated coverage was measured on held-out real stops rather than
+        # summed from a softmax whose temperature nobody validated: exp30 found
+        # the old window claimed 31.9% and delivered 24.0%.
+        "calibrated_windows": _calibrated_windows(analytic.lap, total_laps),
         # And the same for the window, which is usually the number a strategist
         # wants: not "is lap 34 exactly right" but "am I in the right window".
         "confidence_in_window": float(
