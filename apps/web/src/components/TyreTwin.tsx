@@ -26,7 +26,7 @@ export interface CornerLoad {
 function healthColour(health: number): string {
   if (health > 60) return 'var(--color-good)'
   if (health > 25) return 'var(--color-medium)'
-  return 'var(--color-alert)'
+  return 'var(--color-danger)'
 }
 
 const CORNERS: { key: keyof CornerLoad; label: string; x: number; y: number }[] = [
@@ -71,16 +71,16 @@ export function TyreTwin({
     <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start sm:gap-6">
       <svg viewBox="0 0 180 230" className="h-[230px] w-[180px] shrink-0" role="img"
         aria-label={`Tyre loading diagram: left side carries ${(leftShare * 100).toFixed(0)} percent of energy`}>
-        {/* Car body, kept deliberately plain so the tyres carry the attention. */}
+        {/* Car body — deliberately minimal; tyres carry the attention */}
         <path
           d="M 90 10 C 70 10 62 28 62 48 L 62 172 C 62 194 72 214 90 214 C 108 214 118 194 118 172 L 118 48 C 118 28 110 10 90 10 Z"
-          fill="var(--color-raised)"
-          stroke="var(--color-line)"
+          fill="var(--color-card)"
+          stroke="var(--color-line-bright)"
           strokeWidth="1"
         />
         {/* Axles */}
-        <line x1="52" y1="44" x2="128" y2="44" stroke="var(--color-line)" strokeWidth="1" />
-        <line x1="52" y1="176" x2="128" y2="176" stroke="var(--color-line)" strokeWidth="1" />
+        <line x1="52" y1="44" x2="128" y2="44" stroke="var(--color-line-bright)" strokeWidth="1" />
+        <line x1="52" y1="176" x2="128" y2="176" stroke="var(--color-line-bright)" strokeWidth="1" />
 
         {CORNERS.map(({ key, x, y }) => {
           const value = energy[key]
@@ -148,9 +148,9 @@ export function TyreTwin({
                   {performanceLost.toFixed(2)} s/lap slower than a fresh set
                 </div>
               )}
-              <div className="mt-1.5 h-1.5 w-full max-w-[240px] bg-raised">
+              <div className="mt-1.5 h-1.5 w-full max-w-[240px] overflow-hidden rounded-full bg-raised">
                 <div
-                  className="h-full transition-[width] duration-500"
+                  className="h-full rounded-full transition-[width] duration-500"
                   style={{ width: `${health}%`, background: healthColour(health) }}
                 />
               </div>
@@ -188,9 +188,9 @@ export function TyreTwin({
         </dl>
 
         <p className="max-w-[46ch] text-[11px] leading-relaxed text-ink-faint">
-          Corner loading is computed from the racing line: curvature gives lateral
-          acceleration, which transfers load to the outside of the car. A circuit
-          with mostly right-hand corners works the left tyres hardest.
+          Corner loading comes from the racing line: curvature drives lateral
+          acceleration, which shifts load to the outside of the car, so a
+          mostly right-hand circuit works the left tyres hardest.
         </p>
       </div>
     </div>

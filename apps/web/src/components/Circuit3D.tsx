@@ -59,11 +59,9 @@ export const MODE_LABEL: Record<ColourMode, string> = {
 }
 
 export const MODE_HELP: Record<ColourMode, string> = {
-  tyre_load:
-    'How hard the tyres are working at each point, from the physics layer. Bright means the contact patch is dissipating the most energy — this is where a stint gets used up.',
-  speed_kmh: 'Straightforward speed, useful for orienting yourself on the lap.',
-  lateral_g:
-    'Cornering load, computed from the curvature of the racing line — so it needs no vehicle model, just the geometry the car actually drove.',
+  tyre_load: 'How hard the tyres work at each point. Bright means the tyre is being used up fastest.',
+  speed_kmh: 'Speed around the lap, for orientation.',
+  lateral_g: 'Cornering load, computed from the racing line’s curvature.',
 }
 
 /** Centre and scale a track so any circuit fits the same viewing box. */
@@ -105,7 +103,7 @@ function useRampColours(track: TrackGeometry, mode: ColourMode) {
 
     const cold = new THREE.Color(colours.fuel)
     const warm = new THREE.Color(colours.medium)
-    const hot = new THREE.Color(colours.alert)
+    const hot = new THREE.Color(colours.danger)
 
     const ramp = (t: number) => {
       const c = new THREE.Color()
@@ -259,7 +257,7 @@ export function CircuitLegend({ mode }: { mode: ColourMode }) {
       <div
         className="h-1.5 w-32"
         style={{
-          background: `linear-gradient(90deg, ${colours.fuel}, ${colours.medium}, ${colours.alert})`,
+          background: `linear-gradient(90deg, ${colours.fuel}, ${colours.medium}, ${colours.danger})`,
         }}
       />
       <span className="text-[10px] text-ink-faint">high</span>

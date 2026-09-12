@@ -1,4 +1,4 @@
-/**
+﻿/**
  * The tyre digital twin: what the model currently believes about one set of tyres.
  *
  * Combines the four things a race engineer asks in sequence -- how worn is it,
@@ -16,6 +16,7 @@ import {
   compoundColour,
   compoundColourResolved,
   cornerEnergy,
+  fixed,
   resolveColour,
   signed,
   type CornerEnergy,
@@ -25,7 +26,16 @@ import {
   type Scenario,
   type TrustResult,
 } from '../lib/api'
-import { Beam, EstimateTag, ErrorNote, Loading, Panel, Stat } from './primitives'
+import {
+  Beam,
+  CompoundChip,
+  EstimateTag,
+  ErrorNote,
+  Loading,
+  Panel,
+  RunChip,
+  Stat,
+} from './primitives'
 import { Explainer } from './Explainer'
 import { EVEN_SPLIT, TyreTwin } from './TyreTwin'
 
@@ -94,46 +104,42 @@ export function TyreStateView({
 
   const latest = timeline?.rows.at(-1)
 
+  // One shared scale for the consensus beams, wide enough that the widest
+  // interval still fits. A fixed domain clipped soft compounds off the track.
+  const consensusMax = Math.max(
+    0.3,
+    ...Object.values(trust?.consensus ?? {}).map((c) => c.consensus + 1.96 * c.consensus_sd),
+  )
+
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <Explainer id="tyrestate" question="What is a tyre digital twin?">
         <p>
-          A running estimate of the condition of one specific set of tyres,
-          updated every lap. It is not a measurement — nothing on an F1 car reports
-          tread depth to the outside world. It is what the model infers from how
-          the car has been performing, with the confounders taken out.
+          A running estimate of one set of tyres, updated every lap. No F1 car
+          reports tread depth, so this is inferred from how the car has performed,
+          with confounders removed.
         </p>
         <p>
-          <strong>Health is a convention, not a reading.</strong> 100 means as new;
-          0 means the set is 1.5 seconds a lap slower than a fresh one. The seconds
-          are always shown next to it so you can check the conversion yourself.
+          <strong>Health is a convention, not a reading.</strong> 100 means new,
+          0 means 1.5 s/lap slower than fresh. The seconds are always shown next
+          to it.
         </p>
       </Explainer>
 
       <Panel title="Choose a set of tyres">
         <div className="flex flex-wrap gap-1">
           {runs.slice(0, 14).map((run) => (
-            <button
+            <RunChip
               key={run.run_id}
-              onClick={() => onSelect(run)}
-              className={`flex items-center gap-1.5 border px-2 py-1 text-[11px] transition-colors ${
-                selected.run_id === run.run_id
-                  ? 'border-alert text-ink'
-                  : 'border-line text-ink-dim hover:border-line-bright'
-              }`}
-            >
-              <span
-                className="inline-block h-2 w-2 rounded-full"
-                style={{ background: compoundColour(run.compound) }}
-              />
-              <span className="num">{run.driver}</span>
-              <span className="text-ink-faint">{run.laps}L</span>
-            </button>
+              run={run}
+              selected={selected.run_id === run.run_id}
+              onSelect={() => onSelect(run)}
+            />
           ))}
         </div>
       </Panel>
 
-      <div className="grid gap-3 lg:grid-cols-[1fr_1.1fr]">
+      <div className="grid gap-4 lg:grid-cols-[1fr_1.1fr]">
         <Panel
           title="Digital twin"
           aside={corners?.measured ? `measured at ${corners.circuit}` : 'loading split'}
@@ -148,18 +154,17 @@ export function TyreStateView({
 
           {corners && !corners.measured && (
             <p className="mt-3 border-l-2 border-medium pl-3 text-[11px] leading-relaxed text-ink-faint">
-              Corner loading has not been computed for {corners.circuit}. An even
-              split is shown as a placeholder — it is not a result.{' '}
-              {corners.reason}
+              Corner loading not yet computed for {corners.circuit}: even split
+              shown as a placeholder, not a result. {corners.reason}
             </p>
           )}
           {corners?.measured && (
             <p className="mt-3 border-l-2 border-good pl-3 text-[11px] leading-relaxed text-ink-faint">
-              Measured from {corners.n_laps} laps of position telemetry. The model
-              was never told which way {corners.circuit} runs, and inferred{' '}
-              <strong className="text-ink-dim">{corners.predicted_direction}</strong> from
-              the loading alone — which matches the published circuit map. Peak
-              lateral load {corners.peak_lateral_g?.toFixed(1)} g.
+              Measured from {corners.n_laps} laps of position telemetry. Without
+              being told which way {corners.circuit} runs, the model inferred{' '}
+              <strong className="text-ink-dim">{corners.predicted_direction}</strong>,
+              matching the published circuit map. Peak lateral load{' '}
+              {corners.peak_lateral_g?.toFixed(1)} g.
             </p>
           )}
         </Panel>
@@ -173,7 +178,7 @@ export function TyreStateView({
         </Panel>
       </div>
 
-      <div className="grid gap-3 lg:grid-cols-[1fr_1fr]">
+      <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
         {projection && (
           <Panel title="How much life is left" aside={<EstimateTag>projection</EstimateTag>}>
             <div className="mb-4 grid grid-cols-3 gap-4">
@@ -214,12 +219,12 @@ export function TyreStateView({
                 return (
                   <div
                     key={h}
-                    className="grid grid-cols-[46px_1fr_46px_46px] items-center gap-2 border-t border-line/60 py-1"
+                    className="grid grid-cols-[46px_1fr_46px_46px] items-center gap-2 border-t border-line-subtle py-1"
                   >
                     <span className="num text-[11.5px] text-ink-dim">+{h}</span>
-                    <div className="h-3 bg-raised">
+                    <div className="h-3 overflow-hidden rounded-pill bg-raised">
                       <div
-                        className="h-full transition-[width]"
+                        className="h-full rounded-pill transition-[width]"
                         style={{
                           width: `${p * 100}%`,
                           background: compoundColour(projection.compound),
@@ -233,7 +238,7 @@ export function TyreStateView({
                     <span
                       className="num text-right text-[10.5px]"
                       style={{
-                        color: applies < 0.5 ? 'var(--color-alert)' : 'var(--color-ink-faint)',
+                        color: applies < 0.5 ? 'var(--color-danger)' : 'var(--color-ink-faint)',
                       }}
                     >
                       {(applies * 100).toFixed(0)}
@@ -243,15 +248,14 @@ export function TyreStateView({
               })}
             </div>
             <p className="mt-3 max-w-[52ch] text-[11px] leading-relaxed text-ink-faint">
-              The right-hand column falls once the projection reaches past the oldest
-              tyre this session actually contains. Below 50% the model is
-              extrapolating rather than reporting, and a cliff outside the observed
-              range cannot be seen at all.
+              Applicability falls once the projection passes the oldest tyre this
+              session contains. Below 50% the model is extrapolating, not
+              reporting.
             </p>
           </Panel>
         )}
 
-        <div className="space-y-3">
+        <div className="space-y-4">
           <Panel title="What if" aside={<EstimateTag>never driven</EstimateTag>}>
             <div className="space-y-3.5">
               {scenarios.map((s) => (
@@ -295,9 +299,9 @@ export function TyreStateView({
               aside={`${trust.applicability.risk} risk`}
             >
               <div className="mb-3 flex items-center gap-3">
-                <div className="h-1.5 flex-1 bg-raised">
+                <div className="h-1.5 flex-1 overflow-hidden rounded-pill bg-raised">
                   <div
-                    className="h-full"
+                    className="h-full rounded-pill"
                     style={{
                       width: `${trust.applicability.applicability * 100}%`,
                       background:
@@ -305,7 +309,7 @@ export function TyreStateView({
                           ? 'var(--color-good)'
                           : trust.applicability.risk === 'medium'
                             ? 'var(--color-medium)'
-                            : 'var(--color-alert)',
+                            : 'var(--color-danger)',
                     }}
                   />
                 </div>
@@ -323,6 +327,54 @@ export function TyreStateView({
                   </li>
                 ))}
               </ul>
+
+              {Object.keys(trust.consensus).length > 0 && (
+                <div className="mt-4 border-t border-line pt-3">
+                  <div className="mb-2 text-[11px] text-ink-faint">
+                    What four independent methods say
+                  </div>
+                  <div className="space-y-3">
+                    {/* One shared scale, so the compounds stay comparable by eye. */}
+                    {Object.entries(trust.consensus).map(([compound, c]) => (
+                      <div key={compound}>
+                        <div className="mb-1 flex items-center justify-between gap-2">
+                          <CompoundChip compound={compound} />
+                          <div className="flex items-center gap-2">
+                            {c.disagreement_flagged && (
+                              <span
+                                className="rounded-pill px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.06em]"
+                                style={{
+                                  background:
+                                    'color-mix(in oklab, var(--color-warn) 16%, transparent)',
+                                  color: 'var(--color-warn)',
+                                }}
+                              >
+                                they disagree
+                              </span>
+                            )}
+                            <span className="num text-[12.5px] text-ink">
+                              {fixed(c.consensus)}
+                              <span className="ml-1 text-[10px] text-ink-faint">
+                                ± {c.consensus_sd.toFixed(3)}
+                              </span>
+                            </span>
+                          </div>
+                        </div>
+                        <Beam
+                          mean={c.consensus}
+                          sd={c.consensus_sd}
+                          domain={[0, consensusMax]}
+                          colour={compoundColour(compound)}
+                          height={10}
+                        />
+                        <p className="mt-1 max-w-[48ch] text-[10.5px] leading-relaxed text-ink-faint">
+                          {c.explanation}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {trust.value_of_information.length > 0 && (
                 <div className="mt-4 border-t border-line pt-3">
@@ -470,7 +522,7 @@ function HealthChart({ timeline }: { timeline: HealthTimeline }) {
     <>
       <ReactECharts option={option} style={{ height: 250 }} notMerge />
       <p className="mt-2 max-w-[60ch] text-[11px] leading-relaxed text-ink-faint">
-        {timeline.health_anchor_note} The shaded band is the 95% range — it widens
+        {timeline.health_anchor_note} The shaded band is the 95% range, wider
         where the model has less to go on.
       </p>
     </>

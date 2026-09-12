@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Ask the project about itself.
  *
  * The honest answer to "why should I trust this?" is spread across a research
@@ -77,18 +77,17 @@ export function AskPanel() {
   }, [run])
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <Explainer id="ask" question="What is this?">
         <p>
           A search over TyreMind&rsquo;s own research audit, model card, limitations
-          register and every recorded experiment result — so a question about the
+          register and every recorded experiment result, so a question about the
           method has an answer with a source attached.
         </p>
         <p>
-          <strong>It retrieves rather than generates.</strong> Everything below is
-          lifted verbatim from a file in this repository. A generated summary would
-          read better and would lose the one property that matters here: you can
-          check it.
+          <strong>It retrieves rather than generates.</strong> Every passage below
+          is lifted verbatim from a file in this repository, with its source
+          attached.
         </p>
       </Explainer>
 
@@ -96,7 +95,7 @@ export function AskPanel() {
         title="Ask about the method"
         aside={
           result
-            ? `${result.corpus.n_passages} passages from ${result.corpus.n_sources} files`
+            ? `${result.corpus.n_passages} passages · ${result.corpus.n_sources} files`
             : undefined
         }
       >
@@ -111,12 +110,12 @@ export function AskPanel() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="e.g. how do you know the degradation is real?"
-            className="min-w-0 flex-1 border border-line bg-raised px-3 py-2 text-[13px] text-ink placeholder:text-ink-faint focus:border-alert focus:outline-none"
+            className="min-w-0 flex-1 rounded-sm border border-line bg-raised px-3 py-2 text-[13px] text-ink placeholder:text-ink-ghost focus:border-alert focus:outline-none transition-colors duration-150"
           />
           <button
             type="submit"
             disabled={busy}
-            className="shrink-0 border border-alert px-4 py-2 text-[12px] text-alert transition-colors hover:bg-alert/10 disabled:opacity-50"
+            className="shrink-0 rounded-pill border border-alert px-4 py-2 text-[12px] font-medium text-alert transition-colors duration-150 hover:bg-alert/10 disabled:opacity-40"
           >
             {busy ? 'Searching…' : 'Search'}
           </button>
@@ -130,59 +129,60 @@ export function AskPanel() {
                 setQuery(s)
                 run(s)
               }}
-              className="border border-line px-2 py-1 text-[11px] text-ink-dim transition-colors hover:border-line-bright hover:text-ink"
+              className="rounded-pill border border-line px-2 py-1 text-[11px] text-ink-dim transition-colors duration-150 hover:border-line-bright hover:text-ink"
             >
               {s}
             </button>
           ))}
         </div>
 
-        {error && <div className="mt-3 text-[12px] text-alert">{error}</div>}
+        {error && (
+          <p className="mt-3 text-[12px]" style={{ color: 'var(--color-danger)' }}>
+            {error}
+          </p>
+        )}
       </Panel>
 
       {result && (
-        <div className="grid gap-3 xl:grid-cols-[1.55fr_1fr]">
+        <div className="grid gap-4 xl:grid-cols-[1.55fr_1fr]">
         <Panel
           title={`Passages matching “${result.query}”`}
           aside={`${result.results.length} results`}
         >
           {result.results.length === 0 ? (
             <p className="py-6 text-center text-[12.5px] text-ink-faint">
-              Nothing in the documentation matches that closely enough to show. The
-              panel returns nothing rather than the least-bad passage — a confident
-              citation of an irrelevant paragraph is worse than an empty result.
+              Nothing in the documentation matches closely enough to show. An empty
+              result beats a confident citation of an irrelevant passage.
             </p>
           ) : (
-            <div className="space-y-4">
+              <div className="space-y-4">
               {result.results.map((hit, i) => (
-                <article key={i} className="border-l-2 border-line pl-3.5">
+                <article key={i} className="rounded-md border-l-2 pl-3.5" style={{ borderLeftColor: 'var(--color-line-bright)' }}>
                   <div className="mb-1 flex flex-wrap items-baseline gap-2">
                     <span
-                      className="text-[10px]"
+                      className="rounded-pill px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.06em]"
                       style={{
-                        color:
-                          hit.kind === 'result'
-                            ? 'var(--color-good)'
-                            : 'var(--color-ink-faint)',
+                        background: hit.kind === 'result'
+                          ? 'color-mix(in oklab, var(--color-good) 15%, transparent)'
+                          : 'var(--color-raised)',
+                        color: hit.kind === 'result'
+                          ? 'var(--color-good)'
+                          : 'var(--color-ink-faint)',
                       }}
                     >
                       {hit.kind === 'result' ? 'measured result' : 'documentation'}
                     </span>
                     <span className="num text-[10.5px] text-ink-faint">{hit.source}</span>
                     {hit.heading && (
-                      <span className="text-[10.5px] text-ink-dim">— {hit.heading}</span>
+                      <span className="text-[10.5px] text-ink-dim">· {hit.heading}</span>
                     )}
                   </div>
                   <p className="max-w-[86ch] text-[12.5px] leading-relaxed text-ink">
                     {hit.text}
                   </p>
                   <div className="mt-1 flex gap-3 text-[10px] text-ink-faint">
-                    <span>
-                      keyword rank {hit.lexical_rank != null ? hit.lexical_rank + 1 : '—'}
-                    </span>
-                    <span>
-                      meaning rank {hit.semantic_rank != null ? hit.semantic_rank + 1 : '—'}
-                    </span>
+                    <span>keyword rank {hit.lexical_rank != null ? hit.lexical_rank + 1 : 'not ranked'}</span>
+                    <span>meaning rank {hit.semantic_rank != null ? hit.semantic_rank + 1 : 'not ranked'}</span>
                   </div>
                 </article>
               ))}
@@ -192,12 +192,12 @@ export function AskPanel() {
           <div className="mt-5 border-t border-line pt-3">
             <div className="mb-1 text-[11px] text-ink-faint">How the search works</div>
             <p className="max-w-[80ch] text-[11.5px] leading-relaxed text-ink-dim">
-              Two retrievers with opposite weaknesses run in parallel and their
-              rankings are merged. <strong>Keyword search</strong> finds exact terms
-              like &ldquo;CRPS&rdquo; or a specific number, and misses paraphrase
-              entirely. <strong>Meaning search</strong> finds a passage about
-              calibration when you ask &ldquo;how sure is it&rdquo;, and is weak on rare
-              exact tokens. The two ranks above show which one found each passage.
+              Two retrievers with different weaknesses run in parallel, merged by
+              rank. <strong>Keyword search</strong> finds exact terms like
+              &ldquo;CRPS&rdquo; but misses paraphrase. <strong>Meaning search</strong>{' '}
+              finds a passage about calibration when you ask &ldquo;how sure is
+              it&rdquo;, but misses rare exact tokens. The ranks above show which
+              retriever found each passage.
             </p>
             <p className="mt-1.5 max-w-[80ch] text-[11px] leading-relaxed text-ink-faint">
               {result.corpus.retrieval}. Embeddings: {result.corpus.embedding_backend}
@@ -205,22 +205,20 @@ export function AskPanel() {
           </div>
         </Panel>
 
-        <div className="space-y-3">
+        <div className="space-y-4">
           {result.results.length > 0 && (
             <Panel title="Which retriever found what" aside="the case for fusing two">
               <RankFusion hits={result.results} />
               <p className="mt-2 max-w-[46ch] text-[11.5px] leading-relaxed text-ink-dim">
-                Each numbered dot is one answer above, placed by where the two
+                Each numbered dot is one answer, placed by where the two
                 retrievers ranked it. On the dashed diagonal, both agreed. Off it,
-                one retriever found the passage and the other nearly missed it
-                &mdash; and a system running only that other retriever would not
-                have shown it to you.
+                one retriever found the passage and the other nearly missed it.
               </p>
               <p className="mt-1.5 max-w-[46ch] text-[11px] leading-relaxed text-ink-faint">
-                Merged by Reciprocal Rank Fusion, which scores a passage on its
-                <em> position</em> in each list rather than on the raw scores. BM25
-                relevance and cosine similarity are not on a common scale, so
-                adding them would be meaningless; ranks are comparable.
+                Merged by Reciprocal Rank Fusion, which scores a passage by its
+                <em> position</em> in each list rather than its raw score: BM25
+                relevance and cosine similarity aren&rsquo;t on a common scale, but
+                ranks are comparable.
               </p>
             </Panel>
           )}
@@ -232,10 +230,10 @@ export function AskPanel() {
             >
               <CorpusComposition bySource={result.corpus.by_source} />
               <p className="mt-2 max-w-[46ch] text-[11.5px] leading-relaxed text-ink-faint">
-                Green files are recorded experiment output &mdash; numbers this
-                system measured and wrote down. Orange is prose. Nothing outside
-                this repository is indexed, which is why an answer can always be
-                traced to a file you can open.
+                Green files are recorded experiment output: numbers this system
+                measured and wrote down. Grey is prose. Nothing outside this
+                repository is indexed, so an answer can always be traced to a
+                file you can open.
               </p>
             </Panel>
           )}
@@ -251,13 +249,9 @@ export function AskPanel() {
             </div>
             <p className="max-w-[44ch] text-[12px] leading-relaxed text-ink-dim">
               The retrieval half of retrieval-augmented generation is the half that
-              carries the trust. It finds the paragraph; you read the paragraph. Add
-              generation and the answer gets smoother, the citation becomes a
-              gesture, and a wrong claim becomes indistinguishable from a right one.
-            </p>
-            <p className="mt-1.5 max-w-[44ch] text-[11px] leading-relaxed text-ink-faint">
-              A language model is used in exactly one place in this product: rewriting
-              an already-computed explanation into plainer English, with every number
+              carries the trust: it finds the paragraph, you read the paragraph. A
+              language model is used in exactly one place here, rewriting an
+              already-computed explanation into plainer English, with every number
               fixed before it is called.
             </p>
           </div>
@@ -267,15 +261,9 @@ export function AskPanel() {
             </div>
             <p className="max-w-[44ch] text-[12px] leading-relaxed text-ink-dim">
               The Model Context Protocol exposes the estimator as seven tools an
-              assistant can call &mdash; get a degradation rate, explain a lap,
-              project tyre life, price a strategy, check how much to trust the fit,
-              search this corpus. A race engineer asks a question in whatever tool
-              they already have open; the answer comes from this model, not from the
-              assistant&rsquo;s recollection.
-            </p>
-            <p className="mt-1.5 max-w-[44ch] text-[11px] leading-relaxed text-ink-faint">
-              Seven, deliberately. Tool bloat measurably degrades agent selection, so
-              each tool earns its place or is not there.
+              assistant can call: get a degradation rate, explain a lap, project
+              tyre life, price a strategy, check the fit, search this corpus. Seven,
+              deliberately, since tool bloat degrades agent selection.
             </p>
           </div>
           <div>
@@ -283,14 +271,10 @@ export function AskPanel() {
               Every tool is read-only
             </div>
             <p className="max-w-[44ch] text-[12px] leading-relaxed text-ink-dim">
-              There is no write path. An agent cannot change a fit, a threshold or a
-              stored result &mdash; the worst outcome of a confused agent is a
-              confused answer, never a corrupted one.
-            </p>
-            <p className="mt-1.5 max-w-[44ch] text-[11px] leading-relaxed text-ink-faint">
-              Each tool returns its uncertainty alongside its estimate, so an agent
-              that ignores the interval is visibly ignoring something rather than
-              never being told.
+              There is no write path: an agent cannot change a fit, a threshold or a
+              stored result, so the worst outcome of a confused agent is a confused
+              answer, never a corrupted one. Every tool returns its uncertainty
+              alongside its estimate.
             </p>
           </div>
         </div>

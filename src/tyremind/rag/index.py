@@ -92,7 +92,7 @@ class Passage:
 
     @property
     def citation(self) -> str:
-        return f"{self.source}{' — ' + self.heading if self.heading else ''}"
+        return f"{self.source}{' · ' + self.heading if self.heading else ''}"
 
 
 @dataclass

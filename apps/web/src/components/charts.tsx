@@ -151,7 +151,7 @@ export function DegradationCurves({ curves }: { curves: CompoundCurve[] }) {
       tooltip: {
         ...base.tooltip,
         trigger: 'axis',
-        valueFormatter: (v: number) => (v == null ? '—' : `${v.toFixed(2)} s`),
+        valueFormatter: (v: number) => (v == null ? '-' : `${v.toFixed(2)} s`),
       },
       series,
     }
@@ -265,7 +265,7 @@ export function StintDecomposition({ rows }: { rows: DecompositionRow[] }) {
         ...base.tooltip,
         trigger: 'axis',
         valueFormatter: (v: number) =>
-          v == null ? '—' : `${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(2)} s`,
+          v == null ? '-' : `${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(2)} s`,
       },
       series: [
         ...terms.map((t) => ({
@@ -316,7 +316,7 @@ export function TrackEvolutionChart({
       tooltip: {
         ...base.tooltip,
         trigger: 'axis',
-        valueFormatter: (v: number) => (v == null ? '—' : `${v.toFixed(2)} s`),
+        valueFormatter: (v: number) => (v == null ? '-' : `${v.toFixed(2)} s`),
       },
       series: [
         {
@@ -417,7 +417,7 @@ export function PitWindowChart({
       tooltip: {
         ...base.tooltip,
         trigger: 'axis',
-        valueFormatter: (v: number) => (v == null ? '—' : `+${v.toFixed(2)} s`),
+        valueFormatter: (v: number) => (v == null ? '-' : `+${v.toFixed(2)} s`),
       },
       series: [
         {
@@ -454,7 +454,7 @@ export function PitWindowChart({
             label: {
               color: colours.inkFaint,
               fontSize: 10,
-              formatter: 'stay out — no stop at all',
+              formatter: 'stay out, no stop at all',
               position: 'insideEndTop',
             },
             lineStyle: { color: colours.inkFaint, type: 'dotted' },
@@ -504,7 +504,7 @@ export function RulScatter({
         ...base.tooltip,
         formatter: (p: { value: [number, number] }) =>
           `Predicted ${p.value[1].toFixed(0)} cycles<br/>Actual ${p.value[0].toFixed(0)}<br/>` +
-          `${p.value[1] < p.value[0] ? 'early — the safe direction' : 'late'}`,
+          `${p.value[1] < p.value[0] ? 'early (the safe direction)' : 'late'}`,
       },
       series: [
         {
@@ -524,7 +524,7 @@ export function RulScatter({
           symbolSize: 7,
           itemStyle: {
             color: (p: { value: [number, number] }) =>
-              p.value[1] < p.value[0] ? colours.good : colours.alert,
+              p.value[1] < p.value[0] ? colours.good : colours.danger,
             opacity: 0.75,
           },
         },
@@ -607,7 +607,7 @@ export function LoadHotspots({
         {
           type: 'bar',
           data: ranked.map((s) => (100 * s.energy) / total),
-          itemStyle: { color: colours.alert, opacity: 0.85 },
+          itemStyle: { color: colours.danger, opacity: 0.85 },
           barWidth: '62%',
         },
       ],
@@ -664,7 +664,7 @@ export function RankFusion({ hits }: { hits: FusionHit[] }) {
         fontWeight: 600,
       },
       itemStyle: {
-        color: h.kind === 'result' ? colours.good : colours.alert,
+        color: h.kind === 'result' ? colours.good : colours.residual,
         opacity: 0.9,
       },
     }))
@@ -777,7 +777,7 @@ export function CorpusComposition({
             itemStyle: {
               // Recorded experiment output reads as evidence; prose reads as
               // documentation. Colouring them apart says which is which.
-              color: r.source.startsWith('experiments/') ? colours.good : colours.alert,
+              color: r.source.startsWith('experiments/') ? colours.good : colours.residual,
               opacity: 0.75,
             },
           })),
@@ -930,7 +930,7 @@ export function PracticeVsRace({
             name: `${p.event.replace(' Grand Prix', '')} · ${p.compound}`,
             itemStyle: {
               color: compoundColour(p.compound),
-              borderColor: p.covered_95 ? 'transparent' : colours.alert,
+              borderColor: p.covered_95 ? 'transparent' : colours.danger,
               borderWidth: p.covered_95 ? 0 : 2,
             },
           })),
@@ -1016,7 +1016,7 @@ export function ReliabilityCurve({ rows }: { rows: ReliabilityRow[] }) {
           data: row.gaussian.map((v, j) => [pct(levels[j]), pct(v)]),
           symbol: 'none',
           smooth: true,
-          lineStyle: { color: colours.alert, width: 1, opacity: 0.5 },
+          lineStyle: { color: colours.residual, width: 1, opacity: 0.5 },
           silent: true,
           legendHoverLink: false,
           // Only the first contributes to the legend; the rest are the same series.
@@ -1063,7 +1063,7 @@ export function DegradationRegimes({ rows }: { rows: RegimeShare[] }) {
   const tone: Record<string, string> = {
     linear: colours.inkFaint,
     'warm-up': colours.fuel,
-    cliff: colours.alert,
+    cliff: colours.danger,
     recovery: colours.good,
   }
 

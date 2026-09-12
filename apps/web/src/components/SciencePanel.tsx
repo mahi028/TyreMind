@@ -127,7 +127,7 @@ export function SciencePanel({ sessionId }: { sessionId: string }) {
   const ladder = experiments['exp05_model_ladder'] as ModelLadder | undefined
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <Identifiability />
 
       <Panel
@@ -143,7 +143,7 @@ export function SciencePanel({ sessionId }: { sessionId: string }) {
           <>
             <p className="mb-4 max-w-[72ch] text-[12.5px] leading-relaxed text-ink-dim">
               Published tyre models are validated on lap-time prediction error. But a model can
-              predict lap times almost perfectly while blaming the wrong cause &mdash; many wrong
+              predict lap times almost perfectly while blaming the wrong cause: many wrong
               decompositions sum to the same right total. The only way to test attribution is to
               know the answer beforehand, so these sessions were generated with a hidden
               degradation rate and buried under realistic confounding.
@@ -199,9 +199,9 @@ export function SciencePanel({ sessionId }: { sessionId: string }) {
 
             <p className="mt-3 max-w-[72ch] text-[11.5px] leading-relaxed text-ink-faint">
               The naive estimator&rsquo;s bias is{' '}
-              <span className="num">{signed(recovery.summary.overall.naive_bias, 4)}</span> s/lap
-              &mdash; almost exactly the fuel burn-off rate of 0.081 s/lap, and in the direction
-              theory predicts. That is not a coincidence; it is the collinearity showing up as a
+              <span className="num">{signed(recovery.summary.overall.naive_bias, 4)}</span> s/lap,
+              almost exactly the fuel burn-off rate of 0.081 s/lap and in the direction theory
+              predicts. That is not a coincidence: it is the collinearity showing up as a
               measured quantity.
             </p>
           </>
@@ -235,7 +235,7 @@ export function SciencePanel({ sessionId }: { sessionId: string }) {
               />
               <Stat
                 label="Naive error"
-                value={transfer.overall.naive_mae?.toFixed(4) ?? '—'}
+                value={transfer.overall.naive_mae?.toFixed(4) ?? 'n/a'}
                 unit="s/lap"
                 tone="dim"
               />
@@ -266,13 +266,11 @@ export function SciencePanel({ sessionId }: { sessionId: string }) {
                   interval, and a ringed point is one the interval missed.
                 </p>
                 <p>
-                  The points do not scatter around the diagonal &mdash; they sit
-                  <strong className="text-ink"> above</strong> it, near the dotted
-                  line. That is what makes the error{' '}
-                  <strong className="text-ink">systematic rather than random</strong>,
-                  and it is a far better position to be in: a consistent offset can be
-                  corrected once its cause is understood, whereas scatter cannot be
-                  corrected at all.
+                  The points sit consistently{' '}
+                  <strong className="text-ink">above</strong> the diagonal rather than
+                  scattered around it, which makes the error{' '}
+                  <strong className="text-ink">systematic rather than random</strong>: a
+                  consistent offset can be corrected, whereas scatter cannot.
                 </p>
                 <p className="text-[11.5px] text-ink-faint">
                   Reported, not removed. Subtracting a bias measured on five events
@@ -304,7 +302,7 @@ export function SciencePanel({ sessionId }: { sessionId: string }) {
                       <td
                         className="text-right"
                         style={{
-                          color: c.covered_95 ? 'var(--color-ink)' : 'var(--color-alert)',
+                          color: c.covered_95 ? 'var(--color-ink)' : 'var(--color-danger)',
                         }}
                       >
                         {signed(c.error)}
@@ -315,17 +313,22 @@ export function SciencePanel({ sessionId }: { sessionId: string }) {
               </tbody>
             </table>
 
-            <div className="mt-4 border-l-2 border-alert pl-3.5">
+            <div
+              className="mt-4 rounded-md border-l-2 py-2.5 pl-3.5 pr-3"
+              style={{
+                borderLeftColor: 'var(--color-alert)',
+                background: 'color-mix(in oklab, var(--color-alert) 4%, transparent)',
+              }}
+            >
               <div className="mb-1 text-[11px] font-semibold text-alert">
                 An honest finding, not a clean win
               </div>
               <p className="max-w-[68ch] text-[12px] leading-relaxed text-ink-dim">
-                The bias is systematic: practice over-predicts race degradation by{' '}
+                Practice over-predicts race degradation by{' '}
                 <span className="num">{transfer.overall.bias.toFixed(3)}</span> s/lap, in most
-                comparisons. The likely physical cause is that practice race-sim runs hold high
-                fuel throughout while a race stint averages lower, putting more load through the
-                tyre on Friday than on Sunday. A known, consistent bias is correctable; an
-                unknown one is not, which is why it is reported here rather than tuned away.
+                comparisons. The likely cause: practice race-sim runs hold high fuel throughout,
+                while a race stint averages lower, putting more load through the tyre on Friday
+                than on Sunday.
               </p>
             </div>
           </>
@@ -388,7 +391,7 @@ function Identifiability() {
     {
       title: 'Track evolution against degradation',
       problem:
-        'Shifting every degradation rate by c and the track slope by −c leaves a difference that is constant within a run — exactly what the run intercept absorbs. Structurally indistinguishable.',
+        'Shifting every degradation rate by c and the track slope by −c leaves a difference that is constant within a run, exactly what the run intercept absorbs. Structurally indistinguishable.',
       fix: 'Track evolution is modelled as a saturating curve with an informative amplitude prior rather than a free random walk. Rubber deposition genuinely saturates, so this is also the more correct model.',
       resolved: 'assumption',
     },
@@ -396,7 +399,7 @@ function Identifiability() {
       title: 'Tyre age against session lap',
       problem:
         'They advance together within a run, so a single car cannot tell an ageing tyre from a changing session.',
-      fix: 'Resolved by fitting the whole field at once. Cars change tyres on different laps, so at any session lap the grid spans a wide range of tyre ages. This one needs no prior — only the whole grid instead of one car.',
+      fix: 'Resolved by fitting the whole field at once. Cars change tyres on different laps, so at any session lap the grid spans a wide range of tyre ages. This one needs no prior, only the whole grid instead of one car.',
       resolved: 'data',
     },
   ]
@@ -460,7 +463,7 @@ function ModelLadderPanel({ ladder }: { ladder: ModelLadder }) {
       <p className="mb-4 max-w-[74ch] text-[12.5px] leading-relaxed text-ink-dim">
         A state-space model is more complicated than a regression, so it has to
         earn that on the same data with the same validation. Two things are
-        scored, and they disagree — which is the point.
+        scored, and they disagree, which is the point.
       </p>
 
       <div className="grid gap-5 lg:grid-cols-2">
@@ -554,7 +557,13 @@ function ModelLadderPanel({ ladder }: { ladder: ModelLadder }) {
         </div>
       </div>
 
-      <div className="mt-4 border-l-2 border-alert pl-3.5">
+      <div
+        className="mt-4 rounded-md border-l-2 py-2.5 pl-3.5 pr-3"
+        style={{
+          borderLeftColor: 'var(--color-alert)',
+          background: 'color-mix(in oklab, var(--color-alert) 4%, transparent)',
+        }}
+      >
         <div className="mb-1 text-[11px] font-semibold text-alert">
           The best lap-time predictor cannot answer the question
         </div>
@@ -567,7 +576,7 @@ function ModelLadderPanel({ ladder }: { ladder: ModelLadder }) {
         <p className="mt-1.5 max-w-[70ch] text-[12px] leading-relaxed text-ink-dim">
           <strong className="text-ink">Drift</strong> is how much a model&rsquo;s error grows
           as each fold forecasts further past its training window. TyreMind&rsquo;s
-          falls the most of any rung by a wide margin — which is what encoding fuel
+          falls the most of any rung by a wide margin, which is what encoding fuel
           as physics buys, rather than learning it as a pattern. This claim has
           narrowed twice under more data: it was once &ldquo;the only rung whose
           error does not grow&rdquo;, then &ldquo;the leader&rsquo;s grows while ours
@@ -600,7 +609,7 @@ export function CalibrationPanel() {
   const cliff = experiments['exp17_degradation_cliff'] as CliffShapes | undefined
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <Panel
         title="Does a 95% interval contain the answer 95% of the time?"
         aside={shape ? `${shape.n_races} races, every rung` : 'not yet run'}
@@ -646,7 +655,13 @@ export function CalibrationPanel() {
               }))}
             />
 
-            <div className="mt-4 border-l-2 border-alert pl-3.5">
+            <div
+              className="mt-4 rounded-md border-l-2 py-2.5 pl-3.5 pr-3"
+              style={{
+                borderLeftColor: 'var(--color-alert)',
+                background: 'color-mix(in oklab, var(--color-alert) 4%, transparent)',
+              }}
+            >
               <div className="mb-1 text-[11px] font-semibold text-alert">
                 The shape names the fault, not just its size
               </div>
@@ -654,11 +669,11 @@ export function CalibrationPanel() {
                 A PIT histogram asks where the truth landed inside its own predicted
                 distribution; under a correct distribution those values are uniform.
                 Five of the six rungs come out{' '}
-                <strong className="text-ink">U-shaped</strong> — too much mass in the
-                tails — which is overconfidence seen directly rather than inferred from
+                <strong className="text-ink">U-shaped</strong> (too much mass in the
+                tails), which is overconfidence seen directly rather than inferred from
                 one level. The sixth is ours and fails differently:{' '}
                 <strong className="text-ink">leptokurtic</strong>, heavy at both ends
-                and in the middle. The width is not the problem, the assumed shape is —
+                and in the middle. The width is not the problem, the assumed shape is,
                 which is what a Gaussian summary of heavy-tailed residuals looks like,
                 and this model assumes heavy-tailed noise by construction.
               </p>
@@ -702,12 +717,18 @@ export function CalibrationPanel() {
             />
 
             <div className="mt-4 grid gap-4 md:grid-cols-2">
-              <div className="border-l-2 border-alert pl-3.5">
+              <div
+                className="rounded-md border-l-2 py-2.5 pl-3.5 pr-3"
+                style={{
+                  borderLeftColor: 'var(--color-alert)',
+                  background: 'color-mix(in oklab, var(--color-alert) 4%, transparent)',
+                }}
+              >
                 <div className="mb-1 text-[11px] font-semibold text-alert">
                   A cliff is real, and arrives too late to act on
                 </div>
                 <p className="text-[12px] leading-relaxed text-ink-dim">
-                  {Math.round(cliff.cliff_rate * 100)}% of stints end in a genuine cliff —
+                  {Math.round(cliff.cliff_rate * 100)}% of stints end in a genuine cliff:
                   the tyre already degrading, then degrading{' '}
                   <span className="num text-ink">
                     {cliff.median_cliff_delta === null
@@ -730,7 +751,7 @@ export function CalibrationPanel() {
                 </div>
                 <p className="text-[12px] leading-relaxed text-ink-dim">
                   {Math.round(cliff.warmup_rate * 100)}% of stints show the tyre getting{' '}
-                  <em>quicker</em> and then turning — coming to temperature, or a graining
+                  <em>quicker</em> and then turning: coming to temperature, or a graining
                   phase clearing. It is a changepoint with the same arithmetic signature as
                   a cliff and the opposite meaning. Pooling the two, which the first pass
                   did, reports a &ldquo;cliff&rdquo; a third of the way through a stint.

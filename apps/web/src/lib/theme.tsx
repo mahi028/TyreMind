@@ -99,25 +99,40 @@ export function useThemeColours() {
     }
     return {
       theme,
-      ink: read('--color-ink', '#e4eaed'),
-      inkDim: read('--color-ink-dim', '#8fa3ae'),
-      inkFaint: read('--color-ink-faint', '#5d6f7a'),
-      line: read('--color-line', '#26343d'),
-      raised: read('--color-raised', '#1d272e'),
-      surface: read('--color-surface', '#151d23'),
-      ground: read('--color-ground', '#0e1418'),
-      alert: read('--color-alert', '#ff8a5b'),
-      good: read('--color-good', '#4bbf8a'),
-      fuel: read('--color-fuel', '#4fa8c5'),
-      track: read('--color-track', '#7b8fa1'),
-      traffic: read('--color-traffic', '#b47fd0'),
-      residual: read('--color-residual', '#5a6b76'),
-      soft: read('--color-soft', '#e8352e'),
-      medium: read('--color-medium', '#f5c518'),
-      hard: read('--color-hard', '#ededed'),
+      // Depth scale
+      ground:      read('--color-ground',       '#080c0f'),
+      surface:     read('--color-surface',      '#0d1418'),
+      raised:      read('--color-raised',       '#141e25'),
+      card:        read('--color-card',         '#111920'),
+      line:        read('--color-line',         '#1e2d38'),
+      lineBright:  read('--color-line-bright',  '#2b3f4e'),
+      lineSubtle:  read('--color-line-subtle',  '#161f27'),
+      // Type scale
+      ink:         read('--color-ink',          '#e8edf0'),
+      inkDim:      read('--color-ink-dim',      '#8fa4b2'),
+      inkFaint:    read('--color-ink-faint',    '#556a78'),
+      inkGhost:    read('--color-ink-ghost',    '#2e4050'),
+      // Compounds (warm)
+      soft:        read('--color-soft',         '#e8352e'),
+      medium:      read('--color-medium',       '#f5c518'),
+      hard:        read('--color-hard',         '#dde0e3'),
+      intermediate:read('--color-intermediate', '#3ab032'),
+      wet:         read('--color-wet',          '#1e6fe0'),
+      // Confounders (cool)
+      fuel:        read('--color-fuel',         '#41a3c2'),
+      track:       read('--color-track',        '#6b85a0'),
+      traffic:     read('--color-traffic',      '#9e6ec8'),
+      residual:    read('--color-residual',     '#445a69'),
+      // Feedback
+      alert:       read('--color-alert',        '#16a34a'),
+      alertDim:    read('--color-alert-dim',    '#dcf5e3'),
+      good:        read('--color-good',         '#0f766e'),
+      warn:        read('--color-warn',         '#a1720a'),
+      danger:      read('--color-danger',       '#dc2626'),
+      dangerDim:   read('--color-danger-dim',   '#fbe3e2'),
     }
     // revision is the dependency that matters: it changes after the theme
-    // attribute is applied, which is when the computed values become correct.
+    // attribute is applied, which is when computed values become correct.
   }, [theme, revision])
 }
 
@@ -144,13 +159,9 @@ export function useCompoundColour() {
 /**
  * Icon-only theme switch.
  *
- * Drawn as inline SVG rather than a unicode glyph: the sun and moon characters
- * render inconsistently across fonts and platforms, and one of them falls back
- * to an emoji on Windows, which looks nothing like the rest of the interface.
- *
- * The icon shows the theme you will get, not the one you are in -- the
- * prevailing convention, and the one that makes a single unlabelled button
- * unambiguous. The accessible name spells it out either way.
+ * Square icon button matching the design system spec. Shows the icon for the
+ * theme you will *get*, not the one you are in. Inline SVG only — unicode sun/moon
+ * renders as emoji on Windows, which is inconsistent with the instrument aesthetic.
  */
 export function ThemeToggle() {
   const { theme, toggle } = useTheme()
@@ -161,7 +172,7 @@ export function ThemeToggle() {
       onClick={toggle}
       title={`Switch to ${next} theme`}
       aria-label={`Switch to ${next} theme`}
-      className="flex h-6 w-6 items-center justify-center border border-line text-ink-dim transition-colors hover:border-line-bright hover:text-ink"
+      className="flex h-8 w-8 items-center justify-center rounded-pill border border-line bg-card text-ink-faint shadow-card transition-colors duration-150 hover:border-line-bright hover:text-ink"
     >
       {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
     </button>
@@ -170,18 +181,18 @@ export function ThemeToggle() {
 
 function SunIcon() {
   return (
-    <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden fill="none"
-      stroke="currentColor" strokeWidth="1.3" strokeLinecap="round">
-      <circle cx="8" cy="8" r="3" />
-      <path d="M8 1.4v1.6M8 13v1.6M1.4 8h1.6M13 8h1.6M3.3 3.3l1.1 1.1M11.6 11.6l1.1 1.1M12.7 3.3l-1.1 1.1M4.4 11.6l-1.1 1.1" />
+    <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden fill="none"
+      stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <circle cx="8" cy="8" r="2.8" />
+      <path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M12.6 3.4l-1.1 1.1M4.5 11.5l-1.1 1.1" />
     </svg>
   )
 }
 
 function MoonIcon() {
   return (
-    <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden fill="none"
-      stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round">
+    <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden fill="none"
+      stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round">
       <path d="M13.2 9.6A5.6 5.6 0 0 1 6.4 2.8a5.6 5.6 0 1 0 6.8 6.8Z" />
     </svg>
   )

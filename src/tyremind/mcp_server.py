@@ -71,7 +71,7 @@ def build_server():
 
     server = MCPServer(
         name="tyremind",
-        title="TyreMind — causal tyre intelligence",
+        title="TyreMind: causal tyre intelligence",
         description=(
             "Estimate Formula 1 tyre degradation separated from fuel burn-off, "
             "track evolution and traffic, with calibrated uncertainty."

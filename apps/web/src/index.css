@@ -1,101 +1,177 @@
 @import 'tailwindcss';
 
 /* ---------------------------------------------------------------------------
-   TyreMind design tokens
+   TyreMind design system — see docs/design-system.md for the full spec.
 
-   One rule governs the palette: the tyre is the only warm thing on screen.
-   Every confounder -- fuel, track, traffic, residual -- is cool and recessive,
-   so the eye lands on the tyre contribution without being told to. The tyre
-   itself takes the real Pirelli compound colour, which race engineers already
-   read fluently, so the accent carries data rather than decoration.
+   Design language: soft analytics dashboard — rounded cards, soft shadows,
+   one confident brand colour — applied to a motorsport telemetry product.
 
-   Panels separate by surface value, the way an instrument does. No shadows,
-   no gradient washes.
+   Three principles drive every decision:
 
-   Both themes are defined here as the same named tokens with different values,
-   so no component ever branches on the theme. `[data-theme]` on <html> selects.
+   1. ONE BRAND COLOUR FOR CHROME. --color-alert is brand green: buttons,
+      active nav, focus rings, positive deltas. It never encodes tyre data —
+      that is what compound colours (Pirelli red/yellow/white) are for.
+
+   2. SOFT SURFACES, CONFIDENT DATA. Cards are calm — soft shadows, generous
+      radius, quiet borders. The eye lands on data (compound colours,
+      uncertainty bands, deltas), not on the chrome around it.
+
+   3. EVERY ESTIMATE IS AN INTERVAL, never a bare number with a ± appended.
+      Numbers that sit in a data column are monospace with tabular figures.
+
+   Both themes use identical token names — components never branch on theme.
+   `[data-theme]` on <html> switches the values.
 --------------------------------------------------------------------------- */
 
 @theme {
-  /* Dark is the default: this is a pit-wall instrument, usually read in a
-     dim garage or a night session. Light exists for printing, projectors and
-     bright rooms, where a dark UI washes out completely. */
-  --color-ground: #0e1418;
-  --color-surface: #151d23;
-  --color-raised: #1d272e;
-  --color-line: #26343d;
-  --color-line-bright: #354753;
+  /* ---- Depth scale (dark is the primary mode) ---------------------------- */
+  --color-ground:        #0b0e13;   /* page background                            */
+  --color-surface:       #12161d;   /* sidebar, header — structural chrome        */
+  --color-raised:        #1c2129;   /* inset fields, hover targets, tracks        */
+  --color-card:          #161b23;   /* card bg — one step brighter than ground    */
+  --color-line:          #232a34;   /* borders                                    */
+  --color-line-bright:   #333c4a;   /* hover borders, active separators           */
+  --color-line-subtle:   #1b2028;   /* very faint dividers                        */
 
-  --color-ink: #e4eaed;
-  --color-ink-dim: #8fa3ae;
-  --color-ink-faint: #5d6f7a;
+  /* ---- Type scale -------------------------------------------------------- */
+  --color-ink:           #eef1f5;   /* primary text                               */
+  --color-ink-dim:       #98a3b0;   /* secondary text                             */
+  --color-ink-faint:     #5f6b78;   /* tertiary / labels                          */
+  --color-ink-ghost:     #333c48;   /* placeholder, disabled                      */
 
-  /* Compounds. Pirelli's own bands. */
-  --color-soft: #e8352e;
-  --color-medium: #f5c518;
-  --color-hard: #ededed;
-  --color-intermediate: #43b02a;
-  --color-wet: #2b6ce8;
+  /* ---- Compound colours — Pirelli's own bands (data, never UI chrome) ---- */
+  --color-soft:          #e8352e;
+  --color-medium:        #f5c518;
+  --color-hard:          #dde0e3;
+  --color-intermediate:  #3ab032;
+  --color-wet:           #1e6fe0;
 
-  /* Confounders, deliberately cool so the tyre reads warm against them. */
-  --color-fuel: #4fa8c5;
-  --color-track: #7b8fa1;
-  --color-traffic: #b47fd0;
-  --color-residual: #5a6b76;
+  /* ---- Confounders --------------------------------------------------- */
+  --color-fuel:          #41a3c2;
+  --color-track:         #6b85a0;
+  --color-traffic:       #9e6ec8;
+  --color-residual:      #445a69;
 
-  --color-alert: #ff8a5b;
-  --color-good: #4bbf8a;
+  /* ---- System feedback --------------------------------------------------- */
+  --color-alert:         #34d399;   /* brand — the one accent for UI chrome       */
+  --color-alert-dim:     #153823;   /* tint bg for badges, active pills           */
+  --color-good:          #2dd4bf;   /* positive / validated (teal, not brand)     */
+  --color-warn:          #e8b93a;   /* caution                                    */
+  --color-danger:        #f87171;   /* genuine failure — load errors, impossible values */
+  --color-danger-dim:    #3a1a1a;   /* tint bg for danger badges                  */
 
-  --font-sans: 'Archivo', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* ---- Typography -------------------------------------------------------- */
+  --font-sans:   'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono:   'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
+
+  /* ---- Geometry ---------------------------------------------------------- */
+  --radius-sm:   8px;
+  --radius-md:   10px;
+  --radius-card: 16px;
+  --radius-pill: 999px;
+
+  /* ---- Elevation (dark) --------------------------------------------------- */
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.02) inset, 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-pop:  0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 16px 40px rgba(0, 0, 0, 0.5);
 }
 
-/* Light theme. Not an inversion -- the hues are re-picked for a light ground,
-   because simply flipping lightness makes yellow vanish and orange shout. */
+/* ---------------------------------------------------------------------------
+   Light theme — paper on a soft grey desk
+--------------------------------------------------------------------------- */
 [data-theme='light'] {
-  --color-ground: #f4f6f7;
-  --color-surface: #ffffff;
-  --color-raised: #eaeef0;
-  --color-line: #d4dbdf;
-  --color-line-bright: #b3bfc6;
+  --color-ground:        #f3f5f8;
+  --color-surface:       #ffffff;
+  --color-raised:        #f1f4f7;
+  --color-card:          #ffffff;
+  --color-line:          #e7eaef;
+  --color-line-bright:   #d2d8e0;
+  --color-line-subtle:   #eef1f4;
 
-  --color-ink: #16212a;
-  --color-ink-dim: #4a5b66;
-  --color-ink-faint: #7b8b95;
+  --color-ink:           #10151c;
+  --color-ink-dim:       #57626f;
+  --color-ink-faint:     #89939f;
+  --color-ink-ghost:     #c2c9d1;
 
-  /* HARD is white on a dark ground and would disappear here, so it becomes a
-     mid grey. The others darken enough to hold contrast against white. */
-  --color-soft: #c9231d;
-  --color-medium: #b8860b;
-  --color-hard: #6b7780;
-  --color-intermediate: #2f7d1e;
-  --color-wet: #1f4fa8;
+  /* Compounds shift to hold contrast on white */
+  --color-soft:          #c92020;
+  --color-medium:        #a07008;
+  --color-hard:          #556070;
+  --color-intermediate:  #278020;
+  --color-wet:           #1456b8;
 
-  --color-fuel: #1d7d9c;
-  --color-track: #5a6f80;
-  --color-traffic: #7f4aa0;
-  --color-residual: #8a99a3;
+  /* Confounders — same hue family, darker for white ground */
+  --color-fuel:          #1a7a9c;
+  --color-track:         #4a6070;
+  --color-traffic:       #6a3a90;
+  --color-residual:      #7a8e9c;
 
-  --color-alert: #c4501f;
-  --color-good: #1f8a5c;
+  --color-alert:         #16a34a;
+  --color-alert-dim:     #dcf5e3;
+  --color-good:          #0f766e;
+  --color-warn:          #a1720a;
+  --color-danger:        #dc2626;
+  --color-danger-dim:    #fbe3e2;
+
+  --shadow-card: 0 1px 2px rgba(16, 24, 32, 0.04), 0 8px 24px rgba(16, 24, 32, 0.06);
+  --shadow-pop:  0 4px 10px rgba(16, 24, 32, 0.08), 0 16px 40px rgba(16, 24, 32, 0.10);
+}
+
+/* ---------------------------------------------------------------------------
+   Web fonts: Inter for clean, neutral precision; JetBrains Mono for data.
+
+   Self-hosted, not pulled from fonts.gstatic.com. Two reasons, both load-bearing:
+   the demo has to run in a room with no internet, and the CDN's hashed filenames
+   rotate, so the pinned v18 URLs this file used to carry had already started
+   404ing. Every number column depends on JetBrains Mono's tabular figures, so a
+   silent fallback is not a cosmetic loss.
+
+   Both faces are SIL Open Font License 1.1; the licence travels with the files.
+   Refresh them with apps/web/scripts/fetch-fonts.sh.
+--------------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter-latin.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @font-face {
-  font-family: 'Archivo';
-  src: url('https://fonts.gstatic.com/s/archivo/v25/k3k6o8UDI-1M0wlSV9XAw6lQkqWY8Q82sJaRE-NWIDdgffTTNDJp8B1oJ0vyVQ.woff2')
-    format('woff2');
+  font-family: 'Inter';
+  src: url('/fonts/inter-latin-ext.woff2') format('woff2');
   font-weight: 100 900;
   font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
 @font-face {
   font-family: 'JetBrains Mono';
-  src: url('https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKxjPVmUsaaDhw.woff2')
-    format('woff2');
+  src: url('/fonts/jetbrains-mono-latin.woff2') format('woff2');
   font-weight: 100 800;
   font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/jetbrains-mono-latin-ext.woff2') format('woff2');
+  font-weight: 100 800;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ---------------------------------------------------------------------------
+   Root
+--------------------------------------------------------------------------- */
 html {
   color-scheme: dark;
 }
@@ -108,63 +184,229 @@ body {
   background: var(--color-ground);
   color: var(--color-ink);
   font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.5;
   font-synthesis-weight: none;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Numerals only. Labels stay in the sans face -- monospace here is for column
-   alignment of lap times, which is functional, not styling. */
+/* ---------------------------------------------------------------------------
+   Typography utilities
+--------------------------------------------------------------------------- */
+
+/* Tabular numerals — every data column aligns perfectly */
 .num {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-  font-feature-settings: 'zero' 1;
+  font-feature-settings: 'zero' 1, 'ss01' 1;
+  letter-spacing: -0.01em;
 }
 
-/* The uncertainty beam. Every estimate in TyreMind is drawn as an interval
-   with a gradient falloff and a hard tick at the mean, never printed as a bare
-   number with a plus-or-minus appended. Seeing the spread is the point. */
+/* Instrument label — ALL CAPS, wide-tracked, small, like timing screen headers */
+.label-caps {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+/* Display heading — large, tight, confident */
+.heading-display {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--color-ink);
+}
+
+/* ---------------------------------------------------------------------------
+   The uncertainty beam — every estimate drawn as an interval
+   
+   TyreMind never prints a bare number with ± appended. The spread is drawn.
+   Gradient falloff at the tails so the eye reads a distribution, not a bar.
+--------------------------------------------------------------------------- */
 .beam {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    color-mix(in oklab, var(--beam-color) 45%, transparent) 22%,
-    color-mix(in oklab, var(--beam-color) 78%, transparent) 50%,
-    color-mix(in oklab, var(--beam-color) 45%, transparent) 78%,
+    color-mix(in oklab, var(--beam-color) 30%, transparent) 15%,
+    color-mix(in oklab, var(--beam-color) 65%, transparent) 40%,
+    color-mix(in oklab, var(--beam-color) 75%, transparent) 50%,
+    color-mix(in oklab, var(--beam-color) 65%, transparent) 60%,
+    color-mix(in oklab, var(--beam-color) 30%, transparent) 85%,
     transparent 100%
   );
 }
 
-/* The header and rail are held in place structurally by the app shell in
-   App.tsx -- the page itself does not scroll on a wide screen, only the working
-   area does. Sticky positioning was doing half the job: the rail stayed and the
-   header did not. On narrow screens the layout stacks and scrolls normally,
-   because a fixed rail would eat most of a phone. */
+/* ---------------------------------------------------------------------------
+   Tyre tread texture — used on the sidebar as a subtle geometric motif
+   
+   Diagonal grooves, like actual tyre tread geometry. Not a photo texture —
+   pure CSS, recessive at 3% opacity. Orientation echoes the grooves cut into
+   a dry-weather compound.
+--------------------------------------------------------------------------- */
+.tyre-texture {
+  background-image: repeating-linear-gradient(
+    -55deg,
+    transparent,
+    transparent 4px,
+    color-mix(in oklab, var(--color-line) 40%, transparent) 4px,
+    color-mix(in oklab, var(--color-line) 40%, transparent) 5px
+  );
+}
 
+/* Speed-line sweep — used for active/selected state transitions */
+@keyframes speed-sweep {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.speed-sweep {
+  background: linear-gradient(
+    90deg,
+    transparent 30%,
+    color-mix(in oklab, var(--color-alert) 18%, transparent) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: speed-sweep 0.45s ease-out forwards;
+}
+
+/* Pulsing status dot — used in the live monitor */
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.7); }
+}
+
+.pulse-live {
+  animation: live-pulse 1.4s ease-in-out infinite;
+}
+
+/* Compound ring — concentric circle that echoes tyre cross-section */
+@keyframes ring-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.ring-spin {
+  animation: ring-rotate 1.6s linear infinite;
+}
+
+/* ---------------------------------------------------------------------------
+   Scrollbar — themed, minimal, no track background
+--------------------------------------------------------------------------- */
+::-webkit-scrollbar        { width: 5px; height: 5px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  {
+  background: var(--color-line-bright);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--color-ink-faint); }
+
+/* ---------------------------------------------------------------------------
+   Focus ring — accessible, styled to the alert accent
+--------------------------------------------------------------------------- */
 *:focus-visible {
-  outline: 2px solid var(--color-alert);
+  outline: 1.5px solid var(--color-alert);
   outline-offset: 2px;
 }
 
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-::-webkit-scrollbar-track {
-  background: var(--color-ground);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--color-line);
-  border-radius: 0;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-line-bright);
+/* ---------------------------------------------------------------------------
+   Input range — accent follows the alert colour
+--------------------------------------------------------------------------- */
+input[type='range'] {
+  accent-color: var(--color-alert);
+  cursor: pointer;
 }
 
+/* ---------------------------------------------------------------------------
+   Selection — subtle highlight
+--------------------------------------------------------------------------- */
+::selection {
+  background: color-mix(in oklab, var(--color-alert) 30%, transparent);
+  color: var(--color-ink);
+}
+
+/* ---------------------------------------------------------------------------
+   App shell — the fixed layout is handled here rather than in the component,
+   so narrow-screen stacking is consistent across all views
+--------------------------------------------------------------------------- */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+/* ---------------------------------------------------------------------------
+   Reduced motion
+--------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Prose helpers — applied to explainer and narrative text blocks
+--------------------------------------------------------------------------- */
+.prose-data {
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--color-ink-dim);
+}
+
+.prose-data strong {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+.prose-data em {
+  color: var(--color-ink);
+  font-style: normal;
+  font-weight: 500;
+}
+
+/* ---------------------------------------------------------------------------
+   Table base — used in SciencePanel, StrategyView, etc.
+--------------------------------------------------------------------------- */
+.data-table {
+  width: 100%;
+  font-size: 12px;
+  border-collapse: collapse;
+}
+
+.data-table thead tr {
+  border-bottom: 1px solid var(--color-line);
+}
+
+.data-table thead th {
+  padding: 8px 0 8px 0;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+  text-align: left;
+}
+
+.data-table thead th:not(:first-child) {
+  text-align: right;
+}
+
+.data-table tbody tr {
+  border-bottom: 1px solid var(--color-line-subtle);
+}
+
+.data-table tbody td {
+  padding: 7px 0;
+  color: var(--color-ink-dim);
+}
+
+.data-table tbody td:not(:first-child) {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }

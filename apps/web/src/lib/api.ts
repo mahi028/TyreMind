@@ -143,6 +143,16 @@ export interface DecompositionRow {
   fuel?: number
   track?: number
   traffic?: number
+  /**
+   * Per-term standard deviations. A 95% interval is ±1.96 sd, and nothing on
+   * screen shows one of these terms without it.
+   */
+  tyre_sd?: number
+  fuel_sd?: number
+  track_sd?: number
+  traffic_sd?: number
+  /** Null when the observed delta is too near zero for a share to mean anything. */
+  tyre_share?: number | null
 }
 
 export interface Scenario {
@@ -282,12 +292,12 @@ export function compoundColour(compound: string): string {
 
 /** Format seconds with an explicit sign. In a timing context the sign is the message. */
 export function signed(value: number, digits = 3): string {
-  if (!Number.isFinite(value)) return '—'
+  if (!Number.isFinite(value)) return '-'
   return `${value >= 0 ? '+' : '−'}${Math.abs(value).toFixed(digits)}`
 }
 
 export function fixed(value: number | null | undefined, digits = 3): string {
-  return value == null || !Number.isFinite(value) ? '—' : value.toFixed(digits)
+  return value == null || !Number.isFinite(value) ? '-' : value.toFixed(digits)
 }
 
 // ---------------------------------------------------------------------------
@@ -572,14 +582,15 @@ export function resolveColour(value: string): string {
 const FALLBACK_COLOUR: Record<string, string> = {
   '--color-soft': '#e8352e',
   '--color-medium': '#f5c518',
-  '--color-hard': '#ededed',
-  '--color-alert': '#ff8a5b',
-  '--color-good': '#4bbf8a',
-  '--color-fuel': '#4fa8c5',
-  '--color-track': '#7b8fa1',
-  '--color-traffic': '#b47fd0',
-  '--color-residual': '#5a6b76',
-  '--color-ink-dim': '#8fa3ae',
+  '--color-hard': '#dde0e3',
+  '--color-alert': '#34d399',
+  '--color-good': '#2dd4bf',
+  '--color-danger': '#f87171',
+  '--color-fuel': '#41a3c2',
+  '--color-track': '#6b85a0',
+  '--color-traffic': '#9e6ec8',
+  '--color-residual': '#445a69',
+  '--color-ink-dim': '#98a3b0',
 }
 
 /** Compound colour, already resolved for canvas rendering. */

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Pit strategy: thousands of simulated races, and the decision they support.
  *
  * The distribution plot is the point of this screen. A table of expected
@@ -15,14 +15,13 @@ import ReactECharts from 'echarts-for-react'
 import { useThemeColours } from '../lib/theme'
 import {
   advanced,
-  compoundColour,
   resolveColour,
   type PitWindow,
   type RunRow,
   type StrategyResult,
 } from '../lib/api'
 import { PitWindowChart } from './charts'
-import { EstimateTag, ErrorNote, Loading, Panel, Stat } from './primitives'
+import { EstimateTag, ErrorNote, Loading, Panel, RunChip, Stat } from './primitives'
 import { Explainer } from './Explainer'
 
 export function StrategyView({
@@ -36,6 +35,7 @@ export function StrategyView({
   selected: RunRow | null
   onSelect: (r: RunRow) => void
 }) {
+  // Design: space-y-4, rounded-card panels (via Panel), label-caps section headers
   const [lap, setLap] = useState<number | null>(null)
   const [result, setResult] = useState<StrategyResult | null>(null)
   const [regret, setRegret] = useState<{ regret_s: number } | null>(null)
@@ -84,41 +84,30 @@ export function StrategyView({
   if (!selected) return <Loading what="the session" />
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <Explainer id="strategy" question="What does this screen decide?">
         <p>
           When to pit. Stopping costs about twenty seconds in the pit lane, but
-          fresh tyres are faster. Stop too early and you waste the tyre you were
-          on; stop too late and you crawl round on a dead one.
+          fresh tyres are faster, so pitting too early wastes the tyre you were
+          on and too late means crawling round on a dead one.
         </p>
         <p>
-          TyreMind plays the rest of the race out <strong>five thousand times</strong>{' '}
-          for each option, drawing a different degradation rate each time from the
-          range it believes. The chart below shows the spread of results. If two
-          options overlap heavily, the model is telling you the choice does not
-          really matter — which is as useful as being told it does.
+          TyreMind simulates the rest of the race <strong>five thousand times</strong>{' '}
+          per option, drawing a different degradation rate from the posterior
+          each run. Heavy overlap between two options means the choice
+          genuinely doesn't matter.
         </p>
       </Explainer>
 
       <Panel title="Pick a car and a lap to decide from">
         <div className="mb-4 flex flex-wrap gap-1">
           {runs.slice(0, 12).map((run) => (
-            <button
+            <RunChip
               key={run.run_id}
-              onClick={() => onSelect(run)}
-              className={`flex items-center gap-1.5 border px-2 py-1 text-[11px] transition-colors ${
-                selected.run_id === run.run_id
-                  ? 'border-alert text-ink'
-                  : 'border-line text-ink-dim hover:border-line-bright'
-              }`}
-            >
-              <span
-                className="inline-block h-2 w-2 rounded-full"
-                style={{ background: compoundColour(run.compound) }}
-              />
-              <span className="num">{run.driver}</span>
-              <span className="text-ink-faint">{run.laps}L</span>
-            </button>
+              run={run}
+              selected={selected.run_id === run.run_id}
+              onSelect={() => onSelect(run)}
+            />
           ))}
         </div>
 
@@ -214,9 +203,8 @@ export function StrategyView({
                 />
                 <div className="space-y-3 text-[12.5px] leading-relaxed text-ink-dim">
                   <p>
-                    The options table says which choice is best. This says{' '}
-                    <strong className="text-ink">how much the choice matters</strong>,
-                    which is the more useful question.
+                    The options table says which choice is best; this shows{' '}
+                    <strong className="text-ink">how much it matters</strong>.
                   </p>
                   <StayOutNote window={window} />
                   {window.window_within_1s && (
@@ -224,34 +212,33 @@ export function StrategyView({
                       Anywhere between lap{' '}
                       <span className="num text-ink">{window.window_within_1s[0]}</span> and{' '}
                       <span className="num text-ink">{window.window_within_1s[1]}</span>{' '}
-                      costs less than a second against the optimum. That is a{' '}
+                      costs less than a second against the optimum: a{' '}
                       {window.window_within_1s[1] - window.window_within_1s[0] + 1}-lap
-                      window — comfortable room, not a knife edge.
+                      window of comfortable room.
                     </p>
                   )}
                   <p>
-                    A steep curve means timing is critical. A flat one means the
-                    decision does not really matter and the attention belongs
-                    elsewhere. The dashed line is the bad case: where the curves
-                    separate, one option is riskier than its average suggests.
+                    A steep curve means timing is critical; a flat one means the
+                    decision barely matters. The dashed line is the bad case,
+                    where one option is riskier than its average suggests.
                   </p>
                   <p className="text-[11.5px] text-ink-faint">
                     {window.sweep.length} candidate laps, {window.n_sims.toLocaleString()}{' '}
-                    races each, all sharing random draws so the shape is signal
-                    rather than simulation noise.
+                    races each, sharing random draws so the shape is signal, not
+                    noise.
                   </p>
                 </div>
               </div>
             </Panel>
           )}
 
-          <div className="grid gap-3 lg:grid-cols-[1.25fr_1fr]">
+          <div className="grid gap-4 lg:grid-cols-[1.25fr_1fr]">
             <Panel title="Five thousand races per option" aside="lower is faster">
               <DistributionChart result={result} />
             </Panel>
 
             <Panel title="Every option compared">
-              <div className="space-y-1">
+              <div className="space-y-px">
                 <div className="grid grid-cols-[1fr_62px_58px_54px] gap-2 pb-1.5 text-[10px] text-ink-faint">
                   <span>option</span>
                   <span className="text-right">vs best</span>
@@ -264,7 +251,7 @@ export function StrategyView({
                   return (
                     <div
                       key={option.label}
-                      className="grid grid-cols-[1fr_62px_58px_54px] items-center gap-2 border-t border-line/60 py-1.5"
+                      className="grid grid-cols-[1fr_62px_58px_54px] items-center gap-2 border-t border-line-subtle py-1.5"
                     >
                       <span
                         className={`text-[12px] ${i === 0 ? 'font-medium text-alert' : 'text-ink-dim'}`}
@@ -277,7 +264,7 @@ export function StrategyView({
                         )}
                       </span>
                       <span className="num text-right text-[12px] text-ink">
-                        {i === 0 ? '—' : `+${delta.toFixed(1)}s`}
+                        {i === 0 ? '-' : `+${delta.toFixed(1)}s`}
                       </span>
                       <span className="num text-right text-[11.5px] text-ink-dim">
                         +{(option.downside - best.expected_time).toFixed(1)}s
@@ -287,7 +274,7 @@ export function StrategyView({
                         style={{
                           color:
                             option.ran_out_of_tyre > 0.5
-                              ? 'var(--color-alert)'
+                              ? 'var(--color-danger)'
                               : 'var(--color-ink-faint)',
                         }}
                       >
@@ -299,7 +286,7 @@ export function StrategyView({
               </div>
               <p className="mt-3 max-w-[46ch] text-[11px] leading-relaxed text-ink-faint">
                 <strong className="text-ink-dim">Bad case</strong> is the 90th
-                percentile — how it goes when things do not fall your way.{' '}
+                percentile: how it goes when luck isn't on your side.{' '}
                 <strong className="text-ink-dim">Cliff</strong> is how often the tyre
                 runs past the point where degradation accelerates.
               </p>
@@ -388,11 +375,10 @@ function DistributionChart({ result }: { result: StrategyResult }) {
     <>
       <ReactECharts option={option} style={{ height: 300 }} notMerge />
       <p className="mt-2 max-w-[64ch] text-[11.5px] leading-relaxed text-ink-dim">
-        Each curve is five thousand simulated races. Where curves overlap, the two
-        strategies genuinely cannot be separated — the model is saying the choice is
-        close, not hedging. The spread comes from real uncertainty about the tyre,
-        because a different degradation rate is drawn from the posterior for every
-        simulated race.
+        Each curve is five thousand simulated races. Where curves overlap, the
+        two strategies genuinely cannot be separated: the spread reflects real
+        uncertainty in the tyre, since each race draws its own degradation rate
+        from the posterior.
       </p>
     </>
   )
@@ -411,11 +397,9 @@ function StayOutNote({ window: w }: { window: PitWindow }) {
   if (margin <= 0) return null
   return (
     <p>
-      Every one of these stops loses to not stopping at all. The dotted line is
-      staying out, and the best lap to pit on still costs{' '}
-      <span className="num text-ink">{margin.toFixed(1)} s</span> against it. The
-      curve below it is about which stop is least bad, not about whether to make
-      one.
+      Every one of these stops loses to not stopping at all. The dotted line
+      marks staying out; even the best lap to pit still costs{' '}
+      <span className="num text-ink">{margin.toFixed(1)} s</span> against it.
     </p>
   )
 }

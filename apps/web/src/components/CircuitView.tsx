@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Where on the lap the tyre gets used up.
  *
  * The 3D line answers a question the degradation number cannot: a rate of
@@ -56,7 +56,7 @@ export function CircuitView({ circuit }: { circuit: string }) {
 
   if (error) {
     return (
-      <div className="space-y-3">
+      <div className="space-y-4">
         <Explainer id="circuit" question="What is this view for?">
           <p>
             It shows <strong>where on the lap</strong> the tyres get used up, using
@@ -72,53 +72,46 @@ export function CircuitView({ circuit }: { circuit: string }) {
   const stats = track.stats
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <Explainer id="circuit" question="What am I looking at?">
         <p>
-          This is the <strong>actual racing line</strong> a car drove, recorded by
-          GPS at up to ten times a second, drawn in three dimensions with the
-          elevation exaggerated so hills are visible.
-        </p>
-        <p>
-          The colour is the interesting part. It is not speed or height — it is how
-          hard the tyres are working at that point, computed from how tightly the
-          car is turning and how hard it is braking.{' '}
-          <strong>
-            Bright means the rubber is being consumed.
-          </strong>{' '}
-          A degradation rate tells you a tyre is going away; this tells you where.
+          This is the <strong>real racing line</strong>, recorded from GPS
+          telemetry. The colour is <strong>tyre load, not speed or height</strong>,
+          so it shows where the rubber gets worked hardest.
         </p>
       </Explainer>
 
-      <div className="grid gap-3 xl:grid-cols-[1.4fr_1fr]">
+      <div className="grid gap-4 xl:grid-cols-[1.4fr_1fr]">
         <Panel
-          title={`${track.circuit} — fastest lap, ${track.year}`}
-          aside={`${stats.driver} · ${stats.lap_time_s ? stats.lap_time_s.toFixed(3) + 's' : '—'}`}
+          title={`${track.circuit}, fastest lap, ${track.year}`}
+          aside={`${stats.driver} · ${stats.lap_time_s ? stats.lap_time_s.toFixed(3) + 's' : 'n/a'}`}
         >
           <div className="mb-3 flex flex-wrap items-center gap-2">
             {MODES.map((m) => (
               <button
                 key={m}
                 onClick={() => setMode(m)}
-                className={`border px-2.5 py-1 text-[11px] transition-colors ${
-                  m === mode
-                    ? 'border-alert text-alert'
-                    : 'border-line text-ink-dim hover:border-line-bright'
-                }`}
+                className={`
+                  rounded-pill border px-2.5 py-1 text-[11px] transition-colors duration-150
+                  ${m === mode
+                    ? 'border-alert/60 bg-alert-dim text-ink'
+                    : 'border-line text-ink-dim hover:border-line-bright hover:text-ink'
+                  }
+                `}
               >
                 {MODE_LABEL[m]}
               </button>
             ))}
             <button
               onClick={() => setRotating((r) => !r)}
-              className="ml-auto border border-line px-2.5 py-1 text-[11px] text-ink-dim transition-colors hover:border-line-bright"
+              className="ml-auto rounded-pill border border-line px-2.5 py-1 text-[11px] text-ink-dim transition-colors duration-150 hover:border-line-bright hover:text-ink"
             >
               {rotating ? 'Pause' : 'Rotate'}
             </button>
           </div>
 
           <div
-            className="h-[400px] w-full border border-line transition-opacity"
+            className="h-[400px] w-full overflow-hidden rounded-md border border-line transition-opacity"
             style={{ opacity: loading ? 0.35 : 1 }}
           >
             <Circuit3D track={track} mode={mode} rotating={rotating} progress={progress} />
@@ -136,7 +129,7 @@ export function CircuitView({ circuit }: { circuit: string }) {
           </p>
         </Panel>
 
-        <div className="space-y-3">
+        <div className="space-y-4">
           <Panel title="This lap">
             <div className="grid grid-cols-2 gap-5">
               <Stat
@@ -171,7 +164,7 @@ export function CircuitView({ circuit }: { circuit: string }) {
         </div>
       </div>
 
-      <div className="grid gap-3 xl:grid-cols-[1.5fr_1fr]">
+      <div className="grid gap-4 xl:grid-cols-[1.5fr_1fr]">
         <Panel title="Speed and load around the lap">
           <TraceChart track={track} />
         </Panel>
@@ -179,11 +172,8 @@ export function CircuitView({ circuit }: { circuit: string }) {
         <Panel title="Where the damage concentrates" aside="hardest-working sections">
           <LoadHotspots tyreLoad={track.tyre_load} speed={track.speed_kmh} />
           <p className="mt-2 max-w-[48ch] text-[11.5px] leading-relaxed text-ink-faint">
-            Contiguous high-load samples grouped into sections and ranked, labelled
-            by how far into the lap they sit and how fast the car was going. On a
-            power circuit a handful of braking zones account for most of the
-            damage; on a flowing one it is spread thin. That difference is why the
-            same compound behaves so differently between them.
+            High-load stretches, grouped into sections and ranked by where in
+            the lap they sit and how fast the car was going.
           </p>
         </Panel>
       </div>
@@ -252,7 +242,7 @@ function GgDiagram({ track }: { track: TrackGeometry }) {
           type: 'scatter',
           data: points,
           symbolSize: 4,
-          itemStyle: { color: colours.alert, opacity: 0.55 },
+          itemStyle: { color: colours.danger, opacity: 0.55 },
         },
       ],
     }
@@ -262,20 +252,8 @@ function GgDiagram({ track }: { track: TrackGeometry }) {
     <>
       <ReactECharts option={option} style={{ height: 240 }} notMerge />
       <p className="mt-2 max-w-[46ch] text-[11px] leading-relaxed text-ink-faint">
-        A tyre has one grip budget, spent on turning, on stopping, or shared
-        between them — never more than the total. Points far from the centre are
-        moments where the car was using everything the tyre had.
-      </p>
-      <p className="mt-2 max-w-[46ch] text-[11px] leading-relaxed text-ink-faint">
-        The envelope is called a circle but is not one, and the way it is
-        squashed is readable. It is <strong className="text-ink-dim">wide</strong>{' '}
-        because downforce arrives with speed, so a fast corner has more grip
-        available than a slow one.{' '}
-        <strong className="text-ink-dim">Deep downwards</strong> because braking
-        uses all four tyres at once.{' '}
-        <strong className="text-ink-dim">Shallow upwards</strong> because
-        acceleration is limited by the rear axle and the engine rather than by
-        the friction budget.
+        The car's grip budget, spent on cornering versus braking. Points far
+        from the centre are where the tyre was working hardest.
       </p>
     </>
   )
@@ -348,8 +326,8 @@ function TraceChart({ track }: { track: TrackGeometry }) {
           data: track.tyre_load,
           symbol: 'none',
           smooth: 0.2,
-          lineStyle: { color: colours.alert, width: 1.5 },
-          areaStyle: { color: colours.alert, opacity: 0.12 },
+          lineStyle: { color: colours.danger, width: 1.5 },
+          areaStyle: { color: colours.danger, opacity: 0.12 },
         },
       ],
     }
@@ -359,10 +337,7 @@ function TraceChart({ track }: { track: TrackGeometry }) {
     <>
       <ReactECharts option={option} style={{ height: 230 }} notMerge />
       <p className="mt-2 max-w-[80ch] text-[11.5px] leading-relaxed text-ink-faint">
-        Tyre load peaks where speed dips — the corners. On a power circuit like
-        Monza the load spikes are few and sharp; on a flowing circuit they are
-        broad and sustained, which is why the same compound behaves so differently
-        between the two.
+        Tyre load peaks where speed dips, in the corners.
       </p>
     </>
   )
