@@ -1,0 +1,99 @@
+{
+  "experiment": "exp20_rate_pooling_degeneracy",
+  "generated_at": "2026-09-12T15:48:20.668070+00:00",
+  "corpus": "data/demo (4 real 2024 races -- data/season/ full corpus not rebuilt in this checkout)",
+  "bound_tolerance": 1e-06,
+  "n_races": 4,
+  "n_stint_rate_sd_at_floor": 4,
+  "n_q_rate_near_zero": 4,
+  "median_spread_as_fraction_of_baseline": 9.644221755239409e-05,
+  "races": [
+    {
+      "session_id": "2024-monza-R",
+      "converged": true,
+      "hyper": {
+        "log_q_track": -6.907755278982137,
+        "log_q_level": -3.530403954118677,
+        "log_q_rate": -21.48120725094285,
+        "log_obs_sd": -0.8594132937675565,
+        "log_stint_rate_sd": -6.907755278982137,
+        "log_track_shape": -0.6931471805599453
+      },
+      "bound_hits": {
+        "log_q_track": "ceiling",
+        "log_stint_rate_sd": "floor",
+        "log_track_shape": "ceiling"
+      },
+      "q_rate": 4.686301501840684e-10,
+      "stint_rate_sd": 0.0010000000000000002,
+      "cross_driver_rate_spread": 1.0956377092452756e-05,
+      "mean_compound_baseline_rate": 0.093469379505039,
+      "spread_as_fraction_of_baseline": 0.00011721889190311881
+    },
+    {
+      "session_id": "2024-silverstone-R",
+      "converged": true,
+      "hyper": {
+        "log_q_track": -6.907755278982137,
+        "log_q_level": -2.3025850929940455,
+        "log_q_rate": -18.210679068882335,
+        "log_obs_sd": -0.20313505551082325,
+        "log_stint_rate_sd": -6.907755278982137,
+        "log_track_shape": -0.9149974424788406
+      },
+      "bound_hits": {
+        "log_q_track": "ceiling",
+        "log_q_level": "ceiling",
+        "log_stint_rate_sd": "floor"
+      },
+      "q_rate": 1.2336801264556192e-08,
+      "stint_rate_sd": 0.0010000000000000002,
+      "cross_driver_rate_spread": 3.252509705151111e-06,
+      "mean_compound_baseline_rate": 0.13036752506446492,
+      "spread_as_fraction_of_baseline": 2.494877235371915e-05
+    },
+    {
+      "session_id": "2024-zandvoort-R",
+      "converged": true,
+      "hyper": {
+        "log_q_track": -6.907755278982137,
+        "log_q_level": -4.403519609581815,
+        "log_q_rate": -23.025850929940457,
+        "log_obs_sd": -0.8446101017177531,
+        "log_stint_rate_sd": -6.907755278982137,
+        "log_track_shape": -5.288939715132892
+      },
+      "bound_hits": {
+        "log_q_track": "ceiling",
+        "log_q_rate": "floor",
+        "log_stint_rate_sd": "floor"
+      },
+      "q_rate": 9.999999999999996e-11,
+      "stint_rate_sd": 0.0010000000000000002,
+      "cross_driver_rate_spread": 2.2886530139668253e-05,
+      "mean_compound_baseline_rate": 0.09868417548768815,
+      "spread_as_fraction_of_baseline": 0.00023191692109261812
+    },
+    {
+      "session_id": "2024-barcelona-R",
+      "converged": true,
+      "hyper": {
+        "log_q_track": -6.907755278982137,
+        "log_q_level": -3.1676624406834475,
+        "log_q_rate": -19.263667069413163,
+        "log_obs_sd": -0.7545743414534944,
+        "log_stint_rate_sd": -6.907755278982137,
+        "log_track_shape": -4.202252834985995
+      },
+      "bound_hits": {
+        "log_q_track": "ceiling",
+        "log_stint_rate_sd": "floor"
+      },
+      "q_rate": 4.304232184138376e-09,
+      "stint_rate_sd": 0.0010000000000000002,
+      "cross_driver_rate_spread": 9.43552316131929e-06,
+      "mean_compound_baseline_rate": 0.12470039547817739,
+      "spread_as_fraction_of_baseline": 7.566554320166938e-05
+    }
+  ]
+}
