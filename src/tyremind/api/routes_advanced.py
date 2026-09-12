@@ -493,6 +493,7 @@ def pit_window(
         raise HTTPException(status_code=400, detail="no laps remain to pit on")
 
     sweep = []
+    draws = []
     for pit_lap in candidates:
         outcome = simulate_strategy(
             state,
@@ -501,6 +502,7 @@ def pit_window(
             n_sims=n_sims,
             seed=11,  # common random numbers: the shape is signal, not noise
         )
+        draws.append(np.asarray(outcome.race_times, dtype=float))
         sweep.append(
             {
                 "pit_lap": pit_lap,
@@ -510,6 +512,25 @@ def pit_window(
                 "runs_past_cliff": outcome.ran_out_of_tyre,
             }
         )
+
+    # Probability that each lap is the right one.
+    #
+    # Every candidate was simulated against the same random draws, so draw i can
+    # be read across all candidates as one coherent race: whichever lap is
+    # fastest in that draw is the lap that would have been right. Counting the
+    # winners gives an honest probability rather than a softmax over expected
+    # times, which would have been a number shaped like a probability without
+    # being one.
+    #
+    # This is what lets the product say "box on lap 34, 62% confident" instead of
+    # "box on lap 34". A strategist cannot act on a bare recommendation; the
+    # width of the belief is the decision.
+    matrix = np.vstack(draws)                      # candidates x simulations
+    winners = np.argmin(matrix, axis=0)
+    counts = np.bincount(winners, minlength=len(candidates)).astype(float)
+    probabilities = counts / max(counts.sum(), 1.0)
+    for row, probability in zip(sweep, probabilities):
+        row["probability_optimal"] = float(probability)
 
     best = min(sweep, key=lambda r: r["expected_time"])
     # How wide is the window that costs less than a second against the optimum?
@@ -526,9 +547,23 @@ def pit_window(
         "window_within_1s": [min(tolerable), max(tolerable)] if tolerable else None,
         "sweep": sweep,
         "n_sims": n_sims,
+        # The headline confidence: how often the recommended lap actually won.
+        "confidence_in_optimum": float(
+            next(r["probability_optimal"] for r in sweep if r["pit_lap"] == best["pit_lap"])
+        ),
+        # And the same for the window, which is usually the number a strategist
+        # wants: not "is lap 34 exactly right" but "am I in the right window".
+        "confidence_in_window": float(
+            sum(r["probability_optimal"] for r in sweep if r["pit_lap"] in set(tolerable))
+        ) if tolerable else None,
+        "probability_box_within_3_laps": float(
+            sum(r["probability_optimal"] for r in sweep if r["pit_lap"] <= lap + 3)
+        ),
         "note": (
             "Model estimate. The width of the window matters as much as its "
-            "centre: a flat curve means the exact lap is not critical."
+            "centre: a flat curve means the exact lap is not critical. "
+            "Probabilities are the share of simulated races in which each lap "
+            "was the fastest choice, under common random numbers."
         ),
     }
 
