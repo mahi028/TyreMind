@@ -1,0 +1,1361 @@
+{
+  "experiment": "exp32_traffic_mechanism",
+  "question": "Is the lower measured degradation of stints in traffic a real wear mechanism (less energy through the tyre) or a measurement artefact (a pace-limited lap time cannot show the wear)?",
+  "preregistration": "experiments/PREREGISTRATION_exp32.md",
+  "generated_at": "2026-09-12T23:50:23.422281+00:00",
+  "seed": 20260913,
+  "sample": {
+    "n_stints": 3220,
+    "n_sessions": 83,
+    "n_with_measured_traffic": 2441,
+    "filters": {
+      "seen": 3806,
+      "short": 582,
+      "flat_age": 0,
+      "fit_failed": 0,
+      "implausible": 2
+    },
+    "min_stint_laps": 10,
+    "min_age_spread": 6,
+    "max_plausible_slope": 0.5,
+    "fuel_slope_s_per_lap": 0.081
+  },
+  "measured_traffic_alignment": {
+    "openf1_races_on_disk": 70,
+    "aligned_sessions": 67,
+    "unmatched_sessions": [],
+    "lap_agreement": [
+      {
+        "session": "2024-bahrain-grand-prix-R",
+        "n_laps": 970,
+        "rho_derived_vs_measured_gap": -0.7156556134258515,
+        "p_value": 4.7725622150075437e-153
+      },
+      {
+        "session": "2024-saudi-arabian-grand-prix-R",
+        "n_laps": 762,
+        "rho_derived_vs_measured_gap": -0.8490853712908163,
+        "p_value": 7.830213629062488e-213
+      },
+      {
+        "session": "2024-australian-grand-prix-R",
+        "n_laps": 801,
+        "rho_derived_vs_measured_gap": -0.7528522813571836,
+        "p_value": 2.727886422408317e-147
+      },
+      {
+        "session": "2024-japanese-grand-prix-R",
+        "n_laps": 722,
+        "rho_derived_vs_measured_gap": -0.7284752320407512,
+        "p_value": 2.189365048436183e-120
+      },
+      {
+        "session": "2024-chinese-grand-prix-R",
+        "n_laps": 711,
+        "rho_derived_vs_measured_gap": -0.8374569251292967,
+        "p_value": 3.210334404734367e-188
+      },
+      {
+        "session": "2024-emilia-romagna-grand-prix-R",
+        "n_laps": 1062,
+        "rho_derived_vs_measured_gap": -0.6530556979904402,
+        "p_value": 4.015381157972327e-130
+      },
+      {
+        "session": "2024-monaco-grand-prix-R",
+        "n_laps": 1085,
+        "rho_derived_vs_measured_gap": -0.8409183077314345,
+        "p_value": 4.4992124642952854e-291
+      },
+      {
+        "session": "2024-canadian-grand-prix-R",
+        "n_laps": 275,
+        "rho_derived_vs_measured_gap": -0.8544344362601833,
+        "p_value": 1.3169613785138692e-79
+      },
+      {
+        "session": "2024-spanish-grand-prix-R",
+        "n_laps": 1145,
+        "rho_derived_vs_measured_gap": -0.6279076403766618,
+        "p_value": 1.4049444031660512e-126
+      },
+      {
+        "session": "2024-austrian-grand-prix-R",
+        "n_laps": 1189,
+        "rho_derived_vs_measured_gap": -0.6978290242137927,
+        "p_value": 3.1085439891467224e-174
+      },
+      {
+        "session": "2024-british-grand-prix-R",
+        "n_laps": 584,
+        "rho_derived_vs_measured_gap": -0.8390346977347418,
+        "p_value": 5.622870012214439e-156
+      },
+      {
+        "session": "2024-hungarian-grand-prix-R",
+        "n_laps": 1184,
+        "rho_derived_vs_measured_gap": -0.7055837041048382,
+        "p_value": 5.1290534655319396e-179
+      },
+      {
+        "session": "2024-belgian-grand-prix-R",
+        "n_laps": 711,
+        "rho_derived_vs_measured_gap": -0.8296340112494102,
+        "p_value": 1.2321289169590743e-181
+      },
+      {
+        "session": "2024-dutch-grand-prix-R",
+        "n_laps": 1282,
+        "rho_derived_vs_measured_gap": -0.7122479745792333,
+        "p_value": 5.61982597977061e-199
+      },
+      {
+        "session": "2024-italian-grand-prix-R",
+        "n_laps": 876,
+        "rho_derived_vs_measured_gap": -0.6773586652437751,
+        "p_value": 1.1798732948904758e-118
+      },
+      {
+        "session": "2024-azerbaijan-grand-prix-R",
+        "n_laps": 817,
+        "rho_derived_vs_measured_gap": -0.7959123742958755,
+        "p_value": 8.25174553146745e-180
+      },
+      {
+        "session": "2024-singapore-grand-prix-R",
+        "n_laps": 1037,
+        "rho_derived_vs_measured_gap": -0.7545330910802388,
+        "p_value": 1.553578317353056e-191
+      },
+      {
+        "session": "2024-united-states-grand-prix-R",
+        "n_laps": 879,
+        "rho_derived_vs_measured_gap": -0.7539981710567304,
+        "p_value": 3.060613663981115e-162
+      },
+      {
+        "session": "2024-mexico-city-grand-prix-R",
+        "n_laps": 994,
+        "rho_derived_vs_measured_gap": -0.6928923326871544,
+        "p_value": 4.5578057974938915e-143
+      },
+      {
+        "session": "2024-las-vegas-grand-prix-R",
+        "n_laps": 772,
+        "rho_derived_vs_measured_gap": -0.81493041685286,
+        "p_value": 1.3559200315177079e-184
+      },
+      {
+        "session": "2024-qatar-grand-prix-R",
+        "n_laps": 660,
+        "rho_derived_vs_measured_gap": -0.8567962011121657,
+        "p_value": 1.9589551679948574e-191
+      },
+      {
+        "session": "2024-abu-dhabi-grand-prix-R",
+        "n_laps": 859,
+        "rho_derived_vs_measured_gap": -0.6871054368276849,
+        "p_value": 5.084283452419507e-121
+      },
+      {
+        "session": "2023-bahrain-grand-prix-R",
+        "n_laps": 858,
+        "rho_derived_vs_measured_gap": -0.7621314402727374,
+        "p_value": 8.508024954164231e-164
+      },
+      {
+        "session": "2023-saudi-arabian-grand-prix-R",
+        "n_laps": 780,
+        "rho_derived_vs_measured_gap": -0.835200949800411,
+        "p_value": 3.181184848790854e-204
+      },
+      {
+        "session": "2023-australian-grand-prix-R",
+        "n_laps": 653,
+        "rho_derived_vs_measured_gap": -0.8752500164205752,
+        "p_value": 1.5652799851703414e-207
+      },
+      {
+        "session": "2023-azerbaijan-grand-prix-R",
+        "n_laps": 783,
+        "rho_derived_vs_measured_gap": -0.8778338151953363,
+        "p_value": 6.751298760479277e-252
+      },
+      {
+        "session": "2023-monaco-grand-prix-R",
+        "n_laps": 912,
+        "rho_derived_vs_measured_gap": -0.8446356091140356,
+        "p_value": 3.545549871359773e-249
+      },
+      {
+        "session": "2023-spanish-grand-prix-R",
+        "n_laps": 1143,
+        "rho_derived_vs_measured_gap": -0.6866146766090964,
+        "p_value": 3.6432808790664356e-160
+      },
+      {
+        "session": "2023-canadian-grand-prix-R",
+        "n_laps": 1022,
+        "rho_derived_vs_measured_gap": -0.8668079007565425,
+        "p_value": 1.60065661066837e-310
+      },
+      {
+        "session": "2023-british-grand-prix-R",
+        "n_laps": 750,
+        "rho_derived_vs_measured_gap": -0.9241617358217015,
+        "p_value": 0.0
+      },
+      {
+        "session": "2023-hungarian-grand-prix-R",
+        "n_laps": 1090,
+        "rho_derived_vs_measured_gap": -0.6877734163214219,
+        "p_value": 1.5708842114265478e-153
+      },
+      {
+        "session": "2023-belgian-grand-prix-R",
+        "n_laps": 670,
+        "rho_derived_vs_measured_gap": -0.7867129365918266,
+        "p_value": 4.504223141198018e-142
+      },
+      {
+        "session": "2023-dutch-grand-prix-R",
+        "n_laps": 721,
+        "rho_derived_vs_measured_gap": -0.7391206300189908,
+        "p_value": 1.6323960179275492e-125
+      },
+      {
+        "session": "2023-italian-grand-prix-R",
+        "n_laps": 822,
+        "rho_derived_vs_measured_gap": -0.8375989206934275,
+        "p_value": 1.6065412344052964e-217
+      },
+      {
+        "session": "2023-singapore-grand-prix-R",
+        "n_laps": 888,
+        "rho_derived_vs_measured_gap": -0.919361291141148,
+        "p_value": 0.0
+      },
+      {
+        "session": "2023-japanese-grand-prix-R",
+        "n_laps": 654,
+        "rho_derived_vs_measured_gap": -0.6978408332951539,
+        "p_value": 1.4238772162854057e-96
+      },
+      {
+        "session": "2023-qatar-grand-prix-R",
+        "n_laps": 782,
+        "rho_derived_vs_measured_gap": -0.730684807590628,
+        "p_value": 1.9874008078117438e-131
+      },
+      {
+        "session": "2023-united-states-grand-prix-R",
+        "n_laps": 864,
+        "rho_derived_vs_measured_gap": -0.7465311516917343,
+        "p_value": 1.0718007211995148e-154
+      },
+      {
+        "session": "2023-mexico-city-grand-prix-R",
+        "n_laps": 1045,
+        "rho_derived_vs_measured_gap": -0.8693025316657238,
+        "p_value": 0.0
+      },
+      {
+        "session": "2023-s\u00e3o-paulo-grand-prix-R",
+        "n_laps": 896,
+        "rho_derived_vs_measured_gap": -0.5115047174490258,
+        "p_value": 6.801108858429448e-61
+      },
+      {
+        "session": "2023-las-vegas-grand-prix-R",
+        "n_laps": 692,
+        "rho_derived_vs_measured_gap": -0.8123104196070342,
+        "p_value": 9.986475088169323e-164
+      },
+      {
+        "session": "2023-abu-dhabi-grand-prix-R",
+        "n_laps": 1006,
+        "rho_derived_vs_measured_gap": -0.7997345348412772,
+        "p_value": 1.0439082378078569e-224
+      },
+      {
+        "session": "2023-austrian-grand-prix-R",
+        "n_laps": 1122,
+        "rho_derived_vs_measured_gap": -0.7528961849291236,
+        "p_value": 1.037924414994497e-205
+      },
+      {
+        "session": "2025-chinese-grand-prix-R",
+        "n_laps": 939,
+        "rho_derived_vs_measured_gap": -0.7770725679550632,
+        "p_value": 1.3386427814080996e-190
+      },
+      {
+        "session": "2025-japanese-grand-prix-R",
+        "n_laps": 947,
+        "rho_derived_vs_measured_gap": -0.8632496449864768,
+        "p_value": 8.073920840574312e-283
+      },
+      {
+        "session": "2025-bahrain-grand-prix-R",
+        "n_laps": 878,
+        "rho_derived_vs_measured_gap": -0.8392614286914865,
+        "p_value": 5.022290876774897e-234
+      },
+      {
+        "session": "2025-saudi-arabian-grand-prix-R",
+        "n_laps": 763,
+        "rho_derived_vs_measured_gap": -0.7551259133837488,
+        "p_value": 1.0831886661967332e-141
+      },
+      {
+        "session": "2025-miami-grand-prix-R",
+        "n_laps": 517,
+        "rho_derived_vs_measured_gap": -0.6694757249557639,
+        "p_value": 1.6916329802410798e-68
+      },
+      {
+        "session": "2025-emilia-romagna-grand-prix-R",
+        "n_laps": 904,
+        "rho_derived_vs_measured_gap": -0.8321605067798097,
+        "p_value": 3.369834461429718e-233
+      },
+      {
+        "session": "2025-monaco-grand-prix-R",
+        "n_laps": 1176,
+        "rho_derived_vs_measured_gap": -0.8097406619486778,
+        "p_value": 4.5222974255951685e-274
+      },
+      {
+        "session": "2025-spanish-grand-prix-R",
+        "n_laps": 930,
+        "rho_derived_vs_measured_gap": -0.7593847807479629,
+        "p_value": 2.0825047395341604e-175
+      },
+      {
+        "session": "2025-canadian-grand-prix-R",
+        "n_laps": 1138,
+        "rho_derived_vs_measured_gap": -0.8424781009093397,
+        "p_value": 1.934729516589979e-307
+      },
+      {
+        "session": "2025-austrian-grand-prix-R",
+        "n_laps": 947,
+        "rho_derived_vs_measured_gap": -0.7219988189850807,
+        "p_value": 2.4700841110782e-153
+      },
+      {
+        "session": "2025-british-grand-prix-R",
+        "n_laps": 125,
+        "rho_derived_vs_measured_gap": -0.6937647605167219,
+        "p_value": 3.0066462496430563e-19
+      },
+      {
+        "session": "2025-belgian-grand-prix-R",
+        "n_laps": 483,
+        "rho_derived_vs_measured_gap": -0.8396350407075684,
+        "p_value": 1.3582282194065954e-129
+      },
+      {
+        "session": "2025-hungarian-grand-prix-R",
+        "n_laps": 1223,
+        "rho_derived_vs_measured_gap": -0.7861670129338495,
+        "p_value": 1.8697593987649515e-257
+      },
+      {
+        "session": "2025-dutch-grand-prix-R",
+        "n_laps": 985,
+        "rho_derived_vs_measured_gap": -0.8632056560584878,
+        "p_value": 4.7858529035412596e-294
+      },
+      {
+        "session": "2025-italian-grand-prix-R",
+        "n_laps": 859,
+        "rho_derived_vs_measured_gap": -0.8494340288389433,
+        "p_value": 3.873376239477946e-240
+      },
+      {
+        "session": "2025-azerbaijan-grand-prix-R",
+        "n_laps": 795,
+        "rho_derived_vs_measured_gap": -0.8410928420933067,
+        "p_value": 7.638179925039196e-214
+      },
+      {
+        "session": "2025-singapore-grand-prix-R",
+        "n_laps": 1097,
+        "rho_derived_vs_measured_gap": -0.7902225224819439,
+        "p_value": 4.1087860073901585e-235
+      },
+      {
+        "session": "2025-united-states-grand-prix-R",
+        "n_laps": 908,
+        "rho_derived_vs_measured_gap": -0.8089559550062059,
+        "p_value": 3.043949357869042e-211
+      },
+      {
+        "session": "2025-mexico-city-grand-prix-R",
+        "n_laps": 1078,
+        "rho_derived_vs_measured_gap": -0.7655024706003589,
+        "p_value": 2.8265303735885888e-208
+      },
+      {
+        "session": "2025-s\u00e3o-paulo-grand-prix-R",
+        "n_laps": 975,
+        "rho_derived_vs_measured_gap": -0.80072770687087,
+        "p_value": 9.129330221612808e-219
+      },
+      {
+        "session": "2025-las-vegas-grand-prix-R",
+        "n_laps": 715,
+        "rho_derived_vs_measured_gap": -0.8354281460328846,
+        "p_value": 1.6077100565289907e-187
+      },
+      {
+        "session": "2025-qatar-grand-prix-R",
+        "n_laps": 875,
+        "rho_derived_vs_measured_gap": -0.9324297581513252,
+        "p_value": 0.0
+      },
+      {
+        "session": "2025-abu-dhabi-grand-prix-R",
+        "n_laps": 1026,
+        "rho_derived_vs_measured_gap": -0.8697122196792784,
+        "p_value": 0.0
+      }
+    ]
+  },
+  "replication_of_the_finding": {
+    "derived_traffic_per_lap_clock": {
+      "n": 3220,
+      "n_clear": 805,
+      "n_heavy": 805,
+      "clear_mean": 0.09381214863507902,
+      "heavy_mean": 0.06931537627542761,
+      "difference": -0.024496772359651406,
+      "relative_deficit": 0.2611257999743902,
+      "t_stat": -6.39449398874003,
+      "p_value": 2.132186353092239e-10,
+      "spearman_rho": -0.14120766397969903,
+      "spearman_p": 8.273330704035997e-16,
+      "by_compound": {
+        "HARD": {
+          "n": 1419,
+          "rho": -0.19382500317037507,
+          "p_value": 1.7737601431375053e-13
+        },
+        "MEDIUM": {
+          "n": 1328,
+          "rho": -0.12518096195831258,
+          "p_value": 4.7502881311520885e-06
+        },
+        "SOFT": {
+          "n": 473,
+          "rho": -0.1664919165786563,
+          "p_value": 0.00027605350666820555
+        }
+      }
+    },
+    "measured_traffic_per_lap_clock": {
+      "n": 2441,
+      "n_clear": 611,
+      "n_heavy": 611,
+      "clear_mean": 0.09241691832474176,
+      "heavy_mean": 0.07251036796431491,
+      "difference": -0.01990655036042685,
+      "relative_deficit": 0.21539941734994522,
+      "t_stat": -4.786197108260382,
+      "p_value": 1.9221595091392433e-06,
+      "spearman_rho": -0.1154953692425415,
+      "spearman_p": 1.0499551738672527e-08,
+      "by_compound": {
+        "HARD": {
+          "n": 1133,
+          "rho": -0.16944411785959418,
+          "p_value": 9.537813060666059e-09
+        },
+        "MEDIUM": {
+          "n": 981,
+          "rho": -0.07529211557843403,
+          "p_value": 0.018345988565699915
+        },
+        "SOFT": {
+          "n": 327,
+          "rho": -0.15265572571243502,
+          "p_value": 0.005672162979641642
+        }
+      }
+    }
+  },
+  "mediation": {
+    "S1_derived": {
+      "single_mediator_energy": {
+        "specification": "S1",
+        "treatment": "traffic_index",
+        "mediators": [
+          "energy_mj_total"
+        ],
+        "n_stints": 3220,
+        "n_sessions": 83,
+        "a_path": [
+          0.1641819677581204
+        ],
+        "b_path": [
+          0.26121502964957966
+        ],
+        "total_effect_c": -0.06326255316045937,
+        "direct_effect_c_prime": -0.10614935073632327,
+        "indirect_effect": 0.04288679757586376,
+        "indirect_as_c_minus_c_prime": 0.0428867975758639,
+        "proportion_mediated": -0.6779175900012371,
+        "direct_share_of_total": 1.6779175900012393,
+        "bootstrap_replicates": 2000,
+        "bootstrap_failures": 0,
+        "ci": {
+          "c": {
+            "n": 2000,
+            "lo": -0.11981974716838988,
+            "hi": -0.010894773105475479
+          },
+          "c_prime": {
+            "n": 2000,
+            "lo": -0.17548261754676084,
+            "hi": -0.043775258010660664
+          },
+          "indirect": {
+            "n": 2000,
+            "lo": 0.01446769678932304,
+            "hi": 0.0728645603894336
+          },
+          "proportion_mediated": {
+            "n": 2000,
+            "lo": -2.7166645981988724,
+            "hi": -0.17204222151590445
+          }
+        },
+        "a": 0.1641819677581204,
+        "b": 0.26121502964957966
+      },
+      "effort_block": {
+        "specification": "S1",
+        "treatment": "traffic_index",
+        "mediators": [
+          "energy_mj_total",
+          "mean_abs_lateral_g",
+          "p95_lateral_g",
+          "mean_abs_long_g",
+          "loaded_fraction",
+          "full_throttle_fraction",
+          "braking_fraction",
+          "mean_speed_kmh"
+        ],
+        "n_stints": 3220,
+        "n_sessions": 83,
+        "a_path": [
+          0.1641819677581204,
+          -0.06647574167492099,
+          -0.10273467066263657,
+          0.11729109471888896,
+          -0.08913939462063016,
+          -0.08298879588962128,
+          0.19796701140325518,
+          -0.056860681704886715
+        ],
+        "b_path": [
+          -0.05572539465825399,
+          -0.0006710802201361048,
+          0.03434442690516545,
+          0.402148151974633,
+          0.22376134287086016,
+          0.030590733748197624,
+          0.029399677081416154,
+          -0.19555187279414726
+        ],
+        "total_effect_c": -0.06326255316045937,
+        "direct_effect_c_prime": -0.09225283256543054,
+        "indirect_effect": 0.028990279404971172,
+        "indirect_as_c_minus_c_prime": 0.028990279404971175,
+        "proportion_mediated": -0.4582533893540484,
+        "direct_share_of_total": 1.4582533893540484,
+        "bootstrap_replicates": 2000,
+        "bootstrap_failures": 0,
+        "ci": {
+          "c": {
+            "n": 2000,
+            "lo": -0.12022142696705612,
+            "hi": -0.011530805855912988
+          },
+          "c_prime": {
+            "n": 2000,
+            "lo": -0.1721885315357433,
+            "hi": -0.005426122892542755
+          },
+          "indirect": {
+            "n": 2000,
+            "lo": -0.025596975585703573,
+            "hi": 0.08487278716553247
+          },
+          "proportion_mediated": {
+            "n": 2000,
+            "lo": -2.369731973477934,
+            "hi": 0.7691868377115274
+          }
+        }
+      },
+      "verdict_single_mediator": {
+        "call": "B_measurement_artefact",
+        "reason": "traffic still predicts lower measured degradation with effort held fixed",
+        "notes": [
+          "the a path is not negative: traffic does not reduce the mediator, so the first step of mechanism (A) fails before mediation is even tested",
+          "the mediated proportion is negative -- controlling for the mediator makes the traffic effect larger, which is suppression rather than mediation"
+        ],
+        "diagnostics": {
+          "a_path": 0.1641819677581204,
+          "b_path": 0.26121502964957966,
+          "a_has_the_sign_mechanism_A_requires": false,
+          "direct_effect_significant": true,
+          "indirect_effect_significant": true,
+          "direct_share_of_total": 1.6779175900012393,
+          "proportion_mediated": -0.6779175900012371
+        }
+      }
+    },
+    "S1_measured": {
+      "single_mediator_energy": {
+        "specification": "S1",
+        "treatment": "measured_close_fraction",
+        "mediators": [
+          "energy_mj_total"
+        ],
+        "n_stints": 2441,
+        "n_sessions": 66,
+        "a_path": [
+          0.13828764182737882
+        ],
+        "b_path": [
+          0.20788709463008687
+        ],
+        "total_effect_c": -0.057807436179568045,
+        "direct_effect_c_prime": -0.08655565226230796,
+        "indirect_effect": 0.02874821608273986,
+        "indirect_as_c_minus_c_prime": 0.02874821608273992,
+        "proportion_mediated": -0.49730999993562897,
+        "direct_share_of_total": 1.49730999993563,
+        "bootstrap_replicates": 2000,
+        "bootstrap_failures": 0,
+        "ci": {
+          "c": {
+            "n": 2000,
+            "lo": -0.1282415244260922,
+            "hi": 0.0054330755556454766
+          },
+          "c_prime": {
+            "n": 2000,
+            "lo": -0.17003787506906648,
+            "hi": -0.016400364257163628
+          },
+          "indirect": {
+            "n": 2000,
+            "lo": 0.0005854058398833044,
+            "hi": 0.05997221552058688
+          },
+          "proportion_mediated": {
+            "n": 2000,
+            "lo": -3.627092029216957,
+            "hi": 1.5491152312830152
+          }
+        },
+        "a": 0.13828764182737882,
+        "b": 0.20788709463008687
+      },
+      "effort_block": {
+        "specification": "S1",
+        "treatment": "measured_close_fraction",
+        "mediators": [
+          "energy_mj_total",
+          "mean_abs_lateral_g",
+          "p95_lateral_g",
+          "mean_abs_long_g",
+          "loaded_fraction",
+          "full_throttle_fraction",
+          "braking_fraction",
+          "mean_speed_kmh"
+        ],
+        "n_stints": 2441,
+        "n_sessions": 66,
+        "a_path": [
+          0.13828764182737882,
+          -0.06175145183145286,
+          -0.08976904792539506,
+          0.09839261932121125,
+          -0.08152977312579193,
+          -0.059621093844400626,
+          0.16945345902850173,
+          -0.05282221287707079
+        ],
+        "b_path": [
+          -0.3744608110277678,
+          0.11173690046204685,
+          0.048199024976817495,
+          0.7011844993328814,
+          0.2072634595404112,
+          0.027013704340176914,
+          0.02347104999838677,
+          -0.23530276947065604
+        ],
+        "total_effect_c": -0.057807436179568045,
+        "direct_effect_c_prime": -0.06168655092643921,
+        "indirect_effect": 0.0038791147468711946,
+        "indirect_as_c_minus_c_prime": 0.003879114746871165,
+        "proportion_mediated": -0.0671040787005576,
+        "direct_share_of_total": 1.067104078700557,
+        "bootstrap_replicates": 2000,
+        "bootstrap_failures": 0,
+        "ci": {
+          "c": {
+            "n": 2000,
+            "lo": -0.12853908945984685,
+            "hi": 0.0048080356921924895
+          },
+          "c_prime": {
+            "n": 2000,
+            "lo": -0.1585261347751031,
+            "hi": 0.04053696891983314
+          },
+          "indirect": {
+            "n": 2000,
+            "lo": -0.060708682930552066,
+            "hi": 0.07222911765743244
+          },
+          "proportion_mediated": {
+            "n": 2000,
+            "lo": -3.049069047568652,
+            "hi": 3.1610134878802083
+          }
+        }
+      },
+      "verdict_single_mediator": {
+        "call": "inconclusive",
+        "reason": "neither pre-registered pattern is met at this specification's intervals",
+        "notes": [
+          "the a path is not negative: traffic does not reduce the mediator, so the first step of mechanism (A) fails before mediation is even tested",
+          "the mediated proportion is negative -- controlling for the mediator makes the traffic effect larger, which is suppression rather than mediation"
+        ],
+        "diagnostics": {
+          "a_path": 0.13828764182737882,
+          "b_path": 0.20788709463008687,
+          "a_has_the_sign_mechanism_A_requires": false,
+          "direct_effect_significant": true,
+          "indirect_effect_significant": true,
+          "direct_share_of_total": 1.49730999993563,
+          "proportion_mediated": -0.49730999993562897
+        }
+      }
+    },
+    "S2_derived": {
+      "single_mediator_energy": {
+        "specification": "S2",
+        "treatment": "traffic_index",
+        "mediators": [
+          "energy_mj_total"
+        ],
+        "n_stints": 2938,
+        "n_sessions": 83,
+        "a_path": [
+          0.1583006031564269
+        ],
+        "b_path": [
+          0.5236167246011113
+        ],
+        "total_effect_c": -0.13006975192941003,
+        "direct_effect_c_prime": -0.21295859525655858,
+        "indirect_effect": 0.0828888433271486,
+        "indirect_as_c_minus_c_prime": 0.08288884332714855,
+        "proportion_mediated": -0.6372645607268713,
+        "direct_share_of_total": 1.6372645607268708,
+        "bootstrap_replicates": 2000,
+        "bootstrap_failures": 0,
+        "ci": {
+          "c": {
+            "n": 2000,
+            "lo": -0.21850259979800266,
+            "hi": -0.05067496207650294
+          },
+          "c_prime": {
+            "n": 2000,
+            "lo": -0.33089511462043875,
+            "hi": -0.11044151571111377
+          },
+          "indirect": {
+            "n": 2000,
+            "lo": 0.022824653507814895,
+            "hi": 0.13844692872889897
+          },
+          "proportion_mediated": {
+            "n": 2000,
+            "lo": -1.6269943943101874,
+            "hi": -0.17818078220707645
+          }
+        },
+        "a": 0.1583006031564269,
+        "b": 0.5236167246011113
+      },
+      "effort_block": {
+        "specification": "S2",
+        "treatment": "traffic_index",
+        "mediators": [
+          "energy_mj_total",
+          "mean_abs_lateral_g",
+          "p95_lateral_g",
+          "mean_abs_long_g",
+          "loaded_fraction",
+          "full_throttle_fraction",
+          "braking_fraction",
+          "mean_speed_kmh"
+        ],
+        "n_stints": 2938,
+        "n_sessions": 83,
+        "a_path": [
+          0.1583006031564269,
+          -0.07615399660216406,
+          -0.11798861184334881,
+          0.11226369988099918,
+          -0.10463464752597035,
+          -0.09516483804970234,
+          0.19053753849548524,
+          -0.06938942740171777
+        ],
+        "b_path": [
+          -0.8461819787333693,
+          0.9453849582602463,
+          -0.06127167508123517,
+          1.624053318367854,
+          0.23080559964465733,
+          0.25272271709847505,
+          0.04390295864358166,
+          -0.9755910856313055
+        ],
+        "total_effect_c": -0.13006975192941003,
+        "direct_effect_c_prime": -0.14153567510166987,
+        "indirect_effect": 0.011465923172259848,
+        "indirect_as_c_minus_c_prime": 0.011465923172259834,
+        "proportion_mediated": -0.08815211071120135,
+        "direct_share_of_total": 1.0881521107112013,
+        "bootstrap_replicates": 2000,
+        "bootstrap_failures": 0,
+        "ci": {
+          "c": {
+            "n": 2000,
+            "lo": -0.21533988751970248,
+            "hi": -0.04994097800880456
+          },
+          "c_prime": {
+            "n": 2000,
+            "lo": -0.306715430273538,
+            "hi": 0.022264960897683102
+          },
+          "indirect": {
+            "n": 2000,
+            "lo": -0.12574399752456275,
+            "hi": 0.15253853748233384
+          },
+          "proportion_mediated": {
+            "n": 2000,
+            "lo": -1.5606434106160596,
+            "hi": 1.2304441360566811
+          }
+        }
+      },
+      "verdict_single_mediator": {
+        "call": "B_measurement_artefact",
+        "reason": "traffic still predicts lower measured degradation with effort held fixed",
+        "notes": [
+          "the a path is not negative: traffic does not reduce the mediator, so the first step of mechanism (A) fails before mediation is even tested",
+          "the mediated proportion is negative -- controlling for the mediator makes the traffic effect larger, which is suppression rather than mediation"
+        ],
+        "diagnostics": {
+          "a_path": 0.1583006031564269,
+          "b_path": 0.5236167246011113,
+          "a_has_the_sign_mechanism_A_requires": false,
+          "direct_effect_significant": true,
+          "indirect_effect_significant": true,
+          "direct_share_of_total": 1.6372645607268708,
+          "proportion_mediated": -0.6372645607268713
+        }
+      }
+    },
+    "S2_measured": {
+      "single_mediator_energy": {
+        "specification": "S2",
+        "treatment": "measured_close_fraction",
+        "mediators": [
+          "energy_mj_total"
+        ],
+        "n_stints": 2216,
+        "n_sessions": 66,
+        "a_path": [
+          0.1365623353819473
+        ],
+        "b_path": [
+          0.6012234295838355
+        ],
+        "total_effect_c": -0.10191363862944029,
+        "direct_effect_c_prime": -0.18401811425975234,
+        "indirect_effect": 0.0821044756303123,
+        "indirect_as_c_minus_c_prime": 0.08210447563031205,
+        "proportion_mediated": -0.8056279486678476,
+        "direct_share_of_total": 1.8056279486678453,
+        "bootstrap_replicates": 2000,
+        "bootstrap_failures": 0,
+        "ci": {
+          "c": {
+            "n": 2000,
+            "lo": -0.20239942479437883,
+            "hi": -0.017475324122531447
+          },
+          "c_prime": {
+            "n": 2000,
+            "lo": -0.3122929236919023,
+            "hi": -0.0791967281601438
+          },
+          "indirect": {
+            "n": 2000,
+            "lo": 0.026095604608157866,
+            "hi": 0.1427198023907988
+          },
+          "proportion_mediated": {
+            "n": 2000,
+            "lo": -3.3379678982598584,
+            "hi": -0.1419012732353959
+          }
+        },
+        "a": 0.1365623353819473,
+        "b": 0.6012234295838355
+      },
+      "effort_block": {
+        "specification": "S2",
+        "treatment": "measured_close_fraction",
+        "mediators": [
+          "energy_mj_total",
+          "mean_abs_lateral_g",
+          "p95_lateral_g",
+          "mean_abs_long_g",
+          "loaded_fraction",
+          "full_throttle_fraction",
+          "braking_fraction",
+          "mean_speed_kmh"
+        ],
+        "n_stints": 2216,
+        "n_sessions": 66,
+        "a_path": [
+          0.1365623353819473,
+          -0.0844833091366408,
+          -0.1273385790116029,
+          0.09924924085427021,
+          -0.11626522489633734,
+          -0.09405968365277678,
+          0.17726916799546122,
+          -0.07311549605822418
+        ],
+        "b_path": [
+          -1.1689049025733478,
+          0.7873563998971196,
+          -0.028942943732342796,
+          1.9156490019850398,
+          0.3448371041975308,
+          0.31866500938095205,
+          0.11200241272316058,
+          -0.8709372260628283
+        ],
+        "total_effect_c": -0.10191363862944029,
+        "direct_effect_c_prime": -0.08304653206930745,
+        "indirect_effect": -0.01886710656013274,
+        "indirect_as_c_minus_c_prime": -0.018867106560132837,
+        "proportion_mediated": 0.18512837745626823,
+        "direct_share_of_total": 0.8148716225437308,
+        "bootstrap_replicates": 2000,
+        "bootstrap_failures": 0,
+        "ci": {
+          "c": {
+            "n": 2000,
+            "lo": -0.20246479345437157,
+            "hi": -0.017419336003743027
+          },
+          "c_prime": {
+            "n": 2000,
+            "lo": -0.2796615125831815,
+            "hi": 0.09591298439639638
+          },
+          "indirect": {
+            "n": 2000,
+            "lo": -0.18600760726306587,
+            "hi": 0.154448245400935
+          },
+          "proportion_mediated": {
+            "n": 2000,
+            "lo": -2.917452214813396,
+            "hi": 3.00075436293564
+          }
+        }
+      },
+      "verdict_single_mediator": {
+        "call": "B_measurement_artefact",
+        "reason": "traffic still predicts lower measured degradation with effort held fixed",
+        "notes": [
+          "the a path is not negative: traffic does not reduce the mediator, so the first step of mechanism (A) fails before mediation is even tested",
+          "the mediated proportion is negative -- controlling for the mediator makes the traffic effect larger, which is suppression rather than mediation"
+        ],
+        "diagnostics": {
+          "a_path": 0.1365623353819473,
+          "b_path": 0.6012234295838355,
+          "a_has_the_sign_mechanism_A_requires": false,
+          "direct_effect_significant": true,
+          "indirect_effect_significant": true,
+          "direct_share_of_total": 1.8056279486678453,
+          "proportion_mediated": -0.8056279486678476
+        }
+      }
+    }
+  },
+  "energy_clock": {
+    "per_lap_clock": {
+      "n": 3220,
+      "n_clear": 805,
+      "n_heavy": 805,
+      "clear_mean": 0.09381214863507902,
+      "heavy_mean": 0.06931537627542761,
+      "difference": -0.024496772359651406,
+      "relative_deficit": 0.2611257999743902,
+      "t_stat": -6.39449398874003,
+      "p_value": 2.132186353092239e-10,
+      "spearman_rho": -0.14120766397969903,
+      "spearman_p": 8.273330704035997e-16,
+      "by_compound": {
+        "HARD": {
+          "n": 1419,
+          "rho": -0.19382500317037507,
+          "p_value": 1.7737601431375053e-13
+        },
+        "MEDIUM": {
+          "n": 1328,
+          "rho": -0.12518096195831258,
+          "p_value": 4.7502881311520885e-06
+        },
+        "SOFT": {
+          "n": 473,
+          "rho": -0.1664919165786563,
+          "p_value": 0.00027605350666820555
+        }
+      }
+    },
+    "per_mj_clock": {
+      "n": 3220,
+      "n_clear": 805,
+      "n_heavy": 805,
+      "clear_mean": 0.00137671439472627,
+      "heavy_mean": 0.0009780509322415204,
+      "difference": -0.00039866346248474955,
+      "relative_deficit": 0.28957601083557727,
+      "t_stat": -6.87851131246662,
+      "p_value": 8.734556891231237e-12,
+      "spearman_rho": -0.15385434413464005,
+      "spearman_p": 1.6434749013253782e-18,
+      "by_compound": {
+        "HARD": {
+          "n": 1419,
+          "rho": -0.19972320748945,
+          "p_value": 3.1138723979561305e-14
+        },
+        "MEDIUM": {
+          "n": 1328,
+          "rho": -0.15238435616572452,
+          "p_value": 2.3977074983092896e-08
+        },
+        "SOFT": {
+          "n": 473,
+          "rho": -0.18411316502101524,
+          "p_value": 5.623240836722133e-05
+        }
+      }
+    },
+    "energy_per_lap_by_traffic": {
+      "n": 3220,
+      "n_clear": 805,
+      "n_heavy": 805,
+      "clear_mean": 69.71378530142378,
+      "heavy_mean": 72.9619279383923,
+      "difference": 3.2481426369685096,
+      "relative_deficit": -0.0465925444002848,
+      "t_stat": 6.841590300737404,
+      "p_value": 1.118474472848001e-11,
+      "spearman_rho": 0.13827657011365269,
+      "spearman_p": 3.2386169102574072e-15,
+      "by_compound": {
+        "HARD": {
+          "n": 1419,
+          "rho": 0.15738118748706267,
+          "p_value": 2.515517025789638e-09
+        },
+        "MEDIUM": {
+          "n": 1328,
+          "rho": 0.2006411690420543,
+          "p_value": 1.5829312871569424e-13
+        },
+        "SOFT": {
+          "n": 473,
+          "rho": 0.11549905368767549,
+          "p_value": 0.011946874712427096
+        }
+      }
+    },
+    "per_lap_clock_measured": {
+      "n": 2441,
+      "n_clear": 611,
+      "n_heavy": 611,
+      "clear_mean": 0.09241691832474176,
+      "heavy_mean": 0.07251036796431491,
+      "difference": -0.01990655036042685,
+      "relative_deficit": 0.21539941734994522,
+      "t_stat": -4.786197108260382,
+      "p_value": 1.9221595091392433e-06,
+      "spearman_rho": -0.1154953692425415,
+      "spearman_p": 1.0499551738672527e-08,
+      "by_compound": {
+        "HARD": {
+          "n": 1133,
+          "rho": -0.16944411785959418,
+          "p_value": 9.537813060666059e-09
+        },
+        "MEDIUM": {
+          "n": 981,
+          "rho": -0.07529211557843403,
+          "p_value": 0.018345988565699915
+        },
+        "SOFT": {
+          "n": 327,
+          "rho": -0.15265572571243502,
+          "p_value": 0.005672162979641642
+        }
+      }
+    },
+    "per_mj_clock_measured": {
+      "n": 2441,
+      "n_clear": 611,
+      "n_heavy": 611,
+      "clear_mean": 0.001359411107282104,
+      "heavy_mean": 0.001024987010112962,
+      "difference": -0.0003344240971691419,
+      "relative_deficit": 0.24600659460386656,
+      "t_stat": -5.434815767343879,
+      "p_value": 6.661852119057612e-08,
+      "spearman_rho": -0.13304339057505113,
+      "spearman_p": 4.133991665365701e-11,
+      "by_compound": {
+        "HARD": {
+          "n": 1133,
+          "rho": -0.1770716227247769,
+          "p_value": 1.9593104555542954e-09
+        },
+        "MEDIUM": {
+          "n": 981,
+          "rho": -0.10818518272377792,
+          "p_value": 0.0006885318595568587
+        },
+        "SOFT": {
+          "n": 327,
+          "rho": -0.19033326209248905,
+          "p_value": 0.0005395173753320251
+        }
+      }
+    },
+    "reading": "the deficit survives the change of clock, which is what masking looks like"
+  },
+  "exploratory": {
+    "stint_fit_r_squared_by_traffic": {
+      "n": 3220,
+      "n_clear": 805,
+      "n_heavy": 805,
+      "clear_mean": 0.6489685272621003,
+      "heavy_mean": 0.449245186622291,
+      "difference": -0.1997233406398093,
+      "relative_deficit": 0.3077550485882755,
+      "t_stat": -14.1415093238978,
+      "p_value": 7.381654110466611e-43,
+      "spearman_rho": -0.2659012016690873,
+      "spearman_p": 3.033523623478781e-53,
+      "by_compound": {
+        "HARD": {
+          "n": 1419,
+          "rho": -0.2808116636127483,
+          "p_value": 3.986415505473339e-27
+        },
+        "MEDIUM": {
+          "n": 1328,
+          "rho": -0.2459499100720313,
+          "p_value": 9.506431150986113e-20
+        },
+        "SOFT": {
+          "n": 473,
+          "rho": -0.29352393774487384,
+          "p_value": 7.475593986497065e-11
+        }
+      }
+    },
+    "full_throttle_fraction_by_traffic": {
+      "n": 3220,
+      "n_clear": 805,
+      "n_heavy": 805,
+      "clear_mean": 0.4926657912996837,
+      "heavy_mean": 0.484137688942941,
+      "difference": -0.008528102356742673,
+      "relative_deficit": 0.017310116730948573,
+      "t_stat": -1.7136204637534083,
+      "p_value": 0.08679145236650418,
+      "spearman_rho": -0.023913796782942188,
+      "spearman_p": 0.1748903592861149,
+      "by_compound": {
+        "HARD": {
+          "n": 1419,
+          "rho": -0.021403271180670175,
+          "p_value": 0.42045346516340504
+        },
+        "MEDIUM": {
+          "n": 1328,
+          "rho": 0.014626399613636463,
+          "p_value": 0.5943534776729048
+        },
+        "SOFT": {
+          "n": 473,
+          "rho": -0.04572770893675062,
+          "p_value": 0.3210025593628487
+        }
+      }
+    },
+    "braking_fraction_by_traffic": {
+      "n": 3220,
+      "n_clear": 805,
+      "n_heavy": 805,
+      "clear_mean": 0.18919360203297317,
+      "heavy_mean": 0.2076974587773161,
+      "difference": 0.018503856744342934,
+      "relative_deficit": -0.09780381865723996,
+      "t_stat": 9.855390658176907,
+      "p_value": 2.7640227969866756e-22,
+      "spearman_rho": 0.18473242904233667,
+      "spearman_p": 4.1193394771978405e-26,
+      "by_compound": {
+        "HARD": {
+          "n": 1419,
+          "rho": 0.1855011010426137,
+          "p_value": 1.8840464888226685e-12
+        },
+        "MEDIUM": {
+          "n": 1328,
+          "rho": 0.15834801307151744,
+          "p_value": 6.5652903954933e-09
+        },
+        "SOFT": {
+          "n": 473,
+          "rho": 0.23581462846356083,
+          "p_value": 2.1209910977187717e-07
+        }
+      }
+    },
+    "mean_speed_by_traffic": {
+      "n": 3220,
+      "n_clear": 805,
+      "n_heavy": 805,
+      "clear_mean": 206.79641504097702,
+      "heavy_mean": 205.19978331007846,
+      "difference": -1.5966317308985651,
+      "relative_deficit": 0.007720790181890678,
+      "t_stat": -1.6144872154367702,
+      "p_value": 0.10662082371067148,
+      "spearman_rho": -0.016836977932859515,
+      "spearman_p": 0.3395211669678939,
+      "by_compound": {
+        "HARD": {
+          "n": 1419,
+          "rho": -0.012795291846571199,
+          "p_value": 0.6300981638414768
+        },
+        "MEDIUM": {
+          "n": 1328,
+          "rho": 0.012885432036530049,
+          "p_value": 0.6389661474014676
+        },
+        "SOFT": {
+          "n": 473,
+          "rho": -0.0476403404927594,
+          "p_value": 0.30115736620096245
+        }
+      }
+    },
+    "derived_vs_measured_stint_level": {
+      "n": 2441,
+      "rho": 0.9120016259062241,
+      "p_value": 0.0
+    }
+  },
+  "model_uncertainty_in_traffic": {
+    "n_sessions": 83,
+    "n_failures": 0,
+    "failures": [],
+    "n_converged": 83,
+    "session_level": {
+      "clear_tercile_mean_rate_sd": 0.026166711050407753,
+      "busy_tercile_mean_rate_sd": 0.027121188169879958,
+      "n_clear": 28,
+      "n_busy": 28,
+      "t_stat": 0.14978776253320603,
+      "p_value": 0.8815017442186106,
+      "spearman_rho": 0.09665841064606859,
+      "spearman_p": 0.3846923538719635
+    },
+    "within_driver_race_lap_level": {
+      "n_laps": 75411,
+      "standardised_coefficient": 0.004408328561510643,
+      "ci": {
+        "n": 200,
+        "lo": -0.005653798907931424,
+        "hi": 0.022243010413111063
+      }
+    },
+    "traffic_coefficient_s": {
+      "mean": 0.37538199636109465,
+      "median": 0.29382565626083723
+    }
+  },
+  "primary_verdict": {
+    "call": "B_measurement_artefact",
+    "reason": "traffic still predicts lower measured degradation with effort held fixed",
+    "notes": [
+      "the a path is not negative: traffic does not reduce the mediator, so the first step of mechanism (A) fails before mediation is even tested",
+      "the mediated proportion is negative -- controlling for the mediator makes the traffic effect larger, which is suppression rather than mediation"
+    ],
+    "diagnostics": {
+      "a_path": 0.1583006031564269,
+      "b_path": 0.5236167246011113,
+      "a_has_the_sign_mechanism_A_requires": false,
+      "direct_effect_significant": true,
+      "indirect_effect_significant": true,
+      "direct_share_of_total": 1.6372645607268708,
+      "proportion_mediated": -0.6372645607268713
+    }
+  },
+  "summary": {
+    "verdicts_by_specification": {
+      "S1_derived": "B_measurement_artefact",
+      "S1_measured": "inconclusive",
+      "S2_derived": "B_measurement_artefact",
+      "S2_measured": "B_measurement_artefact"
+    },
+    "the_five_facts": [
+      "The finding replicates: 0.0938 s/lap in clear air against 0.0693 in the top traffic quartile, t=-6.39, p=2.13e-10.",
+      "Traffic does not reduce the energy through the tyre -- it raises it: 69.71 MJ/lap clear against 72.96 in traffic, t=6.84, p=1.12e-11. Mechanism (A) fails at its first step.",
+      "The deficit survives a change of clock: per megajoule of frictional energy it is 29.0% against 26.1% per lap, t=-6.88, p=8.73e-12.",
+      "Controlling for energy makes the traffic effect larger, not smaller: c=-0.1301 to c'=-0.2130 within driver and race. That is suppression, not mediation.",
+      "Tyre age explains far less of the lap time in traffic: stint-fit R2 0.649 clear against 0.449 in traffic, p=7.38e-43 -- the lap time is being set by something other than the tyre."
+    ],
+    "consequence": "Every lap-time-based degradation estimate, ours included, under-reports degradation in traffic. Traffic is not a rate modifier to add to the physics; it is a hole in the observation, and it belongs in the limitations of any lap-time method."
+  },
+  "deviations": []
+}

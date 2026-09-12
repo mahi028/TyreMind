@@ -1,0 +1,412 @@
+{
+  "filters": {
+    "seen": 3806,
+    "short": 582,
+    "flat_age": 0,
+    "fit_failed": 0,
+    "implausible": 2
+  },
+  "measured_traffic_alignment": {
+    "openf1_races_on_disk": 70,
+    "aligned_sessions": 67,
+    "unmatched_sessions": [],
+    "lap_agreement": [
+      {
+        "session": "2024-bahrain-grand-prix-R",
+        "n_laps": 970,
+        "rho_derived_vs_measured_gap": -0.7156556134258515,
+        "p_value": 4.7725622150075437e-153
+      },
+      {
+        "session": "2024-saudi-arabian-grand-prix-R",
+        "n_laps": 762,
+        "rho_derived_vs_measured_gap": -0.8490853712908163,
+        "p_value": 7.830213629062488e-213
+      },
+      {
+        "session": "2024-australian-grand-prix-R",
+        "n_laps": 801,
+        "rho_derived_vs_measured_gap": -0.7528522813571836,
+        "p_value": 2.727886422408317e-147
+      },
+      {
+        "session": "2024-japanese-grand-prix-R",
+        "n_laps": 722,
+        "rho_derived_vs_measured_gap": -0.7284752320407512,
+        "p_value": 2.189365048436183e-120
+      },
+      {
+        "session": "2024-chinese-grand-prix-R",
+        "n_laps": 711,
+        "rho_derived_vs_measured_gap": -0.8374569251292967,
+        "p_value": 3.210334404734367e-188
+      },
+      {
+        "session": "2024-emilia-romagna-grand-prix-R",
+        "n_laps": 1062,
+        "rho_derived_vs_measured_gap": -0.6530556979904402,
+        "p_value": 4.015381157972327e-130
+      },
+      {
+        "session": "2024-monaco-grand-prix-R",
+        "n_laps": 1085,
+        "rho_derived_vs_measured_gap": -0.8409183077314345,
+        "p_value": 4.4992124642952854e-291
+      },
+      {
+        "session": "2024-canadian-grand-prix-R",
+        "n_laps": 275,
+        "rho_derived_vs_measured_gap": -0.8544344362601833,
+        "p_value": 1.3169613785138692e-79
+      },
+      {
+        "session": "2024-spanish-grand-prix-R",
+        "n_laps": 1145,
+        "rho_derived_vs_measured_gap": -0.6279076403766618,
+        "p_value": 1.4049444031660512e-126
+      },
+      {
+        "session": "2024-austrian-grand-prix-R",
+        "n_laps": 1189,
+        "rho_derived_vs_measured_gap": -0.6978290242137927,
+        "p_value": 3.1085439891467224e-174
+      },
+      {
+        "session": "2024-british-grand-prix-R",
+        "n_laps": 584,
+        "rho_derived_vs_measured_gap": -0.8390346977347418,
+        "p_value": 5.622870012214439e-156
+      },
+      {
+        "session": "2024-hungarian-grand-prix-R",
+        "n_laps": 1184,
+        "rho_derived_vs_measured_gap": -0.7055837041048382,
+        "p_value": 5.1290534655319396e-179
+      },
+      {
+        "session": "2024-belgian-grand-prix-R",
+        "n_laps": 711,
+        "rho_derived_vs_measured_gap": -0.8296340112494102,
+        "p_value": 1.2321289169590743e-181
+      },
+      {
+        "session": "2024-dutch-grand-prix-R",
+        "n_laps": 1282,
+        "rho_derived_vs_measured_gap": -0.7122479745792333,
+        "p_value": 5.61982597977061e-199
+      },
+      {
+        "session": "2024-italian-grand-prix-R",
+        "n_laps": 876,
+        "rho_derived_vs_measured_gap": -0.6773586652437751,
+        "p_value": 1.1798732948904758e-118
+      },
+      {
+        "session": "2024-azerbaijan-grand-prix-R",
+        "n_laps": 817,
+        "rho_derived_vs_measured_gap": -0.7959123742958755,
+        "p_value": 8.25174553146745e-180
+      },
+      {
+        "session": "2024-singapore-grand-prix-R",
+        "n_laps": 1037,
+        "rho_derived_vs_measured_gap": -0.7545330910802388,
+        "p_value": 1.553578317353056e-191
+      },
+      {
+        "session": "2024-united-states-grand-prix-R",
+        "n_laps": 879,
+        "rho_derived_vs_measured_gap": -0.7539981710567304,
+        "p_value": 3.060613663981115e-162
+      },
+      {
+        "session": "2024-mexico-city-grand-prix-R",
+        "n_laps": 994,
+        "rho_derived_vs_measured_gap": -0.6928923326871544,
+        "p_value": 4.5578057974938915e-143
+      },
+      {
+        "session": "2024-las-vegas-grand-prix-R",
+        "n_laps": 772,
+        "rho_derived_vs_measured_gap": -0.81493041685286,
+        "p_value": 1.3559200315177079e-184
+      },
+      {
+        "session": "2024-qatar-grand-prix-R",
+        "n_laps": 660,
+        "rho_derived_vs_measured_gap": -0.8567962011121657,
+        "p_value": 1.9589551679948574e-191
+      },
+      {
+        "session": "2024-abu-dhabi-grand-prix-R",
+        "n_laps": 859,
+        "rho_derived_vs_measured_gap": -0.6871054368276849,
+        "p_value": 5.084283452419507e-121
+      },
+      {
+        "session": "2023-bahrain-grand-prix-R",
+        "n_laps": 858,
+        "rho_derived_vs_measured_gap": -0.7621314402727374,
+        "p_value": 8.508024954164231e-164
+      },
+      {
+        "session": "2023-saudi-arabian-grand-prix-R",
+        "n_laps": 780,
+        "rho_derived_vs_measured_gap": -0.835200949800411,
+        "p_value": 3.181184848790854e-204
+      },
+      {
+        "session": "2023-australian-grand-prix-R",
+        "n_laps": 653,
+        "rho_derived_vs_measured_gap": -0.8752500164205752,
+        "p_value": 1.5652799851703414e-207
+      },
+      {
+        "session": "2023-azerbaijan-grand-prix-R",
+        "n_laps": 783,
+        "rho_derived_vs_measured_gap": -0.8778338151953363,
+        "p_value": 6.751298760479277e-252
+      },
+      {
+        "session": "2023-monaco-grand-prix-R",
+        "n_laps": 912,
+        "rho_derived_vs_measured_gap": -0.8446356091140356,
+        "p_value": 3.545549871359773e-249
+      },
+      {
+        "session": "2023-spanish-grand-prix-R",
+        "n_laps": 1143,
+        "rho_derived_vs_measured_gap": -0.6866146766090964,
+        "p_value": 3.6432808790664356e-160
+      },
+      {
+        "session": "2023-canadian-grand-prix-R",
+        "n_laps": 1022,
+        "rho_derived_vs_measured_gap": -0.8668079007565425,
+        "p_value": 1.60065661066837e-310
+      },
+      {
+        "session": "2023-british-grand-prix-R",
+        "n_laps": 750,
+        "rho_derived_vs_measured_gap": -0.9241617358217015,
+        "p_value": 0.0
+      },
+      {
+        "session": "2023-hungarian-grand-prix-R",
+        "n_laps": 1090,
+        "rho_derived_vs_measured_gap": -0.6877734163214219,
+        "p_value": 1.5708842114265478e-153
+      },
+      {
+        "session": "2023-belgian-grand-prix-R",
+        "n_laps": 670,
+        "rho_derived_vs_measured_gap": -0.7867129365918266,
+        "p_value": 4.504223141198018e-142
+      },
+      {
+        "session": "2023-dutch-grand-prix-R",
+        "n_laps": 721,
+        "rho_derived_vs_measured_gap": -0.7391206300189908,
+        "p_value": 1.6323960179275492e-125
+      },
+      {
+        "session": "2023-italian-grand-prix-R",
+        "n_laps": 822,
+        "rho_derived_vs_measured_gap": -0.8375989206934275,
+        "p_value": 1.6065412344052964e-217
+      },
+      {
+        "session": "2023-singapore-grand-prix-R",
+        "n_laps": 888,
+        "rho_derived_vs_measured_gap": -0.919361291141148,
+        "p_value": 0.0
+      },
+      {
+        "session": "2023-japanese-grand-prix-R",
+        "n_laps": 654,
+        "rho_derived_vs_measured_gap": -0.6978408332951539,
+        "p_value": 1.4238772162854057e-96
+      },
+      {
+        "session": "2023-qatar-grand-prix-R",
+        "n_laps": 782,
+        "rho_derived_vs_measured_gap": -0.730684807590628,
+        "p_value": 1.9874008078117438e-131
+      },
+      {
+        "session": "2023-united-states-grand-prix-R",
+        "n_laps": 864,
+        "rho_derived_vs_measured_gap": -0.7465311516917343,
+        "p_value": 1.0718007211995148e-154
+      },
+      {
+        "session": "2023-mexico-city-grand-prix-R",
+        "n_laps": 1045,
+        "rho_derived_vs_measured_gap": -0.8693025316657238,
+        "p_value": 0.0
+      },
+      {
+        "session": "2023-s\u00e3o-paulo-grand-prix-R",
+        "n_laps": 896,
+        "rho_derived_vs_measured_gap": -0.5115047174490258,
+        "p_value": 6.801108858429448e-61
+      },
+      {
+        "session": "2023-las-vegas-grand-prix-R",
+        "n_laps": 692,
+        "rho_derived_vs_measured_gap": -0.8123104196070342,
+        "p_value": 9.986475088169323e-164
+      },
+      {
+        "session": "2023-abu-dhabi-grand-prix-R",
+        "n_laps": 1006,
+        "rho_derived_vs_measured_gap": -0.7997345348412772,
+        "p_value": 1.0439082378078569e-224
+      },
+      {
+        "session": "2023-austrian-grand-prix-R",
+        "n_laps": 1122,
+        "rho_derived_vs_measured_gap": -0.7528961849291236,
+        "p_value": 1.037924414994497e-205
+      },
+      {
+        "session": "2025-chinese-grand-prix-R",
+        "n_laps": 939,
+        "rho_derived_vs_measured_gap": -0.7770725679550632,
+        "p_value": 1.3386427814080996e-190
+      },
+      {
+        "session": "2025-japanese-grand-prix-R",
+        "n_laps": 947,
+        "rho_derived_vs_measured_gap": -0.8632496449864768,
+        "p_value": 8.073920840574312e-283
+      },
+      {
+        "session": "2025-bahrain-grand-prix-R",
+        "n_laps": 878,
+        "rho_derived_vs_measured_gap": -0.8392614286914865,
+        "p_value": 5.022290876774897e-234
+      },
+      {
+        "session": "2025-saudi-arabian-grand-prix-R",
+        "n_laps": 763,
+        "rho_derived_vs_measured_gap": -0.7551259133837488,
+        "p_value": 1.0831886661967332e-141
+      },
+      {
+        "session": "2025-miami-grand-prix-R",
+        "n_laps": 517,
+        "rho_derived_vs_measured_gap": -0.6694757249557639,
+        "p_value": 1.6916329802410798e-68
+      },
+      {
+        "session": "2025-emilia-romagna-grand-prix-R",
+        "n_laps": 904,
+        "rho_derived_vs_measured_gap": -0.8321605067798097,
+        "p_value": 3.369834461429718e-233
+      },
+      {
+        "session": "2025-monaco-grand-prix-R",
+        "n_laps": 1176,
+        "rho_derived_vs_measured_gap": -0.8097406619486778,
+        "p_value": 4.5222974255951685e-274
+      },
+      {
+        "session": "2025-spanish-grand-prix-R",
+        "n_laps": 930,
+        "rho_derived_vs_measured_gap": -0.7593847807479629,
+        "p_value": 2.0825047395341604e-175
+      },
+      {
+        "session": "2025-canadian-grand-prix-R",
+        "n_laps": 1138,
+        "rho_derived_vs_measured_gap": -0.8424781009093397,
+        "p_value": 1.934729516589979e-307
+      },
+      {
+        "session": "2025-austrian-grand-prix-R",
+        "n_laps": 947,
+        "rho_derived_vs_measured_gap": -0.7219988189850807,
+        "p_value": 2.4700841110782e-153
+      },
+      {
+        "session": "2025-british-grand-prix-R",
+        "n_laps": 125,
+        "rho_derived_vs_measured_gap": -0.6937647605167219,
+        "p_value": 3.0066462496430563e-19
+      },
+      {
+        "session": "2025-belgian-grand-prix-R",
+        "n_laps": 483,
+        "rho_derived_vs_measured_gap": -0.8396350407075684,
+        "p_value": 1.3582282194065954e-129
+      },
+      {
+        "session": "2025-hungarian-grand-prix-R",
+        "n_laps": 1223,
+        "rho_derived_vs_measured_gap": -0.7861670129338495,
+        "p_value": 1.8697593987649515e-257
+      },
+      {
+        "session": "2025-dutch-grand-prix-R",
+        "n_laps": 985,
+        "rho_derived_vs_measured_gap": -0.8632056560584878,
+        "p_value": 4.7858529035412596e-294
+      },
+      {
+        "session": "2025-italian-grand-prix-R",
+        "n_laps": 859,
+        "rho_derived_vs_measured_gap": -0.8494340288389433,
+        "p_value": 3.873376239477946e-240
+      },
+      {
+        "session": "2025-azerbaijan-grand-prix-R",
+        "n_laps": 795,
+        "rho_derived_vs_measured_gap": -0.8410928420933067,
+        "p_value": 7.638179925039196e-214
+      },
+      {
+        "session": "2025-singapore-grand-prix-R",
+        "n_laps": 1097,
+        "rho_derived_vs_measured_gap": -0.7902225224819439,
+        "p_value": 4.1087860073901585e-235
+      },
+      {
+        "session": "2025-united-states-grand-prix-R",
+        "n_laps": 908,
+        "rho_derived_vs_measured_gap": -0.8089559550062059,
+        "p_value": 3.043949357869042e-211
+      },
+      {
+        "session": "2025-mexico-city-grand-prix-R",
+        "n_laps": 1078,
+        "rho_derived_vs_measured_gap": -0.7655024706003589,
+        "p_value": 2.8265303735885888e-208
+      },
+      {
+        "session": "2025-s\u00e3o-paulo-grand-prix-R",
+        "n_laps": 975,
+        "rho_derived_vs_measured_gap": -0.80072770687087,
+        "p_value": 9.129330221612808e-219
+      },
+      {
+        "session": "2025-las-vegas-grand-prix-R",
+        "n_laps": 715,
+        "rho_derived_vs_measured_gap": -0.8354281460328846,
+        "p_value": 1.6077100565289907e-187
+      },
+      {
+        "session": "2025-qatar-grand-prix-R",
+        "n_laps": 875,
+        "rho_derived_vs_measured_gap": -0.9324297581513252,
+        "p_value": 0.0
+      },
+      {
+        "session": "2025-abu-dhabi-grand-prix-R",
+        "n_laps": 1026,
+        "rho_derived_vs_measured_gap": -0.8697122196792784,
+        "p_value": 0.0
+      }
+    ]
+  }
+}
