@@ -434,6 +434,13 @@ def build_lap_table(
     compound = laps["Compound"].astype(str).str.upper()
     drop(compound.isin(_UNUSABLE_COMPOUNDS), "unknown_compound")
 
+    # A lap whose tyre age the feed never reported cannot inform degradation,
+    # for exactly the same reason an unknown compound cannot. Found in the 2025
+    # Belgian GP, where 70 of 583 laps carried a null age: the estimator refused
+    # the session outright while two regression baselines silently returned NaN
+    # and poisoned their own aggregate scores.
+    drop(laps["TyreLife"].isna(), "no_tyre_age")
+
     if not include_wet:
         drop(laps["Compound"].astype(str).str.upper().isin(_WET_COMPOUNDS), "wet_compound")
 

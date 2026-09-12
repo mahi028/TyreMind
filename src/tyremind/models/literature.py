@@ -49,6 +49,33 @@ import pandas as pd
 from tyremind.models.baselines import FUEL_SLOPE_S_PER_LAP, DegradationModel, _design
 
 
+def _require_usable(lap_table: pd.DataFrame, model_name: str) -> None:
+    """Refuse data that would silently produce NaN predictions.
+
+    This exists because of an asymmetry that quietly rigged a benchmark in our
+    favour. The TyreMind estimator validates its input and raises; the harness
+    records that as `failed` and leaves the session out of the aggregate. These
+    reimplementations did not validate, so on a session with null tyre ages they
+    returned NaN, the NaN propagated into their mean CRPS, and two published
+    models finished the comparison with no score at all -- while ours, which had
+    refused the same session outright, kept a clean average.
+
+    A benchmark where the competitor is punished for being permissive and we are
+    rewarded for being strict is not a benchmark. Both now fail the same way.
+    """
+    required = ("lap_time", "tyre_age", "lap_in_run")
+    for column in required:
+        if column not in lap_table.columns:
+            raise ValueError(f"{model_name}: missing column {column!r}")
+        if lap_table[column].isna().any():
+            n = int(lap_table[column].isna().sum())
+            raise ValueError(
+                f"{model_name}: {n} of {len(lap_table)} laps have a null {column!r}"
+            )
+    if lap_table.empty:
+        raise ValueError(f"{model_name}: empty lap table")
+
+
 class ArimaBaseline(DegradationModel):
     """ARIMA(2,1,2) on each driver's lap-time series.
 
@@ -72,6 +99,8 @@ class ArimaBaseline(DegradationModel):
 
     def fit(self, lap_table: pd.DataFrame) -> ArimaBaseline:
         from statsmodels.tsa.arima.model import ARIMA
+
+        _require_usable(lap_table, self.name)
 
         times = lap_table["lap_time"].astype(float)
         self._fallback_mean = float(times.mean())
@@ -165,6 +194,7 @@ class HeilmeierModel(DegradationModel):
         return out
 
     def fit(self, lap_table: pd.DataFrame) -> HeilmeierModel:
+        _require_usable(lap_table, self.name)
         self._origin = float(lap_table["session_lap"].min())
         self._compounds = sorted(lap_table["compound"].astype(str).unique())
         self._drivers = sorted(lap_table["driver"].astype(str).unique())
@@ -190,6 +220,7 @@ class HeilmeierModel(DegradationModel):
     def predict(self, lap_table: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
         if self._coef is None:
             raise RuntimeError("fit before predict")
+        _require_usable(lap_table, self.name)
         X = self._features(lap_table).reindex(columns=self._columns, fill_value=0.0)
         mean = X.to_numpy(dtype=float) @ self._coef
         mean = mean - FUEL_SLOPE_S_PER_LAP * lap_table["lap_in_run"].to_numpy(dtype=float)
@@ -328,6 +359,7 @@ class CappelloHoeghModel(DegradationModel):
                 "gamma": gamma}
 
     def fit(self, lap_table: pd.DataFrame) -> CappelloHoeghModel:
+        _require_usable(lap_table, self.name)
         per_compound: dict[str, list[float]] = {}
 
         for driver, block in lap_table.groupby("driver"):

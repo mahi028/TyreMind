@@ -52,6 +52,12 @@ def read_lap_table(path: Path) -> pd.DataFrame:
     from tyremind.data.f1_loader import laps_completed_in_run
 
     frame = pd.read_parquet(path)
+    if "tyre_age" in frame.columns:
+        # Laps the feed never gave a tyre age for. `no_tyre_age` is a filter stage
+        # in the loader now, but sessions built before it exists still carry them,
+        # and re-scraping the corpus to remove seventy laps is hours of API time
+        # for a repair that belongs here anyway.
+        frame = frame[frame["tyre_age"].notna()].reset_index(drop=True)
     if {"driver", "run_id", "tyre_age"} <= set(frame.columns):
         frame["lap_in_run"] = laps_completed_in_run(frame)
     return frame

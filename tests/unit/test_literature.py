@@ -106,3 +106,27 @@ class TestArima:
     def test_reports_no_degradation_rate(self, session):
         """ARIMA has no such parameter. Inventing one would be dishonest."""
         assert ArimaBaseline().fit(session).compound_rates() == {}
+
+
+class TestFairness:
+    """The competitor must fail the same way we do.
+
+    These guard the asymmetry that rigged the first exp19 run: our estimator
+    validated its input and raised, the harness recorded `failed` and dropped the
+    session from its average, while these models returned NaN and carried it into
+    their own mean. Strictness must not be a competitive advantage.
+    """
+
+    @pytest.mark.parametrize("model", literature_ladder(), ids=lambda m: m.name)
+    def test_a_null_tyre_age_raises_rather_than_returning_nan(self, model, session):
+        poisoned = session.copy()
+        poisoned.loc[poisoned.index[:5], "tyre_age"] = np.nan
+        with pytest.raises(ValueError, match="null"):
+            model.fit(poisoned)
+
+    @pytest.mark.parametrize("model", literature_ladder(), ids=lambda m: m.name)
+    def test_predictions_are_finite_on_clean_data(self, model, session):
+        model.fit(session)
+        mean, sd = model.predict(session)
+        assert np.all(np.isfinite(mean)), f"{model.name} produced a NaN prediction"
+        assert np.all(np.isfinite(sd))
