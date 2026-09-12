@@ -1,6 +1,6 @@
 {
  "experiment": "exp26_sector_identifiability",
- "generated_at": "2026-09-12T18:37:55.722004+00:00",
+ "generated_at": "2026-09-12T18:48:30.647507+00:00",
  "n_stints": 913,
  "n_races": 40,
  "n_drivers": 25,
@@ -54,11 +54,13 @@
  },
  "identifiability": {
   "n_events": 40,
-  "whole_lap_singular": 40,
-  "sector_well_posed": 40,
-  "median_condition_number": 5.000974105318525,
-  "worst_condition_number": 80.71647417412026,
-  "best_condition_number": 1.7826132337046783
+  "n_scored": 37,
+  "median_rank_one_fraction": 0.870218551829184,
+  "tyre_loading_identified_without_prior": true,
+  "level_identified_by_sectors_alone": false,
+  "level_equations": 3,
+  "level_unknowns_after_normalisation": 4,
+  "median_level_condition_given_measured_fuel_loading": 6.452755732531663
  },
  "supported": true,
  "stints": [
