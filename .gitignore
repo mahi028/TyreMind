@@ -77,3 +77,6 @@ data/telemetry/
 # Extracted paper text. Same reason as the PDFs: this is the full text of other
 # people's papers in a public repository. Regenerated from the PDFs on demand.
 research/notes/
+
+# Exported track geometry, rebuilt with scripts/export_track_geometry.py
+data/geometry/
