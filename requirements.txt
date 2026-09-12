@@ -8,6 +8,9 @@ numpy>=1.26,<2.2
 scipy>=1.11
 pandas>=2.1
 pyarrow>=15.0          # pandas Parquet engine — the cached sessions are Parquet
+fastparquet>=2024.2    # fallback Parquet engine; some locked-down Windows builds
+                       # block pyarrow's _parquet DLL via Application Control, and
+                       # pandas then falls through to this one automatically
 
 # Data source: F1 timing + telemetry. Pulls requests and requests-cache itself.
 fastf1>=3.4

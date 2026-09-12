@@ -60,3 +60,12 @@ docs/video/*.png
 #     python scripts/build_corpus.py --years 2024 2023 2022 --sessions R FP2 FP1 FP3
 # data/demo/ stays committed so a clone still runs offline.
 data/season/
+
+# Downloaded papers. Deliberately not committed:
+#   1. this is a public repository, and arXiv's default licence grants arXiv the
+#      right to distribute, not us -- publisher PDFs even less so;
+#   2. 117 MB of binaries would permanently enlarge a 3.4 MB repo's history.
+# `research/papers/INDEX.json` records every citation and URL, and one command
+# rebuilds the whole collection:  python scripts/fetch_papers.py
+research/papers/**/*.pdf
+research/papers/*.zip

@@ -1,0 +1,3423 @@
+<!doctype html><html lang='en'><head><meta charset='utf-8'><title>TyreMind — Data &amp; Progress Document</title><style>
+:root {
+  --ink: #14171c;
+  --muted: #5b6472;
+  --rule: #d8dde5;
+  --accent: #c8102e;
+  --panel: #f6f8fa;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background: #fff;
+  font: 10.5pt/1.55 "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+.page { max-width: 190mm; margin: 0 auto; padding: 0 2mm; }
+
+h1, h2, h3, h4 { line-height: 1.25; margin: 1.4em 0 0.5em; break-after: avoid; }
+h1 {
+  font-size: 19pt;
+  border-bottom: 2.5px solid var(--accent);
+  padding-bottom: 0.28em;
+  break-before: page;
+  margin-top: 0;
+}
+h1:first-of-type { break-before: avoid; }
+h2 { font-size: 14pt; color: #0d1117; border-bottom: 1px solid var(--rule); padding-bottom: 0.2em; }
+h3 { font-size: 11.8pt; color: #1d2530; }
+h4 { font-size: 10.8pt; color: var(--muted); }
+
+p, li { orphans: 3; widows: 3; }
+ul, ol { padding-left: 1.3em; }
+li { margin: 0.22em 0; }
+
+strong { color: #000; }
+em { color: #2a3038; }
+
+a { color: #0b5fd0; text-decoration: none; }
+
+hr { border: 0; border-top: 1px solid var(--rule); margin: 1.6em 0; }
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.9em 0;
+  font-size: 9.2pt;
+  break-inside: avoid;
+}
+th, td {
+  border: 1px solid var(--rule);
+  padding: 4.5px 7px;
+  text-align: left;
+  vertical-align: top;
+}
+th { background: var(--panel); font-weight: 600; }
+tbody tr:nth-child(even) td { background: #fbfcfd; }
+
+code {
+  font: 9pt/1.45 "Cascadia Mono", Consolas, monospace;
+  background: var(--panel);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+pre {
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  padding: 9px 11px;
+  overflow-x: auto;
+  break-inside: avoid;
+  font-size: 8.8pt;
+  line-height: 1.45;
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+
+blockquote {
+  margin: 1em 0;
+  padding: 0.6em 1em;
+  border-left: 3px solid var(--accent);
+  background: #fff8f8;
+  break-inside: avoid;
+}
+blockquote p { margin: 0.4em 0; }
+
+@page { size: A4; margin: 15mm 12mm 14mm; }
+@media print { body { font-size: 10pt; } }
+</style></head><body><div class='page'><h1>TyreMind — The Complete Data &amp; Progress Document</h1>
+<p><strong>Audience:</strong> the TyreMind team and our mentors.</p>
+<p><strong>Purpose:</strong> everything we hold, everything we tested, everything we found, what we
+got wrong, and exactly what we build next. Written so it can be <strong>read aloud</strong> —
+if you get stuck, read the line off the page and it will sound right.</p>
+<p><strong>Status:</strong> internal. Not committed and not pushed. It contains our honest
+self-assessment, including six failed hypotheses and six retracted claims — which
+is exactly what makes it useful for preparing for questions.</p>
+<hr />
+<h2>Contents</h2>
+<table>
+<thead>
+<tr>
+<th>Part</th>
+<th>What's in it</th>
+<th>Read it when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>0</strong></td>
+<td><strong>What to say in the meeting</strong> — in simple words. Script, word list, questions and answers</td>
+<td><strong>Read this one. Skip the rest unless asked.</strong></td>
+</tr>
+<tr>
+<td>1</td>
+<td>Every dataset we hold, in full detail</td>
+<td>They ask &quot;what data do you have?&quot;</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Which real sensors produce each field at a real Grand Prix</td>
+<td>They ask &quot;where does this come from?&quot;</td>
+</tr>
+<tr>
+<td>3</td>
+<td>What does not exist anywhere on the internet</td>
+<td>They ask &quot;why not just measure the tyre?&quot;</td>
+</tr>
+<tr>
+<td>4</td>
+<td>What each dataset was used for</td>
+<td>Quick reference table</td>
+</tr>
+<tr>
+<td>5</td>
+<td>All 18 experiments — question, method, result</td>
+<td>The core of the work</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Every claim, graded real / caveated / refuted</td>
+<td>They ask &quot;how sure are you?&quot;</td>
+</tr>
+<tr>
+<td>7</td>
+<td>The 326 automated tests</td>
+<td>They ask &quot;how do you know it still works?&quot;</td>
+</tr>
+<tr>
+<td>8</td>
+<td>How to rebuild anything</td>
+<td>For the team</td>
+</tr>
+<tr>
+<td><strong>9</strong></td>
+<td><strong>The 14 experiments we run next</strong></td>
+<td>They ask &quot;what's next?&quot;</td>
+</tr>
+<tr>
+<td><strong>10</strong></td>
+<td><strong>How we build on the existing TrackShift work</strong></td>
+<td>They ask &quot;how is this different?&quot;</td>
+</tr>
+<tr>
+<td><strong>11</strong></td>
+<td><strong>Their four future opportunities, designed</strong></td>
+<td>They ask &quot;where does this go?&quot;</td>
+</tr>
+<tr>
+<td><strong>12</strong></td>
+<td><strong>The plan, in order</strong></td>
+<td>The closing slide</td>
+</tr>
+<tr>
+<td><strong>12B</strong></td>
+<td><strong>Step-by-step build plan for 4 people</strong></td>
+<td>When they ask &quot;how will you actually do it?&quot;</td>
+</tr>
+<tr>
+<td>13</td>
+<td>How to download and share this</td>
+<td>For you</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>The thirty-second version</h2>
+<p>We are solving Problem 3: <em>pull the true tyre wear rate out of a practice session,
+after removing fuel weight, traffic and track evolution.</em></p>
+<ul>
+<li><strong>203 real F1 sessions, 92,326 clean laps, 84 event-seasons, 2022–2025.</strong> All
+public timing data. We downloaded it ourselves.</li>
+<li>The <strong>one thing nobody on Earth can download</strong> is the answer key: measured tyre
+wear. Pirelli and the teams have it; the public does not. Part 3 is entirely
+about how we worked around that.</li>
+<li>We ran <strong>18 experiments</strong>. <strong>Six of our own ideas failed</strong> and we kept the
+negative results rather than hiding them.</li>
+<li>Every headline number is reproducible from a script in this repo.</li>
+</ul>
+<hr />
+<h1>PART 0 — WHAT TO SAY IN THE MEETING</h1>
+<p>Simple words. Short lines. Read straight from this page.</p>
+<hr />
+<h2>1. The problem (say this first)</h2>
+<blockquote>
+<p>&quot;A lap time hides three things at once.</p>
+<p>The tyre gets old, so the car gets <strong>slower</strong>.
+The fuel burns off, so the car gets <strong>lighter and faster</strong>.
+The track gets more rubber, so everyone gets <strong>faster</strong>.</p>
+<p>We only see the final lap time. Our job is to pull out only the tyre part.&quot;</p>
+</blockquote>
+<p><strong>Then add why it is hard:</strong></p>
+<blockquote>
+<p>&quot;Fuel is worth about 0.08 seconds per lap. The tyre is worth about 0.03 to 0.08
+seconds per lap. So the thing hiding the answer is as big as the answer itself.</p>
+<p>If you don't remove fuel properly, you don't get a small mistake. You get the
+<strong>opposite sign</strong>. We checked 77 real races. The simple method says the tyre got
+<strong>faster</strong> as it got older in 74% of them. That is impossible.&quot;</p>
+</blockquote>
+<hr />
+<h2>2. Our five main points</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Point</th>
+<th>Number to say</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>We have a lot of real data</td>
+<td><strong>203 sessions, 92,326 laps, 4 seasons</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td>The simple method is not a little wrong. It is broken.</td>
+<td><strong>74% of races give an impossible answer</strong></td>
+</tr>
+<tr>
+<td>3</td>
+<td>When a true answer exists, we find it</td>
+<td><strong>Our error 0.0044, theirs 0.0966</strong></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Our error bars are honest</td>
+<td><strong>We say 95%, we are right 95.2% of the time</strong></td>
+</tr>
+<tr>
+<td>5</td>
+<td>We know the limit of what is possible, and we are near it</td>
+<td><strong>1.38× the best possible</strong></td>
+</tr>
+</tbody>
+</table>
+<p>If you only get 5 minutes, say these 5 lines and stop.</p>
+<hr />
+<h2>3. Words they may ask about</h2>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>Say this</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Degradation rate</strong></td>
+<td>Seconds lost per lap because the tyre is wearing out.</td>
+</tr>
+<tr>
+<td><strong>Stint</strong></td>
+<td>One run on one set of tyres, from fitting to pitting.</td>
+</tr>
+<tr>
+<td><strong>Tyre age</strong></td>
+<td>How many laps the tyre has done. Not how worn it is. Nobody publishes that.</td>
+</tr>
+<tr>
+<td><strong>Compound</strong></td>
+<td>HARD, MEDIUM, SOFT. These are only weekend names. Pirelli picks 3 of its 5 rubbers each weekend and renames them.</td>
+</tr>
+<tr>
+<td><strong>Confounder</strong></td>
+<td>Something that changes lap time but is not the tyre. Fuel, traffic, track.</td>
+</tr>
+<tr>
+<td><strong>State-space model</strong></td>
+<td>A model for something you cannot see. You guess the tyre condition from the lap times you can see.</td>
+</tr>
+<tr>
+<td><strong>Kalman filter</strong></td>
+<td>The normal tool to track something invisible using noisy readings. GPS and aeroplanes use it.</td>
+</tr>
+<tr>
+<td><strong>Prior</strong></td>
+<td>A physics assumption we add before looking at data. It guides the answer. It does not decide it.</td>
+</tr>
+<tr>
+<td><strong>Conformal prediction</strong></td>
+<td>A way to make an error bar that is really correct the number of times it claims.</td>
+</tr>
+<tr>
+<td><strong>Coverage</strong></td>
+<td>How often we were actually right. If we say 95% and we are right 75% of the time, we are lying.</td>
+</tr>
+<tr>
+<td><strong>Collinear</strong></td>
+<td>Two things that move together exactly, so you cannot tell them apart.</td>
+</tr>
+<tr>
+<td><strong>RUL</strong></td>
+<td>Remaining Useful Life. How many laps are left before the tyre drops off.</td>
+</tr>
+<tr>
+<td><strong>The cliff</strong></td>
+<td>The point late in a stint where the tyre suddenly gets much worse.</td>
+</tr>
+<tr>
+<td><strong>MAE</strong></td>
+<td>Average size of our mistake.</td>
+</tr>
+<tr>
+<td><strong>Bias</strong></td>
+<td>Average mistake with direction. Are we always too high or too low?</td>
+</tr>
+<tr>
+<td><strong>p-value</strong></td>
+<td>Small p = the pattern is probably real. We used 0.05.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>4. Questions they will ask</h2>
+<p><strong>Q. What data do you have?</strong></p>
+<blockquote>
+<p>&quot;203 real F1 sessions. 92,326 clean laps. Four seasons, 2022 to 2025. It comes
+from FastF1, which reads F1's official timing feed. Each lap gives us the driver,
+lap time, tyre compound, tyre age, and lap number. Eight columns. That is all
+anyone has in public.&quot;</p>
+</blockquote>
+<p><strong>Q. Is the data clean?</strong></p>
+<blockquote>
+<p>&quot;Not when it arrives. It has pit laps, safety car laps, and bad laps. We use seven
+filters. And we save a file for every session showing what we removed. For Monza
+2024 we got 1,008 laps and kept 921. We can show exactly where the other 87 went.&quot;</p>
+</blockquote>
+<p><strong>Q. Why can't you just measure the tyre?</strong></p>
+<blockquote>
+<p>&quot;Because nobody shares it. Pirelli checks every tyre after every session. That
+data goes to Pirelli, the FIA and the teams. It has never been made public. We
+searched everywhere. It does not exist. So we work it out from lap times only.&quot;</p>
+</blockquote>
+<p><strong>Q. What model did you use? Why not deep learning?</strong></p>
+<blockquote>
+<p>&quot;A state-space model with a Kalman filter, written by us.</p>
+<p>Three reasons. One, the tyre condition is invisible, and this is the standard tool
+for invisible things. Two, it gives honest uncertainty. Three, it explains itself
+— it says how much was fuel and how much was tyre.</p>
+<p>We did test deep learning. The neural network came <strong>last of six</strong>. LightGBM
+predicted lap times fine, but its 95% error bar was only right 61% of the time.&quot;</p>
+</blockquote>
+<p><strong>Q. How do you know it works, if there is no true answer?</strong> <em>(the hard one — give all 3)</em></p>
+<blockquote>
+<p>&quot;Three ways.</p>
+<p><strong>One. We made our own data where we know the true answer.</strong> We hide it, the model
+guesses, we compare. Our error was 0.0044. The simple method was 0.0966. We were
+right inside our error bar 25 times out of 25.</p>
+<p><strong>Two. Practice predicts the race.</strong> We guess from Friday practice, then check
+Sunday. 42 events. Our error 0.081, simple method 0.147.
+But I must be honest: on real data there is no true answer, so we compare against
+our own model's race result. So this shows we agree with ourselves. It is not
+proof. Fixing this is our next experiment.</p>
+<p><strong>Three. Some answers are simply impossible.</strong> A tyre cannot get faster as it
+wears. The simple method says it does, in 74% of races. You don't need the right
+answer to know that answer is wrong.&quot;</p>
+</blockquote>
+<p><strong>Q. Why are your error bars so wide?</strong></p>
+<blockquote>
+<p>&quot;Because they are honest. Our model said 95% but was right only 75% of the time.
+We fixed it. Now we say 95% and we are right 94.7%.
+The honest bar is 2.3 times wider. We chose the wide one. A wrong pit call costs
+a race.&quot;</p>
+</blockquote>
+<p><strong>Q. Does it work live?</strong></p>
+<blockquote>
+<p>&quot;Yes. It updates every lap. And the error bar <strong>fixes itself while the race is
+running</strong>. Over 69,206 laps it landed at 95.2%, against a 95% target. It also
+shows its own accuracy live, so you can check it as it runs.&quot;</p>
+</blockquote>
+<p><strong>Q. What is the maths result you are proud of?</strong></p>
+<blockquote>
+<p>&quot;Inside one stint, tyre age goes up by 1 each lap. Fuel burned also goes up by 1
+each lap. They move together <strong>exactly</strong>. So the maths can only find the
+<em>difference</em> between them, never the two separately. More data does not help. It
+is algebra.</p>
+<p>We measured it. 520 stints, all 100% locked together, correlation 1.000.</p>
+<p>There is one escape. A tyre curve <strong>bends</strong> — it warms up early and falls off
+late. Fuel is a straight line and never bends. That bend is the only clue, and it
+is only <strong>6%</strong> of the information. The other 94% must come from physics.</p>
+<p>We also worked out the best precision anyone could ever get. We are at 1.38 times
+it. So we can tell you our answer <em>and</em> how much room is left above us.&quot;</p>
+</blockquote>
+<p><strong>Q. Why did you test on jet engines?</strong></p>
+<blockquote>
+<p>&quot;To prove it is not just an F1 trick. We took our code, changed nothing, and ran
+it on NASA's jet engine data. Tyre stint becomes engine life. Tyre age becomes
+flight hours. We got 22.7 error against a normal range of 12 to 25. And 44% of our
+guesses were early, which is the safe side for maintenance.&quot;</p>
+</blockquote>
+<p><strong>Q. What failed?</strong> <em>(say this proudly)</em></p>
+<blockquote>
+<p>&quot;Six of our own ideas failed and we kept all six in the report.</p>
+<p>Energy instead of laps — no difference.
+Real Pirelli compound instead of the label — 6% worse.
+Track shape to predict a new circuit — no effect.
+Temperature explaining our error — explains nothing.
+Matching stint lengths — made it worse.
+Driver style — made predictions worse.</p>
+<p>The fifth one is the best. We found a clue, built a test that could kill our own
+idea, and it did. That is real research, not a dashboard.&quot;</p>
+</blockquote>
+<p><strong>Q. How is this better than the last team's work?</strong></p>
+<blockquote>
+<p>&quot;Their metrics are good. We are keeping them. We are changing what calculates them.</p>
+<p>One. Their formula is tuned on <strong>one circuit</strong>, Bahrain. We tested 26 circuits and
+found that track-to-track transfer does not work. So one circuit will not travel.</p>
+<p>Two. Their alerts use fixed thresholds on a single number. A threshold with no
+error bar is a coin toss near the line. We put a proper range underneath, and keep
+their 18 rules on top as a safety check. When the model and the rules disagree,
+the engineer sees both.</p>
+<p>Three. They show only what worked. We show six things that failed.&quot;</p>
+</blockquote>
+<p><strong>Q. Can it scale? Is it cheap?</strong></p>
+<blockquote>
+<p>&quot;Yes. It fits a session in 12 seconds on a laptop. The data is 2.6 MB for four
+seasons. No GPU. No cloud bill. It runs fully offline — you can clone it and use
+it on a plane. The neural network we tested took 36 seconds and came last.&quot;</p>
+</blockquote>
+<p><strong>Q. What is the business value?</strong></p>
+<blockquote>
+<p>&quot;Three levels. A team: one wrong pit call costs positions, and positions cost
+millions. A broadcaster: it is a graphics and insight product. And the big one:
+the engine is not F1-only. We proved it on jet engines. The same code fits
+aircraft fleets, wind turbines, and factory machines.&quot;</p>
+</blockquote>
+<p><strong>Q. What is next?</strong></p>
+<blockquote>
+<p>&quot;Three things. Fix the one weak test I mentioned. Check ourselves against a tyre
+model we did not build. And add puncture risk, using real failure records that we
+found are free and public.&quot;</p>
+</blockquote>
+<hr />
+<h2>5. Never say these</h2>
+<table>
+<thead>
+<tr>
+<th>❌ Do not say</th>
+<th>✅ Say instead</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&quot;The FastF1 community uses the broken method.&quot;</td>
+<td>&quot;The simple method — the first thing anyone tries.&quot;</td>
+</tr>
+<tr>
+<td>&quot;Our practice-to-race test proves we are right.&quot;</td>
+<td>&quot;It shows we agree with ourselves. It is not proof.&quot;</td>
+</tr>
+<tr>
+<td>&quot;Track shape is harmful.&quot;</td>
+<td>&quot;Track shape has no effect. Only temperature was harmful.&quot;</td>
+</tr>
+<tr>
+<td>&quot;We beat five other models.&quot;</td>
+<td>&quot;We are best at finding the wear rate. At plain lap-time guessing we are third.&quot;</td>
+</tr>
+<tr>
+<td>&quot;We measure tread in millimetres.&quot;</td>
+<td>&quot;We give percentage of life left. Depth cannot be measured from public data.&quot;</td>
+</tr>
+<tr>
+<td>&quot;Drivers differ in tyre care.&quot;</td>
+<td>&quot;There is a tiny effect between teammates, but it does not help predictions.&quot;</td>
+</tr>
+</tbody>
+</table>
+<p><strong>One rule:</strong> if they ask something we have not tested, say <strong>&quot;we have not tested
+that yet, it is on our list.&quot;</strong> That costs nothing. A wrong guess costs everything.</p>
+<h1>PART 1 — EVERY DATASET WE HOLD</h1>
+<p>There are five separate bodies of data. They are listed in order of importance.</p>
+<hr />
+<h2>1.1 The season corpus — our main dataset</h2>
+<p><strong>Where it lives:</strong> <code>data/season/</code> — 204 files, 2.6 MB total (Parquet, compressed).
+<strong>What it is:</strong> one file per F1 session, named like <code>2024-italian-grand-prix-R.parquet</code>.</p>
+<p><strong>Size:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sessions</td>
+<td><strong>203</strong> usable</td>
+</tr>
+<tr>
+<td>Clean racing laps</td>
+<td><strong>92,326</strong></td>
+</tr>
+<tr>
+<td>Event-seasons covered</td>
+<td><strong>84</strong> (e.g. &quot;Monza 2024&quot; is one event-season)</td>
+</tr>
+<tr>
+<td>Seasons</td>
+<td>2022, 2023, 2024, 2025</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Split by season:</strong> 2022 → 15 sessions, 2023 → 57, 2024 → 67, 2025 → 64.
+(2022 is thin because FastF1's tyre-age data for that season is patchier; we kept
+only the sessions that passed our quality gate.)</p>
+<p><strong>Split by session type:</strong> Race → 84, FP1 → 44, FP2 → 49, FP3 → 26.</p>
+<h3>The columns (this is the whole schema — there are only eight)</h3>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Meaning in plain words</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>driver</code></td>
+<td>text</td>
+<td>Three-letter code, e.g. <code>VER</code>, <code>HAM</code>, <code>LEC</code>.</td>
+</tr>
+<tr>
+<td><code>session_lap</code></td>
+<td>integer</td>
+<td>Which lap of the <em>session</em> this was. Lap 1, lap 2, … Used to measure <strong>track evolution</strong> (the track gets faster as rubber goes down).</td>
+</tr>
+<tr>
+<td><code>run_id</code></td>
+<td>integer</td>
+<td>A unique number for one continuous stint on one set of tyres. Every time a driver pits, a new <code>run_id</code> starts.</td>
+</tr>
+<tr>
+<td><code>tyre_age</code></td>
+<td>float</td>
+<td>How many laps old <strong>the tyre set</strong> is. Note: this can start above zero, because a driver may fit a used (&quot;scrubbed&quot;) set.</td>
+</tr>
+<tr>
+<td><code>lap_time</code></td>
+<td>float</td>
+<td>The lap time in seconds, e.g. <code>84.853</code>. <strong>This is our only measured target variable.</strong></td>
+</tr>
+<tr>
+<td><code>compound</code></td>
+<td>text</td>
+<td><code>SOFT</code>, <code>MEDIUM</code> or <code>HARD</code> for that weekend.</td>
+</tr>
+<tr>
+<td><code>traffic_index</code></td>
+<td>float 0–1</td>
+<td>How badly the lap was compromised by the car in front. 0 = clear air, 1 = stuck right behind someone. We compute this ourselves (see 1.1.4).</td>
+</tr>
+<tr>
+<td><code>lap_in_run</code></td>
+<td>float</td>
+<td>How many laps the driver has completed <strong>since this stint began</strong>. This is our <strong>fuel proxy</strong> — the car burns fuel every lap, so it gets lighter and faster.</td>
+</tr>
+</tbody>
+</table>
+<p>An example of three real rows (2022 Australian GP, race):</p>
+<pre><code>driver  session_lap  run_id  tyre_age  lap_time  compound  traffic_index  lap_in_run
+ALO     2            2       2.0       87.059    HARD      0.828750       0.0
+BOT     2            4       2.0       87.593    MEDIUM    0.925000       0.0
+GAS     2            6       2.0       86.622    MEDIUM    0.504375       0.0
+</code></pre>
+<h3>1.1.1 Where it came from</h3>
+<p><code>FastF1</code> (open-source Python library) → <strong>F1's official live timing API</strong>
+(<code>livetiming.formula1.com</code>), which is the same feed that powers the F1 TV timing
+screens and the official app.</p>
+<p>We did the downloading with <code>scripts/build_corpus.py</code>. It is rate-limited: F1's
+API throttles aggressive clients, so the script waits about 6 seconds between
+sessions and retries failures on a second pass. A full four-season scrape takes a
+few hours.</p>
+<p>Everything downloaded is cached in <code>cache/fastf1/</code> so we never re-hit the API for
+the same session twice.</p>
+<p><strong>Is this allowed?</strong> Yes. FastF1 is a widely used public library, the timing feed
+is publicly broadcast, and we are using it for a non-commercial competition entry.
+We are not scraping anything behind a login or a paywall.</p>
+<h3>1.1.2 What we threw away, and why</h3>
+<p>A raw F1 session is <strong>not</strong> a clean dataset. It contains in-laps, out-laps,
+safety-car laps, laps set on a damaged car, and laps where the driver simply
+backed out of a corner. Every one of those is a genuine lap time and every one of
+them will poison a degradation estimate.</p>
+<p>We apply <strong>seven filters, in this exact order</strong>, and we record how many laps each
+one removed. The code is <code>build_lap_table()</code> in <code>src/tyremind/data/f1_loader.py</code>.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Filter name in the audit log</th>
+<th>What it removes</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>no_lap_time</code></td>
+<td>Laps where the API returned no time at all</td>
+<td>Nothing to model.</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>pit_in_out_lap</code></td>
+<td>The lap into the pits and the lap out of them</td>
+<td>An in-lap is slowed by the pit entry, an out-lap by cold tyres and the pit exit. Neither reflects tyre condition.</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>flagged_inaccurate</code></td>
+<td>Laps FastF1 itself marks as unreliable</td>
+<td>The upstream library flags timing glitches; we trust that flag.</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>unknown_compound</code></td>
+<td>Laps where the compound is <code>UNKNOWN</code> / <code>TEST_UNKNOWN</code> / blank</td>
+<td>A lap that cannot be assigned to a tyre set cannot say anything about that tyre.</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>wet_compound</code></td>
+<td>Every lap on <code>INTERMEDIATE</code> or <code>WET</code> tyres</td>
+<td>Wet degradation is a <em>different physical process</em> — driven by water clearance and overheating on a drying line, not by rubber abrasion. Our model's assumptions do not describe it, so we exclude it <strong>and report that we excluded it</strong> rather than pretending.</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>slow_lap_safety_car_or_traffic</code></td>
+<td>Laps much slower than the session median</td>
+<td>Safety cars, VSCs, spins. Exact rule below.</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>run_too_short</code></td>
+<td>Any stint with fewer than 4 laps</td>
+<td>You cannot fit a slope through 3 points and call it a degradation rate.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The exact outlier rule (filter 6).</strong> We take the session's <em>median</em> lap time,
+then compute the <strong>MAD</strong> — Median Absolute Deviation — which is the median of
+<code>|lap − median|</code>. We multiply MAD by <strong>1.4826</strong>, a standard constant that makes
+MAD directly comparable to a standard deviation for normally distributed data. We
+drop any lap slower than <code>median + 3 × MAD</code>.</p>
+<p><em>Why not a plain standard deviation?</em> Because a safety-car period inflates the
+standard deviation so much that the safety-car laps stop looking like outliers and
+hide themselves. The median and MAD are barely moved by extreme values, so they
+still detect them. This is the textbook robust-statistics reason.</p>
+<h3>1.1.3 The audit trail — every session carries its own receipt</h3>
+<p>Each session has a matching <code>.quality.json</code>. Here is a real one, for the 2024
+Italian GP race:</p>
+<pre><code class="language-json">{
+  &quot;session_name&quot;: &quot;Italian Grand Prix Race&quot;,
+  &quot;total_laps&quot;: 1008,
+  &quot;exclusions&quot;: {
+    &quot;pit_in_out_lap&quot;: 61,
+    &quot;flagged_inaccurate&quot;: 20,
+    &quot;slow_lap_safety_car_or_traffic&quot;: 2,
+    &quot;run_too_short&quot;: 4
+  },
+  &quot;retained_laps&quot;: 921,
+  &quot;n_drivers&quot;: 20,
+  &quot;n_runs&quot;: 48,
+  &quot;compounds&quot;: { &quot;HARD&quot;: 685, &quot;MEDIUM&quot;: 236 },
+  &quot;median_lap_time&quot;: 84.853,
+  &quot;longest_run&quot;: 41,
+  &quot;retention_rate&quot;: 0.9137,
+  &quot;quality_score&quot;: 100.0
+}
+</code></pre>
+<p>Read that as: <em>the API gave us 1008 laps, we kept 921 of them (91.4%), and here is
+exactly where the other 87 went.</em> A judge can ask &quot;what did you throw away?&quot; and
+we can answer per session, not with a hand-wave.</p>
+<p><code>longest_run: 41</code> matters more than it looks — degradation is estimated from
+trends <strong>within</strong> a stint, so the longest stint is the hard limit on how much a
+session can tell you about the late-life &quot;cliff&quot;.</p>
+<h3>1.1.4 <code>traffic_index</code> — a column we invented</h3>
+<p>F1 does not publish &quot;how much traffic was this driver in&quot;. We derive it.</p>
+<p><strong>The idea in one sentence:</strong> if two cars cross the start line 0.6 seconds apart,
+then for the whole of the next lap they are 0.6 seconds apart on track — so the
+gap to the car ahead is recoverable from lap <em>start times</em> alone, with no
+positional telemetry at all.</p>
+<p><strong>How we compute it:</strong></p>
+<ol>
+<li>Sort <strong>every lap in the session</strong> by its start time (not by lap number).</li>
+<li>For each lap, walk backwards to the most recent lap started by a <em>different</em>
+driver. That is the car ahead.</li>
+<li>The gap is the difference in start times.</li>
+<li>Map gap → index: a gap of <strong>2.0 s or more = 0</strong> (clear air); a gap of
+<strong>0.4 s or less = 1</strong> (fully compromised); linear in between.</li>
+</ol>
+<p><strong>Why sort by session time and not by lap number?</strong> This is a subtle trap. In a
+practice session, driver A's &quot;lap 5&quot; and driver B's &quot;lap 5&quot; can be forty minutes
+apart. Grouping by lap number would compare two cars that were never on track
+together. Sorting by clock time is what actually identifies who was behind whom.</p>
+<p><strong>Why 0–1 and not seconds-lost?</strong> Because we deliberately do <strong>not</strong> guess how
+many seconds a given gap costs. That coefficient is <em>estimated from the data</em> by
+the model. This function only needs to be monotone in &quot;how much traffic&quot;; the
+magnitude is inferred.</p>
+<h3>1.1.5 <code>lap_in_run</code> — the fuel proxy, and the bug we found in it</h3>
+<p>The car burns roughly the same fuel mass every lap, so lap time improves roughly
+linearly over a stint. To separate that from tyre wear, we need to know <strong>how many
+laps the car has actually run since the stint started</strong>.</p>
+<p><strong>The bug we shipped and then found.</strong> The original code was:</p>
+<pre><code class="language-python">lap_table[&quot;lap_in_run&quot;] = lap_table.groupby(&quot;run_id&quot;).cumcount()
+</code></pre>
+<p>That counts the <strong>surviving rows</strong> — the rows left <em>after</em> filtering. If a safety
+car deleted three laps out of the middle of a stint, the counter went
+<code>… 8, 9, 10, 11 …</code> while the car had really completed <code>… 8, 12, 13, 14 …</code>. The
+fuel model therefore thought the car was heavier than it was, so it under-credited
+fuel, and the missing improvement got blamed on the <strong>tyre</strong>.</p>
+<p><strong>The fix.</strong> We now derive the counter from tyre age, which the timing feed gives
+us directly and which does not care what we filtered out:</p>
+<pre><code class="language-python">def laps_completed_in_run(lap_table):
+    age = lap_table[&quot;tyre_age&quot;].astype(float)
+    start = age.groupby([lap_table[&quot;driver&quot;], lap_table[&quot;run_id&quot;]]).transform(&quot;min&quot;)
+    return (age - start).astype(float)
+</code></pre>
+<p><strong>How much did it matter?</strong></p>
+<table>
+<thead>
+<tr>
+<th>Session</th>
+<th>Before fix</th>
+<th>After fix</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Miami, HARD</td>
+<td>0.0389 s/lap</td>
+<td>0.0669 s/lap</td>
+<td><strong>+72%</strong></td>
+</tr>
+<tr>
+<td>Shanghai, HARD</td>
+<td>unchanged</td>
+<td>unchanged</td>
+<td>0% — the control</td>
+</tr>
+</tbody>
+</table>
+<p>Shanghai had <strong>zero</strong> deleted-lap gaps, so the bug could not bite there, and the
+number did not move. That is exactly the behaviour the explanation predicts, which
+is why we are confident the diagnosis is right rather than a coincidence.</p>
+<p><strong>The follow-up bug.</strong> After fixing it, one experiment still printed the <em>old</em>
+numbers exactly. Five experiment scripts were calling <code>pd.read_parquet()</code> directly
+and bypassing the repair. We routed everything through a single loader
+(<code>read_lap_table</code> in <code>src/tyremind/data/corpus.py</code>) and then wrote a <strong>structural
+test</strong> — <code>tests/test_loader_discipline.py</code> — that reads the source code of every
+experiment and <em>fails the build</em> if any of them calls <code>pd.read_parquet</code> directly.
+The rule is now enforced by CI, not by memory.</p>
+<hr />
+<h2>1.2 The demo sessions — what is committed to git</h2>
+<p><strong>Where:</strong> <code>data/demo/</code> — 268 KB, <strong>8 sessions</strong>, committed to the repo.</p>
+<table>
+<thead>
+<tr>
+<th>Session</th>
+<th>Clean laps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2024 Barcelona FP2</td>
+<td>220</td>
+</tr>
+<tr>
+<td>2024 Barcelona Race</td>
+<td>1,204</td>
+</tr>
+<tr>
+<td>2024 Monza FP2</td>
+<td>143</td>
+</tr>
+<tr>
+<td>2024 Monza Race</td>
+<td>921</td>
+</tr>
+<tr>
+<td>2024 Silverstone FP2</td>
+<td>156</td>
+</tr>
+<tr>
+<td>2024 Silverstone Race</td>
+<td>618</td>
+</tr>
+<tr>
+<td>2024 Zandvoort FP2</td>
+<td>269</td>
+</tr>
+<tr>
+<td>2024 Zandvoort Race</td>
+<td>1,350</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Why these exist separately.</strong> The full 2.6 MB corpus is <em>not</em> in git — it is
+derived data and can be rebuilt. But a judge must be able to <code>git clone</code>, run one
+command, and see a working dashboard <strong>with no internet and no API key</strong>. These
+eight sessions are what make the product genuinely offline-ready. Every
+integration test (<code>tests/integration/test_api_endpoints.py</code>, 28 tests) runs
+against them, so they are also our regression safety net.</p>
+<p>Each demo session carries its <code>.quality.json</code> receipt too.</p>
+<hr />
+<h2>1.3 The reference data — four files we assembled by hand</h2>
+<p><strong>Where:</strong> <code>data/reference/</code> — 1.1 MB.</p>
+<p>These are not lap times. They are the <em>context</em> a lap time sits in, and each one
+exists because a specific experiment could not be run without it.</p>
+<h3>1.3.1 <code>session_conditions.json</code> — the weather (133 rows)</h3>
+<p>One row per session. Fields:</p>
+<p><code>session_id, year, round, event, session, track_temp_c, track_temp_min, track_temp_max, air_temp_c, humidity_pct, wind_speed_ms, rainfall, rain_advisory, wet_laps, total_laps, wet_lap_fraction, dry_session</code></p>
+<p><strong>Source:</strong> FastF1's <code>session.weather_data</code>, which comes from the official
+trackside weather feed.
+<strong>Built by:</strong> <code>scripts/build_session_conditions.py</code>.
+<strong>Used for:</strong> the <strong>wet-session guard</strong>. Without it we cannot exclude a race that
+ran two-thirds on wet tyres — and such a race would otherwise contribute garbage
+to every aggregate. Also used by exp09 to test whether track temperature explains
+our prediction bias (it does not — see Part 5).</p>
+<h3>1.3.2 <code>circuit_features.json</code> — track shape (84 rows)</h3>
+<p>One row per circuit-season. Fields:</p>
+<p><code>circuit, year, n_corners, n_tight_corners, mean_corner_angle, median_corner_spacing_m, lap_length_m, mean_abs_lateral_g, p95_lateral_g, loaded_fraction, lateral_energy_proxy, top_speed_kmh, round, event</code></p>
+<p><strong>Source:</strong> FastF1's circuit-info / corner-marker data, plus geometry computed
+from the official track map.
+<strong>Built by:</strong> <code>scripts/build_circuit_features.py</code>.</p>
+<p><strong>Honest caveat:</strong> <code>mean_abs_lateral_g</code> is currently <code>None</code> for every row. The
+lateral-g fields need full car telemetry pulled per driver per lap, which is a far
+heavier download than we have run. So the geometry fields are real; the energy
+fields are placeholders. <strong>We do not use the g-force fields in any claim.</strong></p>
+<p><strong>Used for:</strong> exp09, the circuit-transfer test. Result: circuit geometry does
+<strong>not</strong> help (−3.3%, p = 0.22 — i.e. no detectable effect). That is a negative
+result and we report it as one.</p>
+<h3>1.3.3 <code>lineups.json</code> — who drove for whom (69 rows)</h3>
+<p><code>year, round, event, lineup{ driver_abbrev → team_name }</code></p>
+<p><strong>Source:</strong> FastF1 session results.
+<strong>Built by:</strong> <code>scripts/build_lineups.py</code>.
+<strong>Used for:</strong> exp15, the driver-effect test. To ask &quot;is driver X gentler on tyres
+than driver Y?&quot; you must first cancel out the car, and the only clean way to do
+that is to compare <strong>teammates</strong>, who share the car. That needs the lineup table.</p>
+<h3>1.3.4 <code>compound_allocation.json</code> — which Pirelli compounds were nominated</h3>
+<p>Fields: <code>_note</code>, <code>sources</code>, <code>allocations[{ year, round, event, hardest, confidence, source }]</code> — <strong>24 events, 2024 only.</strong></p>
+<p><strong>Why this file is necessary and slightly maddening.</strong> Pirelli makes five dry
+compounds, <strong>C1 (hardest) through C5 (softest)</strong>. For each race weekend they
+nominate <strong>three consecutive</strong> compounds, and those three are then <em>relabelled</em>
+HARD / MEDIUM / SOFT for that weekend only.</p>
+<p>So a &quot;HARD&quot; at one race can be a C1, and at another race a &quot;HARD&quot; can be a C3 —
+which is a completely different rubber. <strong>The label <code>HARD</code> is weekend-relative and
+is not a material.</strong> Any model that treats HARD as a fixed compound is comparing
+apples to oranges across races.</p>
+<p><strong>Source:</strong> hand-assembled from Pirelli's published pre-event nominations and
+press releases. Each row carries a <code>confidence</code> and a <code>source</code> string, so we know
+which ones are solid and which are inferred.</p>
+<p><strong>Coverage gap, stated plainly:</strong> we only have <strong>2024</strong>. 2022, 2023 and 2025 are
+missing. This is a genuine hole and it is why exp08 (compound identity) could only
+be tested on one season.</p>
+<p><strong>Used for:</strong> exp08 — testing whether knowing the <em>true</em> C1–C5 identity improves
+prediction. Result: it does not, measurably. Negative result, reported.</p>
+<h3>1.3.5 Derived caches also in <code>data/reference/</code></h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cliff_stints.parquet</code> (859 KB)</td>
+<td>The 2,827 fitted stint curves from exp17, cached so the analysis can be re-run without re-fitting.</td>
+</tr>
+<tr>
+<td><code>driver_stint_slopes.parquet</code> (63 KB)</td>
+<td>The 1,458 per-driver-per-race degradation slopes from exp15.</td>
+</tr>
+<tr>
+<td><code>conformal_calibration.json</code> (266 B)</td>
+<td>The calibrated interval width the live API serves.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>1.4 The synthetic data — our only source of true answers</h2>
+<p><strong>Where:</strong> generated on demand by <code>src/tyremind/data/synthetic.py</code>.
+<code>data/synthetic/</code> is empty because nothing needs to be stored — the same seed
+always produces the same session, byte for byte.</p>
+<p><strong>Why it exists.</strong> This is the most important idea in the whole project, so read
+this paragraph twice.</p>
+<blockquote>
+<p>In real F1 data we have the <strong>lap time</strong>, but we do <strong>not</strong> have the true tyre
+wear rate. So if our model says &quot;0.06 s/lap&quot;, there is nothing to check it
+against. In synthetic data <strong>we wrote the true rate ourselves</strong>, so we can check
+the model's answer against the real answer exactly.</p>
+</blockquote>
+<p><strong>What the simulator produces.</strong> A realistic practice session with 20 drivers, 60
+session slots, about 3 runs each of 6–16 laps, built from these causal terms:</p>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Value</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>base_lap_time</code></td>
+<td>92.0 s</td>
+<td>Reference pace.</td>
+</tr>
+<tr>
+<td><code>driver_pace_sd</code></td>
+<td>0.55 s</td>
+<td>Car/driver pace spread.</td>
+</tr>
+<tr>
+<td><code>fuel_slope</code></td>
+<td>0.081 s/lap</td>
+<td>How much faster the car gets per lap of fuel burned.</td>
+</tr>
+<tr>
+<td><code>track_evolution_total</code></td>
+<td>0.90 s</td>
+<td>Total time the track gains over the session as rubber goes down.</td>
+</tr>
+<tr>
+<td><code>track_evolution_shape</code></td>
+<td>0.055</td>
+<td>How front-loaded that evolution is.</td>
+</tr>
+<tr>
+<td><code>traffic_probability</code></td>
+<td>0.18</td>
+<td>Fraction of laps in traffic.</td>
+</tr>
+<tr>
+<td><code>traffic_coefficient</code></td>
+<td>1.30 s</td>
+<td>Time lost at traffic index 1.0.</td>
+</tr>
+<tr>
+<td><code>cliff_severity</code></td>
+<td>0.004</td>
+<td>How sharply degradation accelerates past the cliff age.</td>
+</tr>
+<tr>
+<td><code>observation_noise_sd</code></td>
+<td>0.16 s</td>
+<td>Random lap-to-lap scatter…</td>
+</tr>
+<tr>
+<td><code>observation_noise_df</code></td>
+<td>5.0</td>
+<td>…drawn from a <strong>Student-t with 5 degrees of freedom</strong>, not a Gaussian.</td>
+</tr>
+<tr>
+<td><code>scrubbed_set_probability</code></td>
+<td>0.25</td>
+<td>Chance a run starts on a used tyre set.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Two deliberately hostile design choices</strong>, because a simulator that flatters the
+model is worthless:</p>
+<ol>
+<li><strong>Student-t noise, not Gaussian.</strong> Our estimator <em>assumes</em> Gaussian noise. We
+feed it heavier-tailed noise on purpose, so it is being tested outside its own
+assumptions. A t(5) produces the occasional scruffy lap or lock-up that real
+sessions contain and that Gaussian models handle badly.</li>
+<li><strong>Scrubbed sets 25% of the time.</strong> Runs that start on a used tyre — so tyre age
+does not start at zero — which is exactly the case that breaks naive
+&quot;lap-time vs lap-number&quot; fits.</li>
+</ol>
+<p><strong>The ground truth object</strong> (<code>GroundTruth</code>) is never visible to any estimator. It
+carries the true per-compound rate, the true cliff onset, the true fuel slope, the
+true traffic coefficient, the true driver pace offsets, the true track-evolution
+curve, and a <strong>per-lap decomposition</strong> — one column per causal term. That last one
+lets us measure attribution error <em>term by term</em>, not just in aggregate: we can
+say &quot;the model got the tyre part right but over-credited traffic&quot;, which an
+aggregate error number would hide.</p>
+<hr />
+<h2>1.5 NASA C-MAPSS — the cross-industry proof</h2>
+<p><strong>Where:</strong> <code>data/external/cmapss/</code> and <code>data/external/cmapss_raw/</code> — 56 MB total.</p>
+<p><strong>What it is:</strong> NASA's <strong>Commercial Modular Aero-Propulsion System Simulation</strong>
+turbofan engine degradation dataset. It is the single most-cited benchmark in the
+predictive-maintenance field. Publicly released by NASA's Prognostics Center of
+Excellence.</p>
+<p><strong>Size:</strong> four sub-datasets, FD001–FD004.</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Lines</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>train_FD001.txt</code></td>
+<td>20,631</td>
+</tr>
+<tr>
+<td><code>test_FD001.txt</code></td>
+<td>13,096</td>
+</tr>
+<tr>
+<td><code>RUL_FD001.txt</code></td>
+<td>100</td>
+</tr>
+<tr>
+<td><code>train_FD002.txt</code></td>
+<td>53,759</td>
+</tr>
+<tr>
+<td><code>train_FD003.txt</code></td>
+<td>24,720</td>
+</tr>
+<tr>
+<td><code>train_FD004.txt</code></td>
+<td>61,249</td>
+</tr>
+<tr>
+<td>(plus matching test / RUL files)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Format:</strong> whitespace-separated, 26 columns, no header:
+<code>unit_number, time_in_cycles, 3 operational settings, 21 sensor channels</code>.
+One row is one engine on one flight cycle. Engines run until they fail.</p>
+<p>A real first row:</p>
+<pre><code>1 1 -0.0007 -0.0004 100.0 518.67 641.82 1589.70 1400.60 14.62 21.61 554.36 …
+</code></pre>
+<p><strong>Why it is in an F1 project.</strong> Because it answers the single hardest judge
+question: <em>&quot;is this a clever F1 hack, or is it actually a general degradation
+engine?&quot;</em></p>
+<p>We ran our <strong>unmodified</strong> state-space estimator on turbofan engines. Same code,
+different domain. The mapping is direct: a tyre stint is an engine's life, tyre age
+is flight cycles, lap time is a sensor channel, and &quot;laps until the cliff&quot; is
+Remaining Useful Life.</p>
+<p><strong>Result:</strong> RMSE <strong>22.7 cycles</strong> on all 100 FD001 test engines, MAE 17.9, and
+<strong>44% of predictions are early</strong> (conservative — we say &quot;replace it sooner&quot; more
+often than &quot;later&quot;, which is the safe direction for a maintenance tool).
+Published FD001 results in the literature sit roughly in the 12–25 RMSE band, so we
+are within the competitive range without any domain-specific tuning.</p>
+<p><strong>One honest note on this number.</strong> We initially fitted only 40 of the 100 test
+engines because of a batching bug, giving RMSE 26.5. Fixed to all 100, it improved
+to 22.7. We then <em>checked that the batching itself wasn't flattering us</em>:
+re-running with batch-40 reproduced the old number exactly, and batch-20 differed
+by 0.4%. So the improvement came from having all the engines, not from the batch
+size. We verified this rather than assuming it.</p>
+<hr />
+<h2>1.6 Empty directories, explained</h2>
+<p><code>data/interim/</code>, <code>data/processed/</code>, <code>data/raw/</code> and <code>data/synthetic/</code> are all
+<strong>0 bytes</strong>. This is intentional and not a mistake:</p>
+<ul>
+<li><code>raw/</code>, <code>interim/</code>, <code>processed/</code> are the conventional data-science pipeline
+stages. Our pipeline goes straight from the FastF1 cache to the finished lap
+table, so nothing lands in between. The directories exist so the layout is
+familiar to anyone who has seen a standard data-science project template.</li>
+<li><code>synthetic/</code> is empty because synthetic sessions are <strong>regenerated from a seed</strong>
+every time. Storing them would be storing something we can recreate exactly.</li>
+</ul>
+<hr />
+<h1>PART 2 — WHICH REAL SENSORS PRODUCE THIS DATA</h1>
+<p>This is the part the team most often gets asked and most often cannot answer. Every
+field in our lap table is produced by a specific piece of hardware (or, in two
+cases, by no hardware at all). Here is the honest mapping.</p>
+<h2>2.1 The measurement chain at a real Grand Prix</h2>
+<pre><code>  CAR                         TRACK                      RACE CONTROL
+  ───                         ─────                      ────────────
+  FIA transponder    ──►   timing loops buried    ──►   FIA timekeeping
+  (mandatory box)          in the tarmac                (official times)
+                                                              │
+  ECU + ~300 onboard ──►   trackside receivers    ──►   team garage         │
+  sensors                  (1000+ channels)            (private)            │
+                                                                            ▼
+  GPS / marshalling  ──►   positioning system     ──►   F1 live timing API
+  transponder                                            (PUBLIC — this is us)
+                                                              │
+  weather stations   ──►   trackside masts        ──►        │
+  (multiple points)                                          ▼
+                                                      FastF1 library
+                                                              │
+                                                              ▼
+                                                    data/season/*.parquet
+</code></pre>
+<p>The key point: <strong>there are two data streams at every race.</strong> The private one goes
+to the team garage and contains hundreds of channels including tyre temperature,
+tyre pressure, fuel flow and fuel mass. The public one goes to broadcast and the
+F1 app. <strong>We only have the public one.</strong> Everything in Part 3 follows from that.</p>
+<h2>2.2 Field-by-field: what hardware produced it</h2>
+<h3><code>lap_time</code> — <strong>timing loops + transponder</strong> (a real, extremely precise sensor)</h3>
+<p>Every F1 car carries a mandatory FIA transponder. Inductive <strong>timing loops</strong> are
+buried in the tarmac at the start/finish line and at each sector split. When a car
+passes over a loop, the loop detects the transponder and stamps the crossing to
+within about <strong>one ten-thousandth of a second</strong>.</p>
+<p>This is the most accurate number in our entire dataset. Official F1 times are
+published to a thousandth of a second (<code>84.853</code>), and the underlying measurement is
+better than that. There is effectively no measurement noise in a lap time — all the
+scatter we see is <em>real</em> variation in how the lap was driven.</p>
+<p><strong>This matters enormously for us:</strong> because the sensor is near-perfect, any scatter
+in the data is physics and driving, not instrument error. Our model can therefore
+attribute all of the residual variance to causes rather than to noise floor.</p>
+<h3><code>tyre_age</code> — <strong>not a sensor. A counter.</strong></h3>
+<p>This is important and often misunderstood. There is <strong>no sensor that measures tyre
+wear</strong> and reports it publicly. <code>tyre_age</code> is a <em>bookkeeping</em> number:</p>
+<ol>
+<li>Pirelli fits an RFID tag to every tyre and records which set is fitted to which
+car (this is for allocation compliance, not wear measurement).</li>
+<li>The team declares the set, and the timing feed publishes &quot;this driver is on set
+N, which has done K laps&quot;.</li>
+<li>FastF1 exposes that as <code>TyreLife</code>, and we rename it <code>tyre_age</code>.</li>
+</ol>
+<p>So <code>tyre_age = 12</code> means &quot;this tyre set has completed 12 laps&quot;, <strong>not</strong> &quot;this tyre
+has lost 12 units of tread&quot;. Nobody publishes the second number.</p>
+<p>This is why a used (&quot;scrubbed&quot;) set can enter a stint at <code>tyre_age = 5</code> rather
+than 0 — the counter carries over from the earlier run, correctly.</p>
+<h3><code>compound</code> — <strong>a declaration, not a measurement</strong></h3>
+<p>The compound label comes from the tyre's RFID tag and the team's declaration to
+the FIA, relayed through the timing feed. No sensor identifies rubber chemistry
+during a session.</p>
+<p>And as covered in 1.3.4, the published label (<code>HARD</code>/<code>MEDIUM</code>/<code>SOFT</code>) is
+<strong>weekend-relative</strong>. The actual material (C1–C5) is published separately by
+Pirelli in a press release, not in the timing feed.</p>
+<h3><code>session_lap</code> — <strong>derived from the timing feed</strong></h3>
+<p>Just the lap counter. Comes from the same timing loops.</p>
+<h3><code>run_id</code> — <strong>derived by us</strong></h3>
+<p>We create this. A new run starts whenever the compound changes or <code>tyre_age</code>
+resets, which is our detection of a pit stop. It is not published as a field; we
+reconstruct it.</p>
+<h3><code>traffic_index</code> — <strong>derived by us from timing-loop crossings</strong></h3>
+<p>No sensor for this either. As explained in 1.1.4, we recover the gap to the car
+ahead from the <em>difference in lap start times</em>, which themselves come from the
+timing loops. So the ultimate source is a real sensor; the index itself is our
+construction.</p>
+<p>The alternative — real positional data — does exist: F1 cars carry GPS and the
+official feed includes a positioning stream. But that stream is a very heavy
+download per session, and our start-time method recovers the same information for
+what we need (who was close to whom), so we use the light method.</p>
+<h3><code>lap_in_run</code> — <strong>derived by us from <code>tyre_age</code></strong></h3>
+<p>No sensor. Purely computed, as described in 1.1.5.</p>
+<h3>Weather fields — <strong>real trackside weather stations</strong></h3>
+<p><code>track_temp_c</code>, <code>air_temp_c</code>, <code>humidity_pct</code>, <code>wind_speed_ms</code>, <code>rainfall</code> come
+from FIA weather masts positioned around the circuit. Track temperature is measured
+by infrared sensors aimed at the tarmac. These are genuine sensor readings, sampled
+roughly once per minute during a session, and FastF1 publishes the whole time
+series.</p>
+<p><strong>Caveat we are aware of:</strong> a circuit is several kilometres long and the weather
+station is at one point on it. A track-temperature reading of 48 °C is the
+temperature <em>at the mast</em>, not around the whole lap. Turn 1 in full sun and Turn 9
+in shade can differ by ten degrees. So this field is real but spatially coarse.</p>
+<h3>Circuit geometry — <strong>derived from the official track map</strong></h3>
+<p><code>n_corners</code>, <code>lap_length_m</code>, <code>mean_corner_angle</code> etc. come from FastF1's circuit
+information, which is built from the official circuit map and corner markers. It
+is survey data, not a live sensor.</p>
+<h2>2.3 The sensors that exist in a real race but whose output we cannot see</h2>
+<p>These are all genuinely on the car. Teams read them live. <strong>None of them reach the
+public feed.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Real sensor</th>
+<th>What it measures</th>
+<th>Who sees it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Tyre pressure sensors</strong> (one per wheel, mandated)</td>
+<td>Live inflation pressure</td>
+<td>Team + FIA only</td>
+</tr>
+<tr>
+<td><strong>Infrared tyre-surface sensors</strong></td>
+<td>Tread surface temperature across the tyre width</td>
+<td>Team only</td>
+</tr>
+<tr>
+<td><strong>Tyre carcass thermocouples</strong></td>
+<td>Internal carcass temperature</td>
+<td>Team only</td>
+</tr>
+<tr>
+<td><strong>Fuel flow meter</strong> (FIA-homologated, ultrasonic)</td>
+<td>Fuel mass flow rate, to enforce the 100 kg/h limit</td>
+<td>FIA + team</td>
+</tr>
+<tr>
+<td><strong>Fuel level sensor</strong></td>
+<td>Mass of fuel remaining</td>
+<td>Team only</td>
+</tr>
+<tr>
+<td><strong>Wheel-speed sensors</strong></td>
+<td>Per-wheel rotation → slip ratio → how hard the tyre is working</td>
+<td>Team only</td>
+</tr>
+<tr>
+<td><strong>Brake temperature sensors</strong></td>
+<td>Brake disc/caliper temperature → heat into the wheel and tyre</td>
+<td>Team only</td>
+</tr>
+<tr>
+<td><strong>Load cells / suspension sensors</strong></td>
+<td>Vertical and lateral load on each corner → tyre energy</td>
+<td>Team only</td>
+</tr>
+<tr>
+<td><strong>Accelerometers + gyros</strong></td>
+<td>Lateral and longitudinal g</td>
+<td>Team; partly derivable from public speed traces</td>
+</tr>
+<tr>
+<td><strong>Pirelli post-race tyre inspection</strong></td>
+<td>Actual measured tread depth, blistering, graining, wear %</td>
+<td><strong>Pirelli only — never published</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>The one-line summary of this whole section:</strong> <em>a real F1 team measures tyre wear
+with dozens of channels of hardware we cannot access. We are reconstructing the
+same quantity from a stopwatch.</em> That constraint is not a weakness of our
+approach — it is the entire problem statement, and it is what makes the problem
+interesting.</p>
+<hr />
+<h1>PART 3 — WHAT DOES NOT EXIST ANYWHERE ON THE INTERNET</h1>
+<p>This section exists because a judge will ask <em>&quot;why didn't you just train on the
+real wear data?&quot;</em> The answer is that it is not obtainable. Here is the complete
+list of what we looked for and could not get, in order of how badly it hurt.</p>
+<h2>3.1 Measured tyre wear / tread depth — <strong>the answer key</strong></h2>
+<p><strong>What we wanted:</strong> for each stint, the actual millimetres of tread lost, or the
+actual grip lost, as measured by Pirelli.</p>
+<p><strong>Why it does not exist publicly:</strong> Pirelli measures every returned tyre. That data
+is commercially sensitive (it reveals team setups and Pirelli's own compound
+behaviour) and is shared only with the FIA and, in limited form, the teams. It has
+never been published as a dataset, and requesting it as a student team is not a
+realistic route.</p>
+<p><strong>What we searched:</strong> Pirelli's media site and technical previews, FIA technical
+documents, the FastF1 API surface, Kaggle, Hugging Face Datasets, academic
+replication packages attached to F1 tyre-modelling papers, OpenF1, Ergast, and the
+F1 live-timing schema itself. Nothing contains a measured wear figure.</p>
+<p><strong>Consequence — and this is the honest core of the project:</strong> we do not have the
+label <code>y_true = true degradation rate</code> for any real session. We only have lap
+times. Section 6.1 explains exactly how we validate without it, and exactly where
+that validation is weaker than a true held-out test.</p>
+<h2>3.2 Fuel mass / fuel load telemetry</h2>
+<p><strong>What we wanted:</strong> kilograms of fuel on board at each lap.</p>
+<p><strong>Why it does not exist publicly:</strong> starting fuel load is one of the most closely
+guarded numbers in the sport (it reveals strategy and engine mode). The FIA fuel
+flow meter's readings go to the FIA and the team, not to broadcast.</p>
+<p><strong>Consequence:</strong> we cannot subtract fuel exactly. We model it instead — and the
+<em>inability to separate fuel from tyre cleanly</em> is the mathematical heart of our
+work (see 6.3, the identifiability result). Ironically, this gap is what gives our
+project its most original finding.</p>
+<h2>3.3 Tyre temperature and pressure feeds</h2>
+<p><strong>What we wanted:</strong> per-wheel surface/carcass temperature and pressure per lap.</p>
+<p><strong>Why not available:</strong> team-private. Occasionally a single number appears on a TV
+graphic; there is no systematic feed.</p>
+<p><strong>Consequence:</strong> we cannot model thermal degradation directly. We can only use
+<em>track</em> temperature as a weak proxy — and exp09 showed that proxy does not help
+(it actually hurt slightly). We report that honestly rather than claiming a
+thermal model we do not have.</p>
+<h2>3.4 Pirelli compound nominations for 2022, 2023 and 2025</h2>
+<p><strong>What we have:</strong> 2024 only, 24 events, hand-assembled.</p>
+<p><strong>Why the gap:</strong> the nominations are published as PDFs and press releases, one per
+event, not as a dataset. Assembling one season took real manual effort; we did one
+season, got a clear negative result from it (compound identity does not
+measurably help), and judged that three more seasons of manual transcription was
+not the best use of remaining time. <strong>This is a resource decision, not an
+impossibility</strong> — the data is obtainable by hand if we want it.</p>
+<h2>3.5 Per-lap car telemetry at scale</h2>
+<p><strong>What we wanted:</strong> speed/throttle/brake/g traces for every lap of 203 sessions, to
+compute real energy-through-the-tyre features.</p>
+<p><strong>Why we do not have it:</strong> it <em>is</em> publicly available through FastF1 — but it is
+roughly a thousand times larger than the lap table, and downloading it for the full
+corpus would take days against a rate-limited API.</p>
+<p><strong>Consequence:</strong> <code>circuit_features.json</code> has <code>None</code> in its lateral-g columns. We
+substituted geometry-based proxies, tested them (exp09), and found they do not
+help. This is the one gap on this list that is purely a compute/time limit rather
+than a secrecy limit.</p>
+<h2>3.6 Track-surface characterisation</h2>
+<p><strong>What we wanted:</strong> tarmac roughness/abrasiveness per circuit — the property that
+most directly drives wear.</p>
+<p><strong>Why not available:</strong> circuits are resurfaced and measured privately; Pirelli
+references abrasiveness qualitatively in previews but publishes no numbers.</p>
+<p><strong>Consequence:</strong> we treat circuit identity as a categorical effect rather than
+modelling the physical cause.</p>
+<h2>3.7 What this all adds up to</h2>
+<p>We hold <strong>the output</strong> (lap times) of a physical system, and <strong>none of the internal
+state</strong> (wear, temperature, fuel, load). Our entire technical contribution is a
+method for inferring the internal state from the output while being explicit about
+what can and cannot be recovered. Part 6 is where we are honest about which of
+those two categories each of our claims falls into.</p>
+<hr />
+<h1>PART 4 — WHAT EACH DATASET WAS ACTUALLY USED FOR</h1>
+<p>A quick map, so nobody has to guess which data backs which claim.</p>
+<table>
+<thead>
+<tr>
+<th>Dataset</th>
+<th>What it is used for</th>
+<th>Which experiments</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Synthetic sessions</strong></td>
+<td>The <strong>only</strong> place we can measure &quot;did the model get the true wear rate right&quot;, because we wrote the true rate. Used to prove correctness and to prove the naive method is biased.</td>
+<td>exp01, exp02, exp05 (degradation-recovery half)</td>
+</tr>
+<tr>
+<td><strong>Season corpus — practice sessions (FP1/FP2/FP3)</strong></td>
+<td>The <strong>input</strong> side of our real-world test: estimate degradation from practice.</td>
+<td>exp03, exp11, exp12</td>
+</tr>
+<tr>
+<td><strong>Season corpus — races</strong></td>
+<td>The <strong>reference</strong> side: what actually happened on race day. Also the corpus for all the pure-race studies.</td>
+<td>exp03, exp05, exp08, exp09, exp10, exp11, exp13–exp18</td>
+</tr>
+<tr>
+<td><strong>Demo sessions</strong></td>
+<td>Offline product demo + the 28 API integration tests. Not used for any scientific claim.</td>
+<td>none</td>
+</tr>
+<tr>
+<td><strong><code>session_conditions.json</code></strong></td>
+<td>Excluding wet sessions; testing whether temperature explains the bias.</td>
+<td>exp03 (exclusions), exp09, exp10</td>
+</tr>
+<tr>
+<td><strong><code>circuit_features.json</code></strong></td>
+<td>Testing whether track shape predicts degradation.</td>
+<td>exp09</td>
+</tr>
+<tr>
+<td><strong><code>lineups.json</code></strong></td>
+<td>Cancelling out the car so a driver effect can be isolated.</td>
+<td>exp15</td>
+</tr>
+<tr>
+<td><strong><code>compound_allocation.json</code></strong></td>
+<td>Testing whether the true C1–C5 identity beats the HARD/MEDIUM/SOFT label.</td>
+<td>exp08</td>
+</tr>
+<tr>
+<td><strong>NASA C-MAPSS</strong></td>
+<td>Proving the method is not F1-specific.</td>
+<td>exp07</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1>PART 5 — EVERY EXPERIMENT WE RAN</h1>
+<p>Eighteen experiments. For each: the question, the data, the answer, and whether it
+went our way. <strong>Six went against us</strong>, and those are marked ✗. We kept them.</p>
+<p>Re-run everything with <code>bash scripts/rerun_all.sh</code>.</p>
+<hr />
+<h3>exp01 — Can the model recover a truth we know? ✔</h3>
+<p><strong>Question.</strong> If we <em>know</em> the true degradation rate, does our model find it?
+<strong>Data.</strong> 25 synthetic sessions, different random seeds.
+<strong>Method.</strong> Generate a session with a known true rate. Hide the truth. Let the
+model estimate. Compare.</p>
+<p><strong>Result:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Mean absolute error (s/lap)</th>
+<th>Bias</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>TyreMind</strong></td>
+<td><strong>0.0044</strong></td>
+<td>+0.0012</td>
+</tr>
+<tr>
+<td>Naive (lap time vs tyre age)</td>
+<td>0.0966</td>
+<td><strong>−0.0966</strong></td>
+</tr>
+</tbody>
+</table>
+<p>That is a <strong>95.5% error reduction</strong>, 100% convergence, and <strong>100% of the 95%
+intervals contained the truth</strong> across 25 seeds.</p>
+<p><strong>Read the naive bias carefully:</strong> it is −0.0966 and the MAE is <em>also</em> 0.0966. Bias
+equals error exactly. That means the naive method is not noisy — it is <strong>wrong in
+the same direction every single time</strong>. It systematically <em>under</em>-estimates
+degradation, because fuel burn-off makes the car faster and masks the tyre getting
+slower. This is the single clearest picture of the problem we are solving.</p>
+<p><strong>How real is this?</strong> The ground truth is genuine, but it is <em>our</em> simulator's
+ground truth. This proves the estimator is mathematically correct and unbiased on
+data matching its structure. It does <strong>not</strong> by itself prove the numbers are right
+on real F1 data — that is what exp03 and exp14 are for.</p>
+<hr />
+<h3>exp02 — Does the answer depend on our assumptions? ✔</h3>
+<p><strong>Question.</strong> We give the model prior beliefs about fuel effect and track
+evolution. If those priors are wrong, does the answer fall apart?
+<strong>Data.</strong> 8 synthetic configurations × 6 prior variants, plus 5 real sessions.
+<strong>Variants tested:</strong> fuel prior ±1 standard deviation, track prior ±1 sd, and a
+&quot;wide priors&quot; setting where we say we are much less confident about both.</p>
+<p><strong>Result.</strong> The degradation estimate is stable across all variants. The priors
+<em>regularise</em> the fit rather than determine it.</p>
+<p><strong>Why this experiment matters more than it looks.</strong> It is the defence against the
+accusation &quot;you just assumed the answer&quot;. We show that moving the assumption a
+full standard deviation in either direction does not move the conclusion.</p>
+<hr />
+<h3>exp03 — Does a practice estimate predict the race? ✔ (with caveats)</h3>
+<p><strong>This is the headline real-world experiment.</strong></p>
+<p><strong>Question.</strong> Take FP2. Estimate degradation per compound. Then look at the actual
+race. Does the practice number match?
+<strong>Data.</strong> 2023 + 2024 + 2025, FP2 → Race, <strong>42 events, 94 compound comparisons</strong>.</p>
+<p><strong>Result:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>TyreMind</th>
+<th>Naive</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mean absolute error</td>
+<td><strong>0.0807 s/lap</strong></td>
+<td>0.1471 s/lap</td>
+</tr>
+<tr>
+<td>Improvement</td>
+<td><strong>45% better</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Bias</td>
+<td>+0.0268</td>
+<td>—</td>
+</tr>
+<tr>
+<td>95% interval coverage</td>
+<td>79.8%</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Sessions we excluded, and why</strong> — these are in the result file by name:</p>
+<ul>
+<li>2023 Australian GP — FP2 ran 50% of laps on wet rubber</li>
+<li>2024 Canadian GP — race ran 67% on wets</li>
+<li>2024 Japanese GP — FP2 ran 46% on wets</li>
+<li>2025 Australian GP — race ran 81% on wets</li>
+<li>2025 British GP — race ran 74% on wets</li>
+</ul>
+<p>Two events also failed for data reasons and are recorded as failures, not silently
+dropped: 2023 Canadian GP (tyre age decreased inside a run — a timing-feed
+inconsistency we refuse to paper over) and 2024 Mexico City GP (no compound had
+8+ laps in both FP2 and the race).</p>
+<p><strong>⚠ THE HONEST CAVEAT — read this before quoting the 45% figure.</strong></p>
+<p>We do not have the true race degradation rate (Part 3.1). So what is the &quot;actual&quot;
+we compare against? It is <strong>our own model's estimate fitted to the race session.</strong></p>
+<p>That means the comparison is <em>practice-estimate vs race-estimate</em>, both produced
+by TyreMind. This is a <strong>consistency test</strong>, not a ground-truth test. It is
+genuinely informative — a model that produced nonsense in practice would not agree
+with itself on race day, and the naive method demonstrably does not agree with
+itself — but it <strong>does flatter us</strong>, because the reference is our own model and
+shares its assumptions.</p>
+<p>We know how to remove this circularity: score each method against <strong>its own</strong>
+race-derived estimate, so every model is measured for self-consistency on equal
+terms. That re-run is scoped and not yet done. <strong>Do not present the 45% as
+&quot;validated against ground truth&quot; to a judge.</strong> Present it as &quot;practice-to-race
+consistency, 45% tighter than the naive method, and here is why we know the naive
+method is independently broken (exp14).&quot;</p>
+<hr />
+<h3>exp04 — Is &quot;energy through the tyre&quot; a better clock than lap count? ✗ REFUTED</h3>
+<p><strong>Question.</strong> Tyres wear from energy, not from laps. Should we measure tyre age in
+accumulated energy instead of laps?
+<strong>Data.</strong> 2024 Interlagos race, 4 stints with telemetry.</p>
+<p><strong>Result.</strong> Energy clock won 1 stint out of 4. Mean R² gain <strong>−0.0008</strong>.
+Verdict recorded in the file: <strong>&quot;no meaningful difference&quot;</strong>.</p>
+<p><strong>Why it failed, and why that is interesting.</strong> Energy per lap has a coefficient of
+variation of only <strong>2.3%</strong> — lap to lap, the energy put through the tyre is almost
+constant. So &quot;energy so far&quot; and &quot;laps so far&quot; are nearly the same number, and
+swapping one for the other cannot help. A physically appealing idea that the data
+says is redundant. We dropped it.</p>
+<hr />
+<h3>exp05 — How do we compare against every sensible alternative? ✔/✗ (mixed — read carefully)</h3>
+<p><strong>Question.</strong> Six models, same data, same scoring. Who wins?
+<strong>Data.</strong> 20 real races (2025) for lap-time prediction; 6 synthetic seeds for
+degradation recovery.</p>
+<p><strong>Result A — predicting the next lap time</strong> (CRPS: lower is better; it scores the
+whole predicted distribution, not just the point):</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>CRPS</th>
+<th>Coverage of 95% interval</th>
+<th>Fit time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pooled regression</td>
+<td><strong>0.395</strong></td>
+<td>86.4%</td>
+<td>0.02 s</td>
+</tr>
+<tr>
+<td>LightGBM</td>
+<td>0.469</td>
+<td>61.4%</td>
+<td>0.60 s</td>
+</tr>
+<tr>
+<td><strong>TyreMind state-space</strong></td>
+<td>0.645</td>
+<td>81.1%</td>
+<td>11.8 s</td>
+</tr>
+<tr>
+<td>Fuel-corrected regression</td>
+<td>0.878</td>
+<td>75.7%</td>
+<td>0.007 s</td>
+</tr>
+<tr>
+<td>Naive</td>
+<td>0.879</td>
+<td>75.6%</td>
+<td>0.005 s</td>
+</tr>
+<tr>
+<td>Neural network (MLP)</td>
+<td>1.548</td>
+<td>72.9%</td>
+<td>36.5 s</td>
+</tr>
+</tbody>
+</table>
+<p><strong>We are third here. We are not hiding that.</strong></p>
+<p><strong>Result B — recovering the true degradation rate</strong> (the thing the problem
+statement actually asks for; only measurable on synthetic data where truth exists):</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Rate MAE</th>
+<th>Coverage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>TyreMind state-space</strong></td>
+<td><strong>0.0041</strong></td>
+<td><strong>100%</strong></td>
+</tr>
+<tr>
+<td>Pooled regression</td>
+<td>0.0068</td>
+<td>77.8%</td>
+</tr>
+<tr>
+<td>Fuel-corrected regression</td>
+<td>0.0230</td>
+<td>44.4%</td>
+</tr>
+<tr>
+<td>Naive</td>
+<td>0.0748</td>
+<td><strong>0%</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>The interpretation — this is the most important paragraph in the whole
+document.</strong></p>
+<p>Lap-time prediction and degradation estimation are <strong>different tasks</strong>. A pooled
+regression predicts the next lap well because it soaks up everything — fuel,
+track, tyre, driver — into one flexible fit. That makes it a good <em>forecaster</em> and
+a bad <em>explainer</em>: it cannot tell you how much of the lap time was the tyre, which
+is the only thing a strategist can act on.</p>
+<p>Look at the naive method's coverage in Result B: <strong>0%</strong>. Its 95% interval contained
+the true degradation rate in <strong>zero out of eighteen</strong> cases. Not &quot;sometimes wrong&quot;
+— never right, and confidently so.</p>
+<p>So the honest claim is: <em>we are mid-table at forecasting lap times and best in
+class at the quantity the problem statement asks for.</em> If a judge only wants a lap
+forecaster, we would tell them to use the pooled regression. They do not; they want
+tyre wear isolated from the confounders.</p>
+<hr />
+<h3>exp06 — Can the model tell which way a circuit runs, from tyre load alone? ✔</h3>
+<p><strong>Question.</strong> A clockwise circuit loads the left-hand tyres more. Can we detect
+circuit direction purely from where the energy goes?
+<strong>Data.</strong> 8 circuits, 2024, 12 laps of telemetry each.</p>
+<p><strong>Result. 7 out of 8 correct — 87.5%.</strong></p>
+<p>Example (Monza, clockwise): left-side energy share 54.9%, per-corner shares
+FL 25.7% / FR 20.9% / RL 29.1% / RR 24.3%, net rotation −0.667.</p>
+<p><strong>Why it matters.</strong> This is a <strong>physics sanity check</strong>. It uses no tyre-wear data
+at all. If the energy model were wrong, it would get circuit direction wrong. It is
+a way of verifying the physics layer against a fact we can independently look up.</p>
+<hr />
+<h3>exp07 — Does it work outside F1? ✔</h3>
+<p>Covered fully in 1.5. RMSE <strong>22.7</strong> cycles, MAE 17.9, all <strong>100</strong> FD001 engines,
+12 sensor channels used, converged, 44% of predictions conservative.</p>
+<p><strong>Why it matters.</strong> It is the answer to &quot;is this a general degradation engine or an
+F1 trick?&quot; Same code, aircraft engines, competitive results. Note also the
+estimated degradation rate came out at 0.00202 against a prior mean of 0.004 — the
+data moved the estimate by a factor of two away from the prior, which shows the
+prior is not driving the answer.</p>
+<hr />
+<h3>exp08 — Does knowing the real compound (C1–C5) beat the HARD/MEDIUM/SOFT label? ✗ REFUTED</h3>
+<p><strong>Question.</strong> Since HARD is weekend-relative (1.3.4), surely using the true Pirelli
+compound is better?
+<strong>Data.</strong> 197 estimates, 79 events, 4 seasons, races only, 25+ laps per compound.</p>
+<p><strong>Result — it is not better. It is slightly worse.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Grouping</th>
+<th>Spread (sd)</th>
+<th>Leave-one-event-out MAE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>By label (HARD/MEDIUM/SOFT)</td>
+<td>0.0694</td>
+<td><strong>0.0475</strong></td>
+</tr>
+<tr>
+<td>By true compound (C1–C5)</td>
+<td>0.0729</td>
+<td>0.0506</td>
+</tr>
+</tbody>
+</table>
+<p>True-compound grouping was <strong>6.4% worse</strong>, won only 22 of 58 cases (37.9%), and
+the difference was not significant (Wilcoxon p = 0.096).</p>
+<p><strong>Why?</strong> Because the label already carries the information that matters. Pirelli
+nominates the three compounds <em>to suit the circuit</em>, so &quot;the hardest of the three
+that Pirelli thought this track needed&quot; is a more informative description than the
+raw material name. The relative label encodes the circuit-appropriateness that the
+absolute compound throws away.</p>
+<p><strong>A satisfying negative.</strong> We built a whole dataset by hand to test this and the
+answer was &quot;your simpler feature was already better&quot;. We report it.</p>
+<hr />
+<h3>exp09 — Can circuit features transfer degradation knowledge between tracks? ✗ REFUTED</h3>
+<p><strong>Question.</strong> Can we predict degradation at a new circuit from its geometry?
+<strong>Data.</strong> 193 stints, 26 circuits, 6 features, leave-one-circuit-out.</p>
+<p><strong>Result — nothing helps, and one thing hurts:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Feature family</th>
+<th>MAE</th>
+<th>vs baseline</th>
+<th>p</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Label mean (baseline)</td>
+<td>0.0380</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Geometry only</td>
+<td>0.0393</td>
+<td>−3.3%</td>
+<td>0.222</td>
+<td><strong>No effect</strong></td>
+</tr>
+<tr>
+<td>Thermal only</td>
+<td>0.0386</td>
+<td>−1.5%</td>
+<td><strong>0.0012</strong></td>
+<td><strong>Actively hurts</strong></td>
+</tr>
+<tr>
+<td>Everything</td>
+<td>0.0401</td>
+<td>−5.5%</td>
+<td>0.056</td>
+<td>No effect</td>
+</tr>
+<tr>
+<td>Compound + circuit</td>
+<td>0.0440</td>
+<td>−15.7%</td>
+<td>0.0004</td>
+<td>Clearly worse</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note the careful wording.</strong> Geometry is &quot;no detectable effect&quot; (p = 0.22) — we do
+<strong>not</strong> say it is harmful, because at p = 0.22 we cannot distinguish it from zero.
+Thermal features <em>are</em> significantly harmful (p = 0.0012) and are recorded in the
+result file under <code>harmful_predictors</code>.</p>
+<p><strong>Earlier we described geometry as &quot;harmful&quot; and that was wrong.</strong> The p-value does
+not support it. Corrected here.</p>
+<p><strong>Why does thermal hurt?</strong> Most likely because our only thermal input is track
+temperature from a single weather mast (2.2), which is a poor proxy for what the
+tyre surface actually experiences. A noisy feature is worse than no feature.</p>
+<hr />
+<h3>exp10 — What causes our practice-to-race bias? ✗ MOSTLY REFUTED</h3>
+<p><strong>Question.</strong> We over-predict degradation by +0.0268 s/lap. Why? We tested nine
+candidate explanations with Spearman correlation and <strong>Benjamini–Hochberg</strong> false
+discovery rate control (which stops you finding fake patterns just because you
+looked nine times).
+<strong>Data.</strong> 94 comparisons, 42 events.</p>
+<table>
+<thead>
+<tr>
+<th>Candidate explanation</th>
+<th>ρ</th>
+<th>p</th>
+<th>BH threshold</th>
+<th>Survives?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Practice stint length</td>
+<td>0.302</td>
+<td>0.0031</td>
+<td>0.0056</td>
+<td><strong>✔ YES</strong></td>
+</tr>
+<tr>
+<td>Pit stops per driver</td>
+<td>0.248</td>
+<td>0.0160</td>
+<td>0.0111</td>
+<td>✗ (just misses)</td>
+</tr>
+<tr>
+<td>Model's own uncertainty</td>
+<td>−0.244</td>
+<td>0.0176</td>
+<td>0.0167</td>
+<td>✗ (just misses)</td>
+</tr>
+<tr>
+<td>Traffic gap</td>
+<td>−0.167</td>
+<td>0.109</td>
+<td>0.0222</td>
+<td>✗</td>
+</tr>
+<tr>
+<td>Practice laps</td>
+<td>0.138</td>
+<td>0.186</td>
+<td>0.0278</td>
+<td>✗</td>
+</tr>
+<tr>
+<td>Race stint length</td>
+<td>0.114</td>
+<td>0.272</td>
+<td>0.0333</td>
+<td>✗</td>
+</tr>
+<tr>
+<td>Race max stint</td>
+<td>0.108</td>
+<td>0.301</td>
+<td>0.0389</td>
+<td>✗</td>
+</tr>
+<tr>
+<td>Practice runs</td>
+<td>0.100</td>
+<td>0.340</td>
+<td>0.0444</td>
+<td>✗</td>
+</tr>
+<tr>
+<td><strong>Temperature gap</strong></td>
+<td>−0.022</td>
+<td>0.835</td>
+<td>0.0500</td>
+<td>✗</td>
+</tr>
+</tbody>
+</table>
+<p><strong>One survivor out of nine:</strong> practice stint length. Shorter practice stints → more
+bias.</p>
+<p><strong>Be honest about the near-misses.</strong> <code>stops_per_driver</code> has p = 0.0160 against a
+threshold of 0.0111. That is <em>a hair</em> outside. It is not evidence of nothing; it is
+evidence we do not have enough data to call it. Say that, rather than &quot;we found
+one cause&quot;.</p>
+<p><strong>The negative result that matters most:</strong> the temperature gap between practice and
+race — the explanation every F1 fan offers first — has ρ = −0.022, p = 0.835. It
+explains <strong>essentially nothing</strong>.</p>
+<hr />
+<h3>exp11 — If short practice stints cause the bias, does matching stint depth fix it? ✗ REFUTED — our own idea, killed by our own test</h3>
+<p><strong>Question.</strong> exp10 says stint length correlates with bias. So: truncate the race
+to the same depth as practice. Bias should shrink.
+<strong>Data.</strong> 94 comparisons, 42 events, 2023–2025, race depth truncated at the 90th
+percentile of practice depth.</p>
+<p><strong>Result — it got worse:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Baseline</th>
+<th>Depth-matched</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bias</td>
+<td>+0.0268</td>
+<td><strong>+0.0286</strong> (6.9% <em>worse</em>)</td>
+</tr>
+<tr>
+<td>MAE</td>
+<td>0.0807</td>
+<td><strong>0.0918</strong> (13.8% <em>worse</em>)</td>
+</tr>
+</tbody>
+</table>
+<p>Paired t = −2.46, <strong>p = 0.0159</strong> — the worsening is statistically significant, not
+noise. Mean depth gap: −4.85 laps. <code>supported: false</code> in the result file.</p>
+<p><strong>Why this experiment is the one to show a judge who asks about rigour.</strong> We had a
+plausible mechanism, derived from our own data, and we designed a test that could
+kill it. It killed it. Correlation (exp10) did not survive contact with
+intervention (exp11). That is the difference between a dashboard and a research
+project.</p>
+<hr />
+<h3>exp12 — How do we make the interval honest? ✔</h3>
+<p><strong>Question.</strong> Our 95% intervals only cover 80% of the time. How do we fix that
+without pretending?
+<strong>Data.</strong> 94 comparisons, 42 events, α = 0.05.
+<strong>Method.</strong> <strong>Split conformal prediction</strong> — a distribution-free technique that
+gives a finite-sample coverage guarantee without assuming the errors are Gaussian.</p>
+<p><strong>Result:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Score function</th>
+<th>Coverage</th>
+<th>Median half-width</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gaussian (model's own)</td>
+<td>75.5%</td>
+<td>±0.119</td>
+</tr>
+<tr>
+<td>Consistency</td>
+<td>79.8%</td>
+<td>±0.139</td>
+</tr>
+<tr>
+<td><strong>Absolute (shipped)</strong></td>
+<td><strong>94.7%</strong></td>
+<td>±0.276</td>
+</tr>
+<tr>
+<td>Studentised</td>
+<td>95.7%</td>
+<td>±0.212</td>
+</tr>
+</tbody>
+</table>
+<p><strong>What we ship:</strong> absolute score, bias-corrected, α = 0.05, quantile <strong>0.2757</strong>,
+calibrated on 94 comparisons from 42 events across 3 seasons. That artefact is
+<code>data/reference/conformal_calibration.json</code> and the live API reads it.</p>
+<p><strong>The trade, stated plainly.</strong> Honest intervals are <strong>2.3× wider</strong>. We chose the
+wide honest interval over the narrow dishonest one. A strategist who is told
+&quot;±0.12 and it's right 75% of the time&quot; will make a bad pit call and not know why.</p>
+<hr />
+<h3>exp13 — Does the same honesty machinery work on live lap-time predictions? ✔</h3>
+<p><strong>Question.</strong> Per-lap intervals, streamed live. Can we get real 95% coverage?
+<strong>Data.</strong> 20 sessions, <strong>69,206 scored laps</strong>.
+<strong>Method.</strong> Compared plain Gaussian, split conformal, and <strong>Adaptive Conformal
+Inference</strong> (Gibbs &amp; Candès, NeurIPS 2021) which updates its own α online:
+<code>α_{t+1} = α_t + γ(α − err_t)</code>, with γ = 0.02.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Coverage</th>
+<th>Coverage error</th>
+<th>Median width</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gaussian</td>
+<td>75.9%</td>
+<td>19.1 pts off</td>
+<td>2.91 s</td>
+</tr>
+<tr>
+<td>Split conformal (absolute)</td>
+<td>87.6%</td>
+<td>7.4 pts off</td>
+<td>6.06 s</td>
+</tr>
+<tr>
+<td>Split conformal (studentised)</td>
+<td>88.4%</td>
+<td>6.6 pts off</td>
+<td>4.95 s</td>
+</tr>
+<tr>
+<td><strong>Adaptive conformal (absolute)</strong></td>
+<td><strong>95.2%</strong></td>
+<td><strong>0.2 pts off</strong></td>
+<td><strong>5.74 s</strong></td>
+</tr>
+<tr>
+<td>Adaptive conformal (studentised)</td>
+<td>95.4%</td>
+<td>0.4 pts off</td>
+<td>5.19 s</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Adaptive conformal lands 0.2 percentage points from target across 69,206 laps.</strong>
+That is essentially exact, and it is achieved by a method that continuously
+corrects itself rather than trusting a distributional assumption.</p>
+<p><strong>Two bugs we found and fixed in here, worth knowing:</strong></p>
+<ol>
+<li>When the adaptive α became unrepresentable, the code fell back to the <em>Gaussian</em>
+interval — the <strong>narrowest</strong> one — which fought the correction it was supposed
+to be making. It made ACI byte-identical to uncalibrated on three models. Fixed
+to fall back to the largest observed score instead.</li>
+<li>With warm-up = 0 the code crashed on <code>max([])</code>. Guarded.</li>
+</ol>
+<hr />
+<h3>exp14 — How often does the naive method produce a physically impossible answer? ✔</h3>
+<p><strong>This is our strongest claim about real data, and it needs no ground truth at all.</strong></p>
+<p><strong>Question.</strong> Tyres cannot get faster as they wear. If a method reports a
+<strong>negative</strong> degradation rate, it is not &quot;a bit off&quot; — it has claimed something
+physically impossible.
+<strong>Data.</strong> 77 races, 208 compound-stints. 1 excluded wet, 4 would not fit.</p>
+<p><strong>Result:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Failures</th>
+<th>Rate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Races with at least one negative compound</td>
+<td>57 / 77</td>
+<td><strong>74.0%</strong></td>
+</tr>
+<tr>
+<td>Individual compound-stints negative</td>
+<td>111 / 208</td>
+<td><strong>53.4%</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>In three out of four real Grands Prix, the naive &quot;lap time vs tyre age&quot;
+regression claims at least one compound got faster as it wore.</strong></p>
+<p><strong>Why this is our most defensible claim.</strong> It does not compare to our model. It does
+not need Pirelli's data. It needs only one fact everyone agrees on: <em>rubber does not
+regenerate</em>. The sign of the answer is checkable without knowing the true
+magnitude. Fuel burn-off is worth roughly 0.08 s/lap and typical degradation is
+0.03–0.08 s/lap, so the fuel effect is the same size or larger than the thing being
+measured — and when you do not remove it, the answer flips sign about half the
+time.</p>
+<p><strong>What it does NOT prove.</strong> It proves the naive method is broken. It does <strong>not</strong>
+prove our number is correct. Those are separate claims and we should never let them
+blur together in a pitch.</p>
+<hr />
+<h3>exp15 — Are some drivers genuinely gentler on tyres? ✗ REFUTED (as a usable feature)</h3>
+<p><strong>Question.</strong> Everyone in F1 says driver X is easy on tyres. Is it measurable?
+<strong>Data.</strong> <strong>1,458 driver-races, 31 drivers, 77 races</strong>, plus 21 teammate pairs /
+566 observations.
+<strong>Method.</strong> Split-half reliability over 500 random splits — fit driver effects on
+half the races, check they reproduce on the other half.</p>
+<p><strong>Result:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Measure</th>
+<th>Mean r</th>
+<th>5th percentile</th>
+<th>Stable?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Raw driver effect</td>
+<td>+0.214</td>
+<td><strong>−0.079</strong></td>
+<td>✗ <strong>No</strong></td>
+</tr>
+<tr>
+<td>Teammate contrast</td>
+<td>+0.285</td>
+<td><strong>+0.031</strong></td>
+<td>✔ <strong>Yes</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Raw driver effects have a 5th percentile <strong>below zero</strong> — in 5% of splits the
+effect <em>reverses</em>. That is not a real signal.</p>
+<p>Teammate contrasts (which cancel out the car) <strong>are</strong> stable, with the whole
+interval above zero. Largest gaps: LAW–TSU 0.040, ALB–COL 0.035, ALB–SAR 0.027,
+BOR–HUL 0.022 s/lap. Driver-effect spread across the field: 0.0092 s/lap.
+Signal-to-noise: 0.372.</p>
+<p><strong>But — does it help predict?</strong> No. Adding driver identity made prediction <strong>0.88%
+worse</strong> (MAE 0.02503 vs 0.02481), p = 0.066. <code>beats_null: false</code>.</p>
+<p><strong>The honest conclusion:</strong> <em>a small, real, car-confounded driver effect exists and
+is measurable only teammate-to-teammate; it is too small to improve a forecast.</em>
+That is a subtle, defensible finding — much better than either &quot;drivers don't
+matter&quot; or &quot;we model driver style&quot;.</p>
+<p><strong>A mistake we made here.</strong> The first version of this experiment reported per-driver
+rates differing by ~0.00001 s/lap. That was not a fact about drivers — the model's
+driver-variance parameter had been pinned at its optimiser floor, so the model was
+<em>incapable</em> of expressing a driver difference. We were measuring our own code, not
+the sport. Rewritten to fit free per-driver slopes. Worth remembering: an
+implausibly tiny effect is often a bug, not a finding.</p>
+<hr />
+<h3>exp16 — What shape is our miscalibration? ✔</h3>
+<p><strong>Question.</strong> Not just &quot;is coverage wrong&quot; but &quot;wrong <em>how</em>&quot;.
+<strong>Data.</strong> 10 races, 5,990 laps per model, 9 confidence levels, 20 PIT bins.
+<strong>Method.</strong> PIT histogram (where does the truth fall inside the predicted
+distribution?) plus a reliability diagram sweeping nominal coverage 50%→99%.</p>
+<p><strong>Result:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Gap from perfect calibration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gaussian intervals</td>
+<td><strong>0.189</strong></td>
+</tr>
+<tr>
+<td>Adaptive conformal</td>
+<td><strong>0.005</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Five of six models are <strong>U-shaped</strong> — too much probability mass in the middle, too
+little in the tails, i.e. plain over-confidence. TyreMind is <strong>leptokurtic</strong> —
+heavy tails <em>and</em> a heavy middle, with the shoulders too light.</p>
+<p><strong>We got this diagnosis wrong twice before getting it right.</strong> First we blamed
+sample size; then we blamed the fuel-counter bug. Neither was the cause. The real
+answer needed a <strong>three-region</strong> reading of the histogram (tails / shoulders /
+middle) rather than two: TyreMind's tails are 1.38× expected and its middle is
+1.20× expected, which a two-region test reads as &quot;fine&quot; and a three-region test
+correctly reads as &quot;leptokurtic&quot;. It sits right on the boundary, which is why it
+kept flipping.</p>
+<hr />
+<h3>exp17 — Does the tyre cliff exist, and when? ✔</h3>
+<p><strong>Question.</strong> Everyone talks about the &quot;cliff&quot;. Is it in the data?
+<strong>Data.</strong> <strong>2,827 stints, 77 races</strong>, minimum 12 laps per stint.
+<strong>Method.</strong> Broken-stick regression — fit basis <code>[1, a, max(a − τ, 0)]</code> over every
+possible breakpoint τ, which is continuous by construction (no jump at the break),
+and select with <strong>BIC</strong> so extra parameters must earn their place.</p>
+<p><strong>Result — four distinct regimes:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Regime</th>
+<th>Stints</th>
+<th>Share</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Linear</td>
+<td>1,580</td>
+<td>55.9%</td>
+<td>Steady wear, no break</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>582</td>
+<td>20.6%</td>
+<td>Degradation <em>slows</em> later in the stint</td>
+</tr>
+<tr>
+<td><strong>Cliff</strong></td>
+<td>337</td>
+<td>11.9%</td>
+<td>Degradation sharply accelerates</td>
+</tr>
+<tr>
+<td><strong>Warm-up</strong></td>
+<td>328</td>
+<td>11.6%</td>
+<td>Fast improvement early, then settles</td>
+</tr>
+</tbody>
+</table>
+<p>A breakpoint model beat the straight line on BIC in 1,247 stints (44.1%).</p>
+<p><strong>The cliff, when it happens:</strong> median at <strong>71.9% through the stint</strong>, median
+severity <strong>+0.202 s/lap</strong> on top of the existing rate. By compound:</p>
+<table>
+<thead>
+<tr>
+<th>Compound</th>
+<th>n</th>
+<th>Median cliff lap</th>
+<th>Median severity</th>
+<th>% through stint</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HARD</td>
+<td>180</td>
+<td>22.5</td>
+<td>0.191</td>
+<td>74.3%</td>
+</tr>
+<tr>
+<td>MEDIUM</td>
+<td>113</td>
+<td>14.0</td>
+<td>0.201</td>
+<td>69.2%</td>
+</tr>
+<tr>
+<td>SOFT</td>
+<td>44</td>
+<td>16.0</td>
+<td>0.231</td>
+<td>69.2%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Does knowing about the cliff improve forecasting?</strong> Mostly <strong>no</strong> — and we report
+that too. Across 2,683 forecasts the broken-stick model was <strong>26.5% worse</strong> than a
+straight line. Broken down by regime, it only helps on <strong>warm-up</strong> stints (+30.7%,
+p = 3e-18) and hurts everywhere else. So: the cliff is real and worth <em>showing</em> a
+strategist, but fitting it does not improve the <em>forecast</em> except during warm-up.</p>
+<p><strong>A mistake we made and fixed.</strong> The first version reported a &quot;cliff&quot; at 37% through
+the stint. That was not a cliff — it was tyre <strong>warm-up</strong> being pooled in with it,
+which bends the curve in the <em>opposite</em> direction. Once warm-up was classified
+separately, the cliff moved to its physically sensible place at ~72%.</p>
+<hr />
+<h3>exp18 — What is mathematically impossible to know? ✔ — <strong>our most original result</strong></h3>
+<p><strong>This is the experiment that would win a technical judge.</strong></p>
+<p><strong>Question.</strong> How much of the fuel-vs-tyre separation is genuinely knowable from
+lap times alone?</p>
+<p><strong>The mathematics, in plain words.</strong> Within a single stint, tyre age and laps-in-run
+advance together, one for one. Write tyre age as <code>a = a₀ + f</code> where <code>a₀</code> is the age
+at the start of the stint and <code>f</code> is laps completed. Then:</p>
+<pre><code>lap_time ≈ intercept + β·a + φ·(−f)          [β = tyre effect, φ = fuel effect]
+        = intercept + β·(a₀ + f) − φ·f
+        = (intercept + β·a₀) + (β − φ)·f
+</code></pre>
+<p>The stint's intercept <strong>absorbs</strong> <code>β·a₀</code>, and <code>f</code> only ever appears multiplied by
+<code>(β − φ)</code>. So from one stint, <strong>only the difference <code>β − φ</code> is identifiable</strong> — not
+β and φ separately. This is not a data-quality problem or a sample-size problem. It
+is exact algebra. Adding a million more laps does not help.</p>
+<p><strong>Result across 520 runs in 11 sessions:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Measure</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Runs exactly collinear</td>
+<td><strong>520 / 520 = 100%</strong></td>
+</tr>
+<tr>
+<td>Mean within-run correlation (age vs laps)</td>
+<td><strong>1.000</strong></td>
+</tr>
+<tr>
+<td>Sessions with singular Fisher information</td>
+<td><strong>11 / 11</strong></td>
+</tr>
+<tr>
+<td>Sessions unidentified without a prior</td>
+<td><strong>10 / 11</strong></td>
+</tr>
+<tr>
+<td>Cramér–Rao lower bound (best possible sd)</td>
+<td>0.01607</td>
+</tr>
+<tr>
+<td>Our model's reported sd</td>
+<td>0.02215</td>
+</tr>
+<tr>
+<td>Ratio (how close to optimal)</td>
+<td><strong>1.38×</strong></td>
+</tr>
+<tr>
+<td>Curvature share (the only data-driven escape)</td>
+<td><strong>6.0%</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>What each line means:</strong></p>
+<ul>
+<li><em>Singular Fisher information</em> means the likelihood surface has a perfectly flat
+direction. There is literally no unique maximum without extra information.</li>
+<li>The <strong>Cramér–Rao bound</strong> is the theoretical floor on how precise <em>any</em> unbiased
+estimator could be. Ours sits at <strong>1.38×</strong> that floor — near-optimal, not perfect,
+and we can say exactly how much room is left.</li>
+<li><strong>Curvature is the only escape.</strong> The separation is exactly collinear only for the
+<em>linear</em> parts. A tyre degradation curve bends (warm-up early, cliff late);
+fuel burn-off is a straight line and never bends.
+That curvature is the sole data-driven channel through which the two can be told
+apart — and it carries just <strong>6.0%</strong> of the information. The other 94% must come
+from the physical prior.</li>
+</ul>
+<p><strong>Why this is the thing to lead with technically.</strong> Most entries will claim &quot;our
+model separates fuel from tyre&quot;. We can state <strong>exactly how much of that separation
+is data and how much is assumption</strong>, prove the data part is 6%, and show our
+estimator is within 1.38× of the information-theoretic optimum. That is a
+fundamentally different level of claim, and it is the honest one.</p>
+<hr />
+<h1>PART 6 — EVERY CLAIM, AND WHETHER IT IS REAL</h1>
+<p>The team will be asked hard questions. Here is the exact strength of every claim we
+make, so nobody over-sells and gets caught.</p>
+<h2>6.1 The training/testing question — answer this one carefully</h2>
+<p><strong>The question a judge will ask:</strong> <em>&quot;What did you train on and test on? You only
+have lap times (y). You don't have the true wear rate (X, the label). So how can
+you say anyone's model fails?&quot;</em></p>
+<p><strong>The honest answer, in three parts:</strong></p>
+<p><strong>(a) On synthetic data we have a genuine train/test setup.</strong> We generate a
+session, we know the true rate, we hide it, we estimate, we compare. That is a real
+held-out test against a real label. exp01 (0.0044 vs naive 0.0966) and exp05's
+degradation half (0.0041 vs naive 0.0748, 100% vs 0% coverage) are both of this
+kind. The limitation is honest and must be stated: <strong>it is our own simulator</strong>, so
+it proves mathematical correctness, not real-world accuracy.</p>
+<p><strong>(b) On real data we have no label, so we do not claim a supervised test.</strong> What we
+have instead are two things that do not need a label:</p>
+<ul>
+<li><strong>Consistency (exp03).</strong> Estimate from practice, estimate from the race, see if
+they agree. Our error is 0.0807 against the naive method's 0.1471. <strong>But the
+reference is our own model's race fit</strong>, which shares our assumptions and
+therefore flatters us. Present this as a consistency result, never as
+ground-truth validation. The fix is scoped: score each method against its own
+race-derived estimate.</li>
+<li><strong>Falsification by physical impossibility (exp14).</strong> This needs no label at all.
+Tyres cannot get faster as they wear. The naive method returns a negative rate in
+<strong>74% of races and 53% of stints</strong>. You do not need to know the true value to know
+that a negative value is wrong.</li>
+</ul>
+<p><strong>(c) So what can we legitimately say about the naive method?</strong> Exactly this:</p>
+<blockquote>
+<p>&quot;In 74% of real Grands Prix, the standard public method returns a physically
+impossible answer — it says the tyre got faster as it wore. That is checkable
+without any ground truth, because it is a sign error, not a magnitude error. On
+synthetic data where the true rate <em>is</em> known, the same method's 95% interval
+contained the truth in 0 out of 18 cases, and ours in 18 out of 18.&quot;</p>
+</blockquote>
+<p>Everything in that paragraph is backed by a result file. Nothing in it claims we
+validated our magnitude against measured wear, because we did not.</p>
+<h2>6.2 Claims by strength</h2>
+<h3>🟢 Strong — directly proven, no caveat needed</h3>
+<table>
+<thead>
+<tr>
+<th>Claim</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The naive method produces physically impossible answers in most real races</td>
+<td>exp14: 74% of 77 races, 53% of 208 stints</td>
+</tr>
+<tr>
+<td>On data with known truth, our estimator is essentially unbiased and the naive one is systematically biased low</td>
+<td>exp01: bias +0.0012 vs −0.0966 over 25 seeds</td>
+</tr>
+<tr>
+<td>Our 95% intervals really are 95% after conformal calibration</td>
+<td>exp12: 94.7%; exp13: 95.2% over 69,206 laps</td>
+</tr>
+<tr>
+<td>Fuel and tyre are exactly collinear within a stint</td>
+<td>exp18: 520/520 runs, correlation 1.000, 11/11 singular</td>
+</tr>
+<tr>
+<td>Our precision is within 1.38× of the theoretical optimum</td>
+<td>exp18: CRB 0.0161 vs 0.0221</td>
+</tr>
+<tr>
+<td>The method is not F1-specific</td>
+<td>exp07: NASA C-MAPSS, RMSE 22.7, 100 engines, unmodified code</td>
+</tr>
+<tr>
+<td>Degradation curves have four distinguishable shapes</td>
+<td>exp17: 2,827 stints, BIC-selected</td>
+</tr>
+<tr>
+<td>Our physics layer is internally correct</td>
+<td>exp06: circuit direction from tyre load, 7/8</td>
+</tr>
+</tbody>
+</table>
+<h3>🟡 Real but needs the caveat said out loud</h3>
+<table>
+<thead>
+<tr>
+<th>Claim</th>
+<th>The caveat</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&quot;45% better than naive at practice-to-race&quot; (exp03)</td>
+<td>The reference is our own model's race fit. It is a consistency test. <strong>Always say so.</strong></td>
+</tr>
+<tr>
+<td>&quot;Cliff at ~72% through the stint, +0.20 s/lap&quot; (exp17)</td>
+<td>Real and well-measured, but fitting it does <strong>not</strong> improve forecasts except during warm-up (−26.5% overall).</td>
+</tr>
+<tr>
+<td>&quot;A driver effect exists&quot; (exp15)</td>
+<td>Only teammate-to-teammate, only 0.009 s/lap of spread, and it does <strong>not</strong> improve prediction (−0.88%, p = 0.066).</td>
+</tr>
+<tr>
+<td>&quot;Only 6% of the fuel/tyre separation is data-driven&quot; (exp18)</td>
+<td>This is a property of <em>our</em> parameterisation. A different model form would have a different split — though the exact collinearity is universal.</td>
+</tr>
+<tr>
+<td>&quot;We beat five alternatives&quot; (exp05)</td>
+<td>Only on <strong>degradation recovery</strong>. On lap-time CRPS we are <strong>third</strong>. Say both numbers.</td>
+</tr>
+</tbody>
+</table>
+<h3>🔴 Things we tried, that failed, and now report as negatives</h3>
+<table>
+<thead>
+<tr>
+<th>Idea</th>
+<th>Outcome</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Energy clock instead of lap clock</td>
+<td>exp04: no meaningful difference (energy CV is only 2.3%)</td>
+</tr>
+<tr>
+<td>True C1–C5 compound beats the HARD/MEDIUM/SOFT label</td>
+<td>exp08: 6.4% <strong>worse</strong>, p = 0.096</td>
+</tr>
+<tr>
+<td>Circuit geometry transfers between tracks</td>
+<td>exp09: −3.3%, p = 0.22 — no detectable effect</td>
+</tr>
+<tr>
+<td>Temperature or traffic explains our bias</td>
+<td>exp10: temp ρ = −0.022, p = 0.835 — explains nothing</td>
+</tr>
+<tr>
+<td>Matching stint depth fixes the bias</td>
+<td>exp11: bias 6.9% <strong>worse</strong>, MAE 13.8% worse, p = 0.016</td>
+</tr>
+<tr>
+<td>Driver style is a usable feature</td>
+<td>exp15: prediction 0.88% <strong>worse</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Six refuted hypotheses is not a weakness in the write-up — it is the evidence that
+the surviving claims were actually tested.</p>
+<h2>6.3 Things we said and then had to take back</h2>
+<p>Listing these is deliberate. If the team knows what we retracted, nobody will
+repeat a dead claim in front of a judge.</p>
+<ol>
+<li>
+<p><strong>&quot;Public FastF1-community tooling does lap-time-vs-age regression — exactly the
+method we show fails.&quot;</strong> ❌ <strong>Retracted.</strong> This appeared in an earlier summary. We
+have <strong>no evidence</strong> for it — no survey of community notebooks, nothing in the
+repo. The <em>method</em> (naive regression) is a fair strawman because it is the
+obvious first thing anyone does, and exp14 shows it fails. But we must <strong>not</strong>
+attribute it to a named community. Say &quot;the standard naive approach&quot;, never
+&quot;what the FastF1 community does&quot;.</p>
+</li>
+<li>
+<p><strong>&quot;Circuit geometry is harmful.&quot;</strong> ❌ Corrected to <strong>&quot;no detectable effect&quot;</strong>
+(p = 0.22). Only the <em>thermal</em> features are significantly harmful (p = 0.0012).</p>
+</li>
+<li>
+<p><strong>&quot;The drift argument explains the bias.&quot;</strong> ❌ Retracted twice, and replaced by
+the conformal interval, which fixes coverage without needing the mechanism.</p>
+</li>
+<li>
+<p><strong>&quot;exp03 validates us against ground truth.&quot;</strong> ❌ It validates
+practice-against-race <strong>using our own model as the reference</strong>. Consistency, not
+ground truth.</p>
+</li>
+<li>
+<p><strong>&quot;Our PIT miscalibration is caused by sample size / by the fuel bug.&quot;</strong> ❌ Wrong
+twice. The actual answer needed a three-region reading of the histogram; the
+model sits on the tails-vs-middle boundary and is leptokurtic.</p>
+</li>
+<li>
+<p><strong>&quot;Per-driver rates differ by 1e-5, so drivers don't matter.&quot;</strong> ❌ That was a
+pinned optimiser parameter, not a fact about drivers. Rewritten.</p>
+</li>
+</ol>
+<hr />
+<h1>PART 7 — HOW WE KEEP THIS FROM ROTTING</h1>
+<p><strong>326 automated tests</strong>, 1 skipped, across 15 files:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Tests</th>
+<th>What it protects</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/unit/test_loader_discipline.py</code></td>
+<td>63</td>
+<td><strong>Structural.</strong> Reads every experiment's source and fails if it calls <code>pd.read_parquet</code> directly, bypassing the fuel-counter repair. This is the test that would have caught our worst bug.</td>
+</tr>
+<tr>
+<td><code>tests/integration/test_api_endpoints.py</code></td>
+<td>28</td>
+<td>Every dashboard route answers with <strong>strictly valid JSON</strong> — no bare <code>NaN</code>, which is not legal JSON and poisons a whole WebSocket frame.</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_conformal.py</code></td>
+<td>27</td>
+<td>Split conformal, including the finite-sample quantile correction.</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_adaptive_conformal.py</code></td>
+<td>27</td>
+<td>Online α updates, including the two fallback bugs from exp13.</td>
+</tr>
+<tr>
+<td><code>tests/physics/test_thermal_wear.py</code></td>
+<td>23</td>
+<td>The physics layer.</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_curve.py</code></td>
+<td>20</td>
+<td>Broken-stick fitting and regime classification.</td>
+</tr>
+<tr>
+<td><code>tests/physics/test_dynamics.py</code></td>
+<td>18</td>
+<td>Vehicle dynamics.</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_simulate.py</code></td>
+<td>17</td>
+<td>The synthetic generator itself.</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_circuit_features.py</code> / <code>test_compounds.py</code> / <code>test_live.py</code> / <code>test_rag.py</code></td>
+<td>16 each</td>
+<td>Reference data, compounds, live stream, retrieval.</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_corpus_selection.py</code></td>
+<td>13</td>
+<td>Session ordering — the bug where sorting by event <em>name</em> silently dropped Abu Dhabi, Australia and Austria.</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_fuel_counter.py</code></td>
+<td>13</td>
+<td>The fuel-counter fix, directly.</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_kalman.py</code></td>
+<td>13</td>
+<td>The filter and smoother.</td>
+</tr>
+</tbody>
+</table>
+<p>Also: <code>scripts/check_results_fresh.py</code> verifies that no published document quotes a
+number older than the result file it came from.</p>
+<hr />
+<h1>PART 8 — HOW TO RUN / REBUILD ANY OF THIS</h1>
+<pre><code class="language-bash"># Set up
+python -m venv .venv
+.venv/Scripts/pip install -r requirements.txt -r requirements-dev.txt
+
+# Everything below works OFFLINE using data/demo/
+.venv/Scripts/python -m pytest                     # all 326 tests
+.venv/Scripts/python -m uvicorn tyremind.api.main:app --reload   # the dashboard API
+
+# Rebuild the full four-season corpus (needs internet, takes hours, rate-limited)
+.venv/Scripts/python scripts/build_corpus.py --years 2022 2023 2024 2025 --delay 6.0
+
+# Rebuild the reference files
+.venv/Scripts/python scripts/build_session_conditions.py --years 2025 --sessions R FP2 --delay 3.0
+.venv/Scripts/python scripts/build_lineups.py --years 2025 --delay 2.0
+.venv/Scripts/python scripts/build_circuit_features.py --year 2025 --geometry-only --delay 1.5
+
+# Re-run every experiment, in dependency order
+bash scripts/rerun_all.sh
+</code></pre>
+<p><strong>Dependency order matters</strong> and getting it wrong gives you numbers that quietly
+disagree rather than an error: exp09 and exp10 read exp08's estimates; exp10 and
+exp12 read exp03's comparisons. <code>rerun_all.sh</code> encodes the correct order.</p>
+<hr />
+<hr />
+<h1>PART 9 — THE EXPERIMENTS WE WILL RUN NEXT</h1>
+<p>Eighteen experiments are done. These are the next fourteen, in priority order.
+Each one has: the question, what data it needs, how we'll do it, and — most
+importantly — <strong>what counts as a pass and what counts as a fail</strong>, decided in
+advance so we can't move the goalposts afterwards.</p>
+<hr />
+<h3>exp19 — Remove the circularity from the practice-to-race test 🔴 <strong>highest priority</strong></h3>
+<p><strong>The problem it fixes.</strong> Today exp03 compares our practice estimate to our own
+model's race fit. That shares our assumptions, so it flatters us. It is the single
+weakest point in our evidence and a sharp judge will find it.</p>
+<p><strong>The fix.</strong> Score every method against <strong>its own</strong> race-derived estimate. The
+naive method gets judged on whether <em>the naive method</em> agrees with itself from
+Friday to Sunday. We get judged the same way. Nobody gets a home-ground reference.</p>
+<p><strong>Data:</strong> already have it. 42 events, 94 comparisons.
+<strong>Cost:</strong> about 25 minutes of compute.
+<strong>Pass:</strong> we stay ahead on self-consistency. <strong>Fail:</strong> the gap shrinks a lot — in
+which case we say so and lead with exp14 instead, which needs no reference at all.</p>
+<hr />
+<h3>exp20 — Validate against a tyre model we did not write 🔴</h3>
+<p><strong>The problem it fixes.</strong> Our ground truth today is our own simulator. &quot;You graded
+your own homework&quot; is a fair criticism and we should remove it.</p>
+<p><strong>The idea.</strong> The official EA F1 game publishes a UDP telemetry stream that
+includes a <strong>true per-wheel tyre wear percentage</strong>, plus tyre temperatures,
+pressures and fuel mass. It's a commercial tyre model built by people with real
+Pirelli relationships — and critically, <strong>we didn't write it</strong>.</p>
+<p><strong>Method.</strong> Drive or auto-run full race stints. Record the wear channel secretly.
+Feed our model <strong>only</strong> what the public feed would give — lap time, compound, tyre
+age. Compare our estimate to the hidden truth.</p>
+<p><strong>Pass:</strong> our error against an independent truth is in the same range as exp01's
+0.0044, and the naive method still fails. <strong>Fail:</strong> our error blows up, which
+would mean our simulator was too kind — and we'd need to know that.</p>
+<p><strong>Why it matters for the demo too:</strong> it gives us a truth engine for the two-car 3D
+comparison that isn't our own model, so the demo can't be accused of being rigged.</p>
+<hr />
+<h3>exp21 — Reproduce a single-circuit calibration and test whether it travels 🔴</h3>
+<p><strong>The question.</strong> The existing TrackShift engine is a five-parameter formula
+calibrated at Bahrain. Does a single-circuit calibration generalise?</p>
+<p><strong>Method.</strong> Build that five-parameter formula ourselves, honestly and in good
+faith, fitted at one circuit. Then score it <strong>leave-one-circuit-out</strong> across our 26
+circuits, next to our model, on identical data.</p>
+<p><strong>Why do this.</strong> It's the most judge-legible chart we can make: one line per method,
+26 circuits, same axis. And it uses their method as the baseline rather than a
+strawman we invented, which is both fairer and more convincing.</p>
+<p><strong>Prior evidence it will struggle:</strong> exp09 already shows circuit transfer fails —
+geometry gives −3.3% (p = 0.22), temperature actively hurts (p = 0.0012).</p>
+<p><strong>Pass:</strong> we quantify the transfer gap with a p-value. <strong>Fail:</strong> the single-circuit
+formula travels fine — which would be a genuinely interesting and publishable
+negative result about our own assumption.</p>
+<hr />
+<h3>exp22 — Build and test a grip index 🟡</h3>
+<p><strong>The question.</strong> Can we produce a meaningful &quot;grip level&quot; from public data?</p>
+<p><strong>The honesty constraint, stated up front.</strong> A true traction coefficient needs
+measured tyre force and slip, from load cells and wheel-speed sensors that are
+team-private. <strong>We will not print a fake number.</strong> We'll publish a normalised grip
+index from 0 to 1 — achieved lateral acceleration divided by the expected maximum
+for that circuit and conditions.</p>
+<p><strong>Data needed:</strong> FastF1 car telemetry (speed, throttle, brake, gear at ~4 Hz) plus
+position data, for our 203 sessions. Overnight download, 2–6 GB.</p>
+<p><strong>The test that makes it real:</strong> does the grip index predict the <em>next</em> lap's time
+loss better than tyre age alone? If it doesn't, it's decoration and we say so.</p>
+<hr />
+<h3>exp23 — Puncture and tyre-failure risk, from real failure labels 🔴</h3>
+<p><strong>The breakthrough here:</strong> real labels exist and they are free. Across F1 history,
+the public results database records retirement causes including <strong>Puncture (41),
+Tyre (55), Wheel (88), Wheel nut (9), Wheel bearing (37)</strong>. Plus race control
+messages give punctures that happened <em>during</em> a race without a retirement, which
+roughly multiplies the positive class.</p>
+<p><strong>Method — and why not a classifier.</strong> We'll use a <strong>discrete-time hazard model</strong>:
+for each lap, the probability of failure before the lap ends, given tyre age,
+accumulated energy, thermal stress and compound. Three reasons it must be a hazard
+model and not a yes/no classifier:</p>
+<ol>
+<li>Risk <strong>accumulates</strong> over a stint. A classifier ignores that structure.</li>
+<li>Most stints end in a normal pit stop, not a failure — that's <strong>censoring</strong>, and
+ignoring it biases everything.</li>
+<li>A puncture from debris is a <strong>different event</strong> from a structural failure caused
+by wear. Pooling them would inflate the wear signal. These are competing risks
+and must be modelled separately.</li>
+</ol>
+<p><strong>Then calibrate it.</strong> A risk score nobody has checked is decoration. We'll run a
+reliability diagram: when we say 3%, does it happen 3% of the time?</p>
+<p><strong>Honest caveat to state out loud:</strong> ~41 all-time punctures is a very small
+positive class and the modern-era subset is smaller. That is exactly why we use a
+hazard model with partial pooling and report wide intervals, rather than printing
+a confident-looking percentage. <strong>Saying &quot;rare event, wide interval, here is the
+calibration curve&quot; is stronger than saying &quot;7.2%&quot;.</strong></p>
+<hr />
+<h3>exp24 — Calibrated remaining useful life, in laps 🔴</h3>
+<p><strong>The question.</strong> &quot;How many laps of useful life are left?&quot; with an interval, not a
+single number.</p>
+<p><strong>What we already have.</strong> We do exactly this on jet engines (exp07: 22.7 cycles
+RMSE, all 100 engines). We have the F1 plumbing too — <code>/health-timeline</code> and
+<code>/pit-window</code> endpoints already exist.</p>
+<p><strong>What's missing.</strong> Two things. First, a calibrated interval — port the adaptive
+conformal layer from exp13 so the output is <em>&quot;7 laps left, 95% interval [4, 11]&quot;</em>.
+Second, a definition of when useful life ends — and we already have a data-derived
+one rather than a hand-set threshold: <strong>the cliff onset from exp17</strong>, measured at
+71.9% through a stint, per compound (HARD lap 22.5, MEDIUM 14.0, SOFT 16.0).</p>
+<p><strong>Pass:</strong> coverage within 2 points of nominal on held-out stints.</p>
+<hr />
+<h3>exp25 — Redo the energy and circuit experiments with real telemetry 🟡</h3>
+<p>exp04 (energy clock) ran on 4 stints with proxy energy. exp09 (circuit transfer)
+ran with <code>mean_abs_lateral_g</code> set to <code>None</code> because we never downloaded telemetry.</p>
+<p>Both deserve a rematch with measured per-corner loads and real lateral g across all
+203 sessions. It is entirely possible that exp04's &quot;no meaningful difference&quot; flips
+once energy is measured rather than approximated — and if it does, we report the
+reversal openly.</p>
+<hr />
+<h3>exp26 — Replace our invented traffic index with a measured one 🟡</h3>
+<p>We <em>derive</em> traffic from differences in lap start times. OpenF1 publishes
+<strong>measured</strong> <code>gap_to_leader</code> and <code>interval</code> every ~4 seconds, free for 2023 onwards.</p>
+<p><strong>The experiment:</strong> swap the derived index for the measured one and see whether any
+result changes. If nothing changes, that's a strong validation of a clever shortcut.
+If things change, we learn our proxy was hiding something.</p>
+<hr />
+<h3>exp27 — Compound allocations for all four seasons 🟡</h3>
+<p>Today we have Pirelli's C1–C5 nominations for 2024 only, assembled by hand. There
+is an open-source parser that reads the official FIA PDFs, including tyre
+compounds. Scripting it gives us 2022, 2023 and 2025 without manual transcription.</p>
+<p>Then re-run exp08 on four seasons instead of one. Current answer: the true compound
+is 6% <em>worse</em> than the weekend label. Four seasons will tell us whether that holds.</p>
+<hr />
+<h3>exp28 — Does a better estimate actually win races? 🔴 <strong>the business experiment</strong></h3>
+<p><strong>The question nobody has asked us yet, and will.</strong> Everything so far measures
+<em>accuracy</em>. This measures <em>value</em>.</p>
+<p><strong>Method.</strong> Replay every real race. At each pit decision point, compute what the
+naive method would have recommended and what we would have recommended. Score both
+against what actually happened, in <strong>seconds lost and positions lost</strong>. Our
+<code>/regret</code> endpoint already does this arithmetic for a single call.</p>
+<p><strong>The output is one sentence for the pitch:</strong> <em>&quot;Across N races, using the naive
+estimate instead of ours would have cost an average of X seconds and Y positions
+per race.&quot;</em> That converts a statistics result into a number a team principal cares
+about.</p>
+<hr />
+<h3>exp29 — Multi-compound strategy simulation under uncertainty 🟡</h3>
+<p>Today the strategy simulator takes point estimates and returns a point answer:
+&quot;one-stop is 3.2 s faster&quot;. That's not actionable, because it hides the risk.</p>
+<p><strong>Method.</strong> Monte Carlo over the <em>conformal</em> degradation distribution for each
+compound, producing a distribution over outcomes.</p>
+<p><strong>Output:</strong> <em>&quot;One-stop wins 61% of the time, two-stop 39%, and the crossover is at
+a track temperature of about 42 °C.&quot;</em> A strategist can act on that.</p>
+<hr />
+<h3>exp30 — A second cross-domain proof 🟡</h3>
+<p>exp07 proved the engine works on turbofans. One dataset could be luck. A second
+domain — bearings, batteries or industrial pumps — turns &quot;it worked once&quot; into
+&quot;it's general&quot;.</p>
+<p>This is also the direct evidence for the &quot;full vehicle health monitoring&quot; ambition.
+And we already have adjacent labels in the F1 data itself: <strong>Suspension (431) and
+Brakes (250)</strong> retirement causes, which the same hazard machinery from exp23
+handles with no new method.</p>
+<hr />
+<h3>exp31 — Partial pooling across events 🟢</h3>
+<p>Right now each event is fitted fairly independently. A hierarchical model that
+shares strength across events should tighten estimates at events with little
+practice running — which is exactly where exp10 found our bias is worst (shorter
+practice stints → more bias).</p>
+<hr />
+<h3>exp32 — Wet-weather regime 🟢</h3>
+<p>We currently <strong>exclude</strong> all wet running and say so honestly. Wet degradation is a
+genuinely different physical process — driven by water clearance and overheating on
+a drying line, not by rubber abrasion. Modelling it is a separate model, not a
+tweak. Worth doing, clearly out of scope for now.</p>
+<hr />
+<h3>exp33 — Live-feed integration test 🟢</h3>
+<p>We have the live architecture. The remaining step is pointing it at a real feed
+rather than a replay, and confirming the adaptive interval still lands on 95% when
+data arrives late, out of order, or not at all.</p>
+<hr />
+<h3>exp34 — Driver-in-the-loop response 🟢</h3>
+<p>If a driver lifts and coasts, energy through the tyre drops, and the remaining life
+should extend. We have the physics (<code>frictional_power_proxy</code>, <code>lap_energy</code>). The
+experiment is whether our predicted life actually responds correctly to a real
+change in driving style — a closed-loop test rather than an open-loop one.</p>
+<hr />
+<h2>Priority summary</h2>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Experiments</th>
+<th>Theme</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🔴 Do first</td>
+<td>exp19, exp20, exp21, exp23, exp24, exp28</td>
+<td>Fix our weakest evidence, build the missing metrics, prove business value</td>
+</tr>
+<tr>
+<td>🟡 Do next</td>
+<td>exp22, exp25, exp26, exp27, exp29, exp30</td>
+<td>Better features, better data, wider proof</td>
+</tr>
+<tr>
+<td>🟢 Later</td>
+<td>exp31, exp32, exp33, exp34</td>
+<td>Refinement and productionisation</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1>PART 10 — BUILDING ON THE EXISTING TRACKSHIFT WORK</h1>
+<p>The previous team built a strong system. Our design principle is deliberate:</p>
+<blockquote>
+<p><strong>Keep their five metrics, their 18 alerts and their 17-step action ladder as the
+visible interface. Replace what computes them. Add the layer they cannot have.</strong></p>
+</blockquote>
+<p>Three reasons, and none of them is politeness:</p>
+<ol>
+<li><strong>Their metric set is genuinely right.</strong> Grip, tread, degradation, energy,
+puncture risk is exactly what a race engineer wants on a pit wall.</li>
+<li><strong>The 18 rules are institutional knowledge.</strong> Rules encode &quot;we have seen this go
+wrong before&quot;. Deleting them throws that away. Wrapping them keeps it as a
+safety floor and as the explanation layer.</li>
+<li><strong>Continuity reads as engineering.</strong> &quot;We replaced everything&quot; sounds dismissive.
+&quot;We kept the interface and made every number honest&quot; sounds like a team that
+understands the product.</li>
+</ol>
+<hr />
+<h2>10.1 Metric by metric — where we are, honestly</h2>
+<table>
+<thead>
+<tr>
+<th>Their metric</th>
+<th>Do we have it today?</th>
+<th>What we'll do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Degradation Rate</strong> 📊</td>
+<td>✅ <strong>Yes, and stronger</strong></td>
+<td>Already validated 4 ways across 84 event-seasons with calibrated intervals. Add exp21 as the head-to-head benchmark.</td>
+</tr>
+<tr>
+<td><strong>Tyre Energy</strong> ⚡ (laps of life left)</td>
+<td>🟨 <strong>Mostly</strong> — we do this on jet engines and have the F1 plumbing</td>
+<td>exp24: add a calibrated interval and use the measured cliff as the threshold.</td>
+</tr>
+<tr>
+<td><strong>Grip Level</strong> 🔧</td>
+<td>❌ <strong>No</strong> — but we have the physics layer</td>
+<td>exp22: build a normalised 0–1 grip index from telemetry. Never a fake traction coefficient.</td>
+</tr>
+<tr>
+<td><strong>Tread Remaining</strong> ▥</td>
+<td>❌ <strong>No units</strong> — our wear model outputs arbitrary units</td>
+<td>Report <strong>% of usable life</strong>, not millimetres. Anchor and validate via exp20. See 10.2 — read it before anyone asks.</td>
+</tr>
+<tr>
+<td><strong>Puncture Risk</strong> ⚠️</td>
+<td>❌ <strong>Nothing</strong></td>
+<td>exp23: discrete-time hazard model on real failure labels, with a calibration curve.</td>
+</tr>
+</tbody>
+</table>
+<h2>10.2 The tread-depth question — decide this now, not in the room</h2>
+<p>We cannot honestly print millimetres. There is no public measurement of F1 tread
+depth to anchor against — we searched thoroughly and it does not exist.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>What it means</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>% of usable life remaining</strong></td>
+<td><em>&quot;62% left, 95% interval [48%, 74%]&quot;</em></td>
+<td>✅ <strong>Ship this.</strong> Unit-free, honest, and it's what a strategist acts on anyway.</td>
+</tr>
+<tr>
+<td><strong>Anchor to an independent tyre model</strong></td>
+<td>Calibrate our arbitrary units against the game's published wear %</td>
+<td>✅ <strong>Do this for validation</strong> (exp20).</td>
+</tr>
+<tr>
+<td><strong>Claim millimetres</strong></td>
+<td><em>&quot;2.1 mm remaining&quot;</em></td>
+<td>❌ <strong>Never.</strong> One informed question — &quot;measured against what?&quot; — and the whole deck loses credibility.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Say it out loud in the meeting:</strong> <em>&quot;They report remaining depth. We report
+remaining usable life, because depth is not measurable from public data and we
+would rather be right than precise.&quot;</em> That sentence earns more than a fabricated
+millimetre ever will.</p>
+<h2>10.3 The decision layer — what replaces 18 rules and a 17-step ladder</h2>
+<p>Their logic is deterministic: metric crosses threshold → alert fires → ladder picks
+an action. Ours is decision-theoretic, and we already have the pieces (<code>/pit-window</code>,
+<code>/strategy</code>, <code>/regret</code>).</p>
+<pre><code>          THEIR ARCHITECTURE                    OURS
+          ──────────────────                    ────
+ metric →  a single number            →   a calibrated probability distribution
+ logic  →  18 fixed thresholds        →   choose the action with lowest expected cost
+ output →  an alert + a ladder step    →   action + expected gain + interval + regret if wrong
+ audit  →  (none)                     →   their 18 rules still run, as a safety floor
+</code></pre>
+<p><strong>Three concrete changes:</strong></p>
+<ol>
+<li><strong>Pit calls become an expected-cost calculation.</strong> Pitting one lap early costs a
+known ~20 seconds. Pitting one lap late costs an unknown amount that depends on
+the <em>distribution</em> of degradation. We minimise expected cost over the calibrated
+interval, not over a point estimate. That's a direct, numerical answer to &quot;why is
+your recommendation better&quot;.</li>
+<li><strong>Keep all 18 rules as a veto layer.</strong> If our model says &quot;stay out&quot; and rule 14
+says &quot;puncture risk elevated&quot;, <strong>the rule wins</strong>, and the screen shows both and
+why they disagree. Disagreement between a learned model and encoded expertise is
+the single most useful thing you can show a race engineer.</li>
+<li><strong>Make every decision auditable after the race.</strong> Replay each decision point:
+what we'd have said, what was done, what it cost. This is the <strong>&quot;post-race
+validation tools&quot;</strong> clause that is literally in the problem statement — and it is
+not mentioned anywhere in the current system.</li>
+</ol>
+<hr />
+<h1>PART 11 — THEIR FOUR &quot;FUTURE OPPORTUNITIES&quot;, DESIGNED</h1>
+<h2>11.1 Integration with live race telemetry streams</h2>
+<p><strong>Status: substantially built already.</strong> We have a live streaming endpoint, a
+Kalman filter updating lap by lap, and adaptive conformal intervals that
+<strong>self-correct during the session</strong> — 95.2% coverage over 69,206 laps, 0.2 points
+off target. The live frame already reports its own running coverage, so it can be
+audited <em>while it runs</em>.</p>
+<p><strong>Remaining work:</strong> swap the replay source for a real live feed. The consumer side
+doesn't change at all.</p>
+<p><strong>Why it's differentiated:</strong> a live system whose error bar corrects itself in
+flight and publishes its own accuracy is a different class of product from one that
+streams point estimates.</p>
+<h2>11.2 Driver-in-the-loop strategy recommendation</h2>
+<p><strong>Design.</strong> Driver input changes energy through the tyre, which changes the wear
+rate, which changes the remaining life and therefore the pit window. We already have
+<code>frictional_power_proxy()</code> and <code>lap_energy()</code>. Wiring driver behaviour → energy →
+revised remaining life is a real closed loop, tested by exp34.</p>
+<p><strong>This is also where the 3D demo lives — with one structural warning.</strong></p>
+<blockquote>
+<p>The two cars do <strong>not</strong> differ in how they drive. They differ in <strong>when they
+pit</strong>. Our model doesn't make a car faster; it produces a better estimate, which
+produces a better pit window, which produces a better finishing position.</p>
+</blockquote>
+<p>So the honest demo is: same car, same pace physics, two strategies — one planned off
+the naive estimate, one off ours — and the gap at the flag is the result.</p>
+<blockquote>
+<p><strong>And the truth engine must not be ours.</strong> If the simulated race is driven by our
+own model, the demo is rigged by construction and a technical judge will see it
+immediately. The car without our model has to lose <em>because the underlying tyre
+truth punished its bad estimate</em> — and that truth must come from somewhere we
+didn't write. That is the second reason exp20 matters.</p>
+</blockquote>
+<h2>11.3 Multi-compound strategy simulation</h2>
+<p>Covered by exp29. The upgrade is propagating uncertainty through the simulation, so
+the output is a distribution over outcomes rather than a single predicted time.</p>
+<h2>11.4 Expansion to full vehicle health monitoring</h2>
+<p><strong>This is the one we are furthest ahead on — and they listed it as future work.</strong></p>
+<ul>
+<li>exp07 already proves the estimator is domain-agnostic: unmodified code, NASA
+turbofan engines, 22.7 cycles RMSE.</li>
+<li>A cross-industry endpoint already exists in our API.</li>
+<li>And the labels for the rest of the car are already in hand: <strong>Suspension (431),
+Brakes (250), Wheel bearing (37)</strong> — the same hazard machinery from exp23 extends
+to them with no new method needed.</li>
+</ul>
+<p><strong>The line to say:</strong> <em>&quot;They listed full vehicle health as a future opportunity. We
+shipped the cross-domain proof and validated it on aircraft engines.&quot;</em></p>
+<hr />
+<h1>PART 12 — THE PLAN, IN ORDER</h1>
+<h2>12.1 Data we still need to pull</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Data</th>
+<th>What it unlocks</th>
+<th>Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Telemetry for our 203 existing sessions</strong></td>
+<td>Grip Level, real tyre energy, real traffic, per-corner loads</td>
+<td>Overnight, 2–6 GB</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Failure labels + race control messages</strong></td>
+<td>Puncture risk (exp23), vehicle health (11.4) — <strong>real labels, free</strong></td>
+<td>~half a day</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Independent tyre-model capture harness</strong></td>
+<td>External validation (exp20) + honest truth engine for the demo</td>
+<td>1–2 days</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>FIA PDF compound parser</strong></td>
+<td>Compound allocations for 2022/23/25 (exp27)</td>
+<td>~half a day</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>OpenF1 stints / intervals / pit</strong></td>
+<td>Measured traffic replacing our derived index (exp26)</td>
+<td>~half a day</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Track geometry (GeoJSON, centre lines)</strong></td>
+<td>The 3D demo</td>
+<td>Small</td>
+</tr>
+<tr>
+<td>7</td>
+<td>2018–2021 seasons</td>
+<td>More laps of the same eight columns</td>
+<td><strong>Lowest value — probably skip</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Say this if asked &quot;don't you need more data?&quot;:</strong> <em>&quot;Not really — 92,000 laps is
+already a lot for this question, and exp18 proved the limit is algebra, not sample
+size. What we're short of is <strong>labels</strong> and <strong>extra columns</strong>, not more rows. Items
+1, 2 and 3 fix that. Item 7 is the one that feels like more data and is the least
+useful.&quot;</em></p>
+<h2>12.2 Build order</h2>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Work</th>
+<th>Why in this position</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1</strong></td>
+<td>Failure labels → hazard model → calibrated <strong>Puncture Risk</strong></td>
+<td>Cheapest real win. Fills our only completely empty metric.</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>Telemetry download → <strong>Grip Level</strong> + real <strong>Tyre Energy</strong></td>
+<td>Unblocks two metrics. Runs unattended overnight.</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>Calibrated <strong>remaining life</strong> using the measured cliff</td>
+<td>Turns machinery we already have into their metric #4.</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td><strong>exp19 + exp21</strong> — de-circularise, then the head-to-head benchmark</td>
+<td>Fixes our weakest evidence and produces the clearest chart.</td>
+</tr>
+<tr>
+<td><strong>5</strong></td>
+<td><strong>Decision layer</strong> — expected-cost pit calls, 18 rules as safety floor, post-race audit</td>
+<td>Replaces the engine while keeping their interface.</td>
+</tr>
+<tr>
+<td><strong>6</strong></td>
+<td><strong>exp20</strong> — independent truth engine</td>
+<td>Also the honest foundation for the demo.</td>
+</tr>
+<tr>
+<td><strong>7</strong></td>
+<td><strong>exp28</strong> — the value experiment (seconds and positions)</td>
+<td>The one number a team principal cares about.</td>
+</tr>
+<tr>
+<td><strong>8</strong></td>
+<td><strong>3D two-strategy demo</strong> on the independent truth engine</td>
+<td>Presentation layer, built last, on solid ground.</td>
+</tr>
+</tbody>
+</table>
+<h2>12.3 The one thing we should ask the mentors for</h2>
+<p><strong>What was in the telemetry dataset the previous team used?</strong></p>
+<p>This genuinely changes the plan:</p>
+<ul>
+<li><strong>If it contained per-lap tread depth or wear %</strong>, then they had labels we don't.
+We should request the same dataset — it would immediately solve the tread-depth
+units problem and strengthen every validation we have.</li>
+<li><strong>If it was lap times and car channels with no wear label</strong>, then their &quot;Tread
+Remaining&quot; is a modelled quantity just like ours, and the honest-units argument in
+10.2 applies to their system too.</li>
+</ul>
+<p>Ask it plainly. Either answer helps us, and asking shows we've read their work
+carefully rather than just talked over it.</p>
+<h2>12.4 One-line summary of our whole position</h2>
+<blockquote>
+<p><strong>&quot;Everyone can build a dashboard that shows a degradation number. We built one
+that is right, that tells you how confident it is and is actually right that
+often, that proves the standard method is broken in 74% of real races, and that
+states mathematically how much of the answer is data and how much is assumption.
+And then we ran the same code on jet engines to prove it isn't an F1 trick.&quot;</strong></p>
+</blockquote>
+<hr />
+<h1>PART 12B — THE STEP-BY-STEP BUILD PLAN (4 PEOPLE)</h1>
+<p>Everything above says <em>what</em> to build. This part says <em>how</em>, step by step, with the
+exact files, the exact order, and what &quot;done&quot; means for each step so nobody has to
+guess.</p>
+<p><strong>Team shape assumed: 4 members.</strong> The four workstreams below are deliberately
+chosen so they <strong>do not touch the same files</strong>, which means four people can work in
+parallel on four branches with almost no merge conflicts.</p>
+<table>
+<thead>
+<tr>
+<th>Stream</th>
+<th>Owner</th>
+<th>Mostly touches</th>
+<th>Depends on</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A — Data &amp; Labels</strong></td>
+<td>Member 1</td>
+<td><code>scripts/</code>, <code>data/</code></td>
+<td>nothing (start immediately)</td>
+</tr>
+<tr>
+<td><strong>B — New Metrics</strong></td>
+<td>Member 2</td>
+<td><code>src/tyremind/models/</code>, <code>src/tyremind/physics/</code></td>
+<td>A1, A2</td>
+</tr>
+<tr>
+<td><strong>C — Decision Layer &amp; API</strong></td>
+<td>Member 3</td>
+<td><code>src/tyremind/api/</code>, <code>apps/web/</code></td>
+<td>B (loosely)</td>
+</tr>
+<tr>
+<td><strong>D — Validation &amp; Demo</strong></td>
+<td>Member 4</td>
+<td><code>experiments/</code>, <code>docs/</code>, the 3D sim</td>
+<td>A3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Branch rule:</strong> everyone branches off <code>main</code>, nobody commits to <code>main</code>, one branch
+per stream (<code>nitya/dev</code>, <code>&lt;name&gt;/data</code>, <code>&lt;name&gt;/metrics</code>, <code>&lt;name&gt;/demo</code>).</p>
+<hr />
+<h2>STREAM A — DATA &amp; LABELS</h2>
+<h3>A1. Download telemetry for all 203 sessions</h3>
+<p><strong>Why:</strong> unlocks Grip Level and real tyre energy. This is the single biggest
+unlock and it runs while you sleep.</p>
+<p><strong>Steps:</strong></p>
+<ol>
+<li>Create <code>scripts/build_telemetry.py</code>, modelled on the existing
+<code>scripts/build_corpus.py</code> (copy its rate-limiting and retry structure — do not
+reinvent them).</li>
+<li>For each session already in <code>data/season/</code>, pull <code>session.car_data</code> and
+<code>session.pos_data</code> from the cache.</li>
+<li>Reduce per lap — <strong>do not store raw 4 Hz samples for 203 sessions, that is
+gigabytes of noise.</strong> Store per lap: mean and peak lateral g, mean and peak
+longitudinal g, total frictional energy, time at full throttle, time on the
+brakes, and per-corner load shares. <code>physics/dynamics.py</code> already computes every
+one of these; you are calling existing functions, not writing new physics.</li>
+<li>Write to <code>data/telemetry/&lt;session_id&gt;.parquet</code>, one row per driver per lap, with
+<code>driver</code> and <code>session_lap</code> as the join keys to the existing lap table.</li>
+<li>Add a <code>.quality.json</code> next to each, in the same shape as the lap-table ones, so
+the telemetry is auditable the same way.</li>
+<li>Run with <code>--delay 6.0</code> overnight. Add a second retry pass, as <code>build_corpus.py</code>
+already does.</li>
+</ol>
+<p><strong>Done when:</strong> every session in <code>data/season/</code> has a matching telemetry file, and a
+join on <code>(driver, session_lap)</code> loses less than 2% of laps. <strong>Report the loss rate
+— don't hide it.</strong></p>
+<p><strong>Trap to avoid:</strong> telemetry lap boundaries and timing lap boundaries do not always
+agree exactly. Join on driver + lap number, never on timestamps.</p>
+<hr />
+<h3>A2. Pull failure labels</h3>
+<p><strong>Why:</strong> this is what makes Puncture Risk real instead of decorative, and it is
+only about half a day's work.</p>
+<p><strong>Steps:</strong></p>
+<ol>
+<li>Create <code>scripts/build_failure_labels.py</code>.</li>
+<li>Pull retirement statuses from the public results API for every race in our
+corpus. The relevant status codes are <code>Puncture</code>, <code>Tyre</code>, <code>Wheel</code>, <code>Wheel nut</code>,
+<code>Wheel bearing</code> — plus <code>Collision damage</code> which you must keep <strong>separately</strong> as a
+competing risk, and <code>Suspension</code> / <code>Brakes</code> for the vehicle-health extension.</li>
+<li>Pull race control messages from the session data — these catch punctures that
+happened <strong>during</strong> a race without causing a retirement. This roughly multiplies
+the positive class and is the difference between a usable dataset and one that's
+too small.</li>
+<li>Write <code>data/reference/failure_events.json</code>: one row per event with <code>year</code>,
+<code>round</code>, <code>driver</code>, <code>lap</code>, <code>cause</code>, <code>source</code> (results table or race control), and
+<code>confidence</code>.</li>
+<li><strong>Write a validation script.</strong> Cross-check a sample of events against the race
+classification. Failure labels scraped from two sources will disagree sometimes;
+record which source won and why.</li>
+</ol>
+<p><strong>Done when:</strong> we have a labelled event table and a printed count of positives per
+season. <strong>Be honest in the write-up about how few there are.</strong></p>
+<hr />
+<h3>A3. Independent tyre-model capture harness</h3>
+<p><strong>Why:</strong> removes the &quot;you graded your own homework&quot; criticism, and gives the 3D
+demo a truth engine we didn't author.</p>
+<p><strong>Steps:</strong></p>
+<ol>
+<li>Create <code>scripts/capture_external_truth.py</code>.</li>
+<li>Open a UDP socket on the documented port. Parse the packet header, then the
+packets carrying lap data, car status and car damage.</li>
+<li>Extract per lap: <strong>true tyre wear % per wheel</strong>, tyre surface and carcass
+temperature, tyre pressure, fuel in tank, lap time, compound, tyre age.</li>
+<li>Write two files per session — a <strong>public</strong> one containing only what the real F1
+timing feed would give (lap time, compound, tyre age, session lap), and a
+<strong>truth</strong> one containing the wear channel.</li>
+<li><strong>The truth file must never be read by any estimator.</strong> Enforce it the same way
+we enforced the loader rule: add a structural test to
+<code>tests/unit/test_loader_discipline.py</code> that fails the build if any file in
+<code>src/</code> or <code>experiments/</code> imports or opens the truth path. We already have this
+pattern working — copy it.</li>
+<li>Collect at least 20 full race stints across at least 3 compounds and 3 circuits.</li>
+</ol>
+<p><strong>Done when:</strong> exp20 can run. <strong>Watch out for:</strong> the wear channel is a percentage,
+not millimetres, and it is a <em>model's</em> wear, not a measured one — say both of those
+in the write-up.</p>
+<hr />
+<h3>A4. Compound allocations for all four seasons</h3>
+<ol>
+<li>Create <code>scripts/build_compound_allocation.py</code> using the open FIA PDF parser.</li>
+<li>Extract the nominated C1–C5 set per event for 2022, 2023 and 2025.</li>
+<li>Merge with our hand-built 2024 file, <strong>keeping the existing <code>confidence</code> and
+<code>source</code> fields</strong> so hand-entered and parsed rows stay distinguishable.</li>
+<li>Re-run exp08 on four seasons.</li>
+</ol>
+<p><strong>Done when:</strong> <code>compound_allocation.json</code> covers ~84 events instead of 24.</p>
+<hr />
+<h3>A5. Measured traffic from OpenF1</h3>
+<ol>
+<li>Create <code>scripts/build_measured_traffic.py</code>.</li>
+<li>Pull the intervals endpoint for every race from 2023 onwards (free tier).</li>
+<li>Align the ~4-second interval samples to laps, producing a measured gap-to-car-ahead
+per driver per lap.</li>
+<li>Add it as a <strong>new column</strong> — <code>traffic_measured</code> — alongside our derived
+<code>traffic_index</code>. <strong>Do not overwrite the derived one.</strong> The comparison between them
+is exp26, and you destroy the experiment if you replace the column.</li>
+</ol>
+<hr />
+<h2>STREAM B — THE NEW METRICS</h2>
+<h3>B1. Grip Level (needs A1)</h3>
+<ol>
+<li>New module <code>src/tyremind/physics/grip.py</code>.</li>
+<li>Compute achieved lateral acceleration per corner from telemetry (already
+available via <code>dynamics.lateral_acceleration</code>).</li>
+<li>Estimate the expected maximum for that circuit and conditions — fit the upper
+envelope of achieved lateral g across all drivers, early in the session, on
+fresh tyres.</li>
+<li>Grip index = achieved ÷ expected, clipped to 0–1.</li>
+<li><strong>Then test it before shipping it:</strong> does adding the grip index improve
+prediction of the <em>next</em> lap's time loss, over tyre age alone? Use the same
+leave-one-out structure as exp09, and the same Wilcoxon test. <strong>If it does not
+improve prediction, say so and ship it as a diagnostic display only, not as a
+model input.</strong></li>
+</ol>
+<p><strong>Non-negotiable:</strong> the UI must label it &quot;grip index (0–1)&quot;, never &quot;traction
+coefficient&quot;, and never print a μ value.</p>
+<hr />
+<h3>B2. Tread Remaining, as % of usable life</h3>
+<ol>
+<li>Extend <code>src/tyremind/physics/wear.py</code> with a function that converts cumulative
+<code>wear_increment</code> into a fraction of usable life.</li>
+<li>Define &quot;usable life&quot; from the <strong>measured</strong> cliff onset in exp17 —
+per compound, with the median and the IQR — not from a hand-set constant.</li>
+<li>Attach a conformal interval, reusing <code>models/conformal.py</code>.</li>
+<li>Output shape: <code>{&quot;life_remaining_pct&quot;: 62.0, &quot;interval&quot;: [48.0, 74.0], &quot;basis&quot;: &quot;cliff onset, exp17, HARD, n=180&quot;}</code>. <strong>Always carry the basis string</strong> so the
+number can never be quoted without its source.</li>
+<li>Validate against the independent truth from A3 in exp20.</li>
+</ol>
+<hr />
+<h3>B3. Puncture Risk (needs A2)</h3>
+<ol>
+<li>New module <code>src/tyremind/models/hazard.py</code>.</li>
+<li>Build the risk set: one row per driver per lap, with an indicator for whether a
+failure occurred on that lap, and a censoring flag for stints that ended in a
+normal pit stop.</li>
+<li>Fit a discrete-time hazard model — a logistic regression on the hazard is the
+right starting point, and it is deliberately simple because the positive class is
+tiny. Features: tyre age, cumulative energy, thermal stress, compound, circuit
+kerb exposure.</li>
+<li><strong>Handle competing risks properly.</strong> Debris punctures and wear-driven structural
+failures are different events. Fit them as separate causes; do not pool.</li>
+<li><strong>Partial pooling across circuits</strong>, because some circuits will have zero events
+and a per-circuit model would confidently predict zero risk there.</li>
+<li>Calibrate: reliability diagram, and a Brier score decomposition.</li>
+<li><strong>Publish the calibration curve next to the number, always.</strong> With this few
+positives, the calibration curve <em>is</em> the result.</li>
+</ol>
+<p><strong>The honest framing to build into the UI:</strong> <em>&quot;elevated risk, 2–9%, based on 41
+historical events&quot;</em> beats <em>&quot;7.2% risk&quot;</em> every time.</p>
+<hr />
+<h3>B4. Calibrated Remaining Useful Life</h3>
+<ol>
+<li>Extend the existing health-timeline logic to emit laps-remaining rather than a
+health score.</li>
+<li>Wrap it in the adaptive conformal layer from <code>models/conformal.py</code> — the same one
+that achieved 95.2% over 69,206 laps.</li>
+<li>Validate coverage on held-out stints; target within 2 points of nominal.</li>
+<li>Reuse the exp07 evaluation harness so the F1 RUL and the turbofan RUL are
+<strong>scored by the same code</strong>. That shared harness is itself a selling point.</li>
+</ol>
+<hr />
+<h2>STREAM C — THE DECISION LAYER</h2>
+<h3>C1. Expected-cost pit decisions</h3>
+<ol>
+<li>New module <code>src/tyremind/models/decision.py</code>.</li>
+<li>Define the loss function explicitly and document it: pitting early costs a known
+pit-lane delta; pitting late costs the integral of degradation over the laps you
+stayed out, which is <strong>a distribution, not a number</strong>.</li>
+<li>Minimise expected loss over the conformal predictive distribution, sweeping
+candidate pit laps.</li>
+<li>Return the recommended lap, the expected gain over the next-best option, the
+interval, and the regret if the recommendation is wrong.</li>
+</ol>
+<p><strong>Acceptance test:</strong> when the degradation distribution is wide, the recommendation
+must become <em>more conservative</em>, not identical to the point-estimate answer. If
+widening the interval doesn't change the recommendation, the loss function is wrong —
+this is the bug to look for.</p>
+<h3>C2. Rules as a safety layer</h3>
+<ol>
+<li>New module <code>src/tyremind/models/rules.py</code> — encode the 18-rule catalogue with its
+supersede logic, faithfully.</li>
+<li>Run rules <strong>alongside</strong> the probabilistic engine, never inside it.</li>
+<li>On disagreement: <strong>the rule wins</strong>, and the response carries both verdicts plus a
+plain-language explanation of the conflict.</li>
+<li>New endpoint <code>/api/session/{id}/decision</code> returning: model recommendation, rule
+verdict, agreement flag, and the explanation.</li>
+</ol>
+<p><strong>This disagreement view is a feature, not a fallback.</strong> It is the single most
+useful screen for a race engineer, and it is what &quot;building on their work&quot; looks
+like in code rather than in a slide.</p>
+<h3>C3. Post-race validation tools</h3>
+<p>The problem statement asks for these explicitly and the current system does not
+mention them.</p>
+<ol>
+<li>New endpoint <code>/api/session/{id}/audit</code>.</li>
+<li>Replay every decision point in a completed race: what we would have recommended,
+what was actually done, and the cost of the difference in seconds.</li>
+<li>Aggregate to a per-race scorecard.</li>
+<li>Feed exp28 from this — it is the same computation.</li>
+</ol>
+<h3>C4. Dashboard</h3>
+<ol>
+<li>Five metric cards matching their layout exactly: Grip, Tread, Degradation,
+Energy, Puncture Risk.</li>
+<li><strong>Every card shows an interval, not just a number.</strong> This is the visual signature
+of the whole project — if a judge takes one screenshot away, it should be this.</li>
+<li>Alert panel showing model and rules side by side, with disagreements highlighted.</li>
+<li>Post-race audit view.</li>
+</ol>
+<hr />
+<h2>STREAM D — VALIDATION &amp; THE DEMO</h2>
+<h3>D1. Run exp19 immediately</h3>
+<p>This is cheap, it is already scoped, and it removes our weakest claim. <strong>Do it in
+week one</strong> so that if the result is unfavourable we have plenty of time to change
+the story.</p>
+<h3>D2. exp21, the head-to-head benchmark</h3>
+<ol>
+<li>Implement the five-parameter single-circuit formula honestly, in good faith. Do
+not build a strawman — if it beats us somewhere, that is a finding.</li>
+<li>Score leave-one-circuit-out across 26 circuits.</li>
+<li>One chart, both methods, 26 circuits, same axis.</li>
+</ol>
+<h3>D3. exp28, the value experiment</h3>
+<p>Read positions and seconds out of the audit tool from C3. One sentence for the
+pitch: <em>&quot;using the naive estimate would have cost X seconds and Y positions per
+race.&quot;</em></p>
+<h3>D4. The 3D demo</h3>
+<ol>
+<li>Track geometry from the open GeoJSON circuit files and the open racetrack
+centre-line database.</li>
+<li>Render with a standard browser 3D library — <strong>keep it simple: two cars, a track
+line, a lap counter and a live gap.</strong> Nobody is scoring the graphics.</li>
+<li>The race is driven by the <strong>independent</strong> truth engine from A3.</li>
+<li>Car 1 pits on the naive estimate. Car 2 pits on ours. Same pace model, same
+everything else.</li>
+<li>Overlay both estimates against the hidden truth, updating live, so the audience
+can <em>see</em> the naive estimate drifting away from reality before the pit call goes
+wrong.</li>
+</ol>
+<p><strong>The rule that protects this demo:</strong> the truth engine must not be our model. Write
+it in the code comments so nobody &quot;simplifies&quot; it later. If our model generates the
+truth <em>and</em> makes the prediction, the demo proves nothing and a technical judge
+will spot it in thirty seconds.</p>
+<hr />
+<h2>Suggested sequencing</h2>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Stream A</th>
+<th>Stream B</th>
+<th>Stream C</th>
+<th>Stream D</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1</strong></td>
+<td>A1 telemetry download (overnight), A2 failure labels</td>
+<td><em>(read the code, write tests)</em></td>
+<td>C1 decision module</td>
+<td><strong>exp19</strong></td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>A3 capture harness</td>
+<td>B3 puncture hazard, B4 RUL</td>
+<td>C2 rules layer</td>
+<td>exp21</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>A4 compounds, A5 traffic</td>
+<td>B1 grip, B2 tread %</td>
+<td>C3 audit endpoint</td>
+<td>exp20, exp28</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td><em>(re-runs)</em></td>
+<td>validation &amp; calibration</td>
+<td>C4 dashboard</td>
+<td>3D demo, exp25–27</td>
+</tr>
+<tr>
+<td><strong>5</strong></td>
+<td>—</td>
+<td>—</td>
+<td>polish</td>
+<td>rehearse, re-render this document</td>
+</tr>
+</tbody>
+</table>
+<h2>Two rules that will save the whole project</h2>
+<ol>
+<li>
+<p><strong>Re-run <code>scripts/rerun_all.sh</code> after any data change, and respect the dependency
+order.</strong> exp09 and exp10 read exp08's output; exp10 and exp12 read exp03's. Get
+the order wrong and the experiments quietly <em>disagree with each other</em> instead of
+failing loudly. We have been bitten by this exactly once and it cost a day.</p>
+</li>
+<li>
+<p><strong>Never bypass the loaders.</strong> Read lap tables through <code>read_lap_table</code>, never
+through <code>pd.read_parquet</code> directly. A structural test enforces this — do not
+delete it to make a build pass. That test exists because a bug we had already
+fixed silently came back in five files and produced pre-fix numbers that looked
+completely plausible.</p>
+</li>
+</ol>
+<h1>PART 13 — HOW TO DOWNLOAD AND SHARE THIS DOCUMENT</h1>
+<p>This file is at:</p>
+<pre><code>D:\TrackShift Innovation Challenge\docs\data_doc.md
+</code></pre>
+<p>It is <strong>not committed and not pushed</strong> — <code>git status</code> will show it as an untracked
+file on branch <code>nitya/dev</code>, and it will stay that way until someone deliberately
+adds it.</p>
+<p><strong>Pick whichever is easiest:</strong></p>
+<p><strong>1. Just open it.</strong> In VS Code, <code>Ctrl+Shift+V</code> on the file gives a rendered
+preview. Everything here is plain Markdown.</p>
+<p><strong>2. Copy it out of the folder.</strong> Open <code>D:\TrackShift Innovation Challenge\docs\</code>
+in Explorer and copy <code>data_doc.md</code> anywhere — Desktop, a USB stick, a Drive folder.</p>
+<p><strong>3. Send it to the team as-is.</strong> Markdown renders natively in WhatsApp Docs, Slack,
+Discord, Notion, Google Docs (paste), and GitHub. No conversion needed.</p>
+<p><strong>4. Make a PDF.</strong> The repo already has a renderer:</p>
+<pre><code class="language-bash">.venv/Scripts/python scripts/render_pdfs.py
+</code></pre>
+<p>Or, without any tooling: open the file in VS Code → preview → right-click → Print →
+Save as PDF.</p>
+<p><strong>5. If you want it on your phone or another machine</strong>, the simplest route is to
+copy the file into any cloud-synced folder. Do <strong>not</strong> <code>git push</code> it — the whole
+point is that it stays off the shared repo.</p>
+<p><strong>Reminder for the team:</strong> this document contains our honest internal assessment,
+including the six failed hypotheses and the six retracted claims. That is exactly
+what makes it useful for preparing for judge questions — and exactly why it is not
+in the public repo.</p>
+</div></body></html>
