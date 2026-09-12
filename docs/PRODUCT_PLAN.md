@@ -267,7 +267,7 @@ about their work.
 | Tread Remaining | "wear rate & remaining depth" | **% of usable life + interval**, anchored to the measured cliff (exp17: 71.9% through a stint). **Never millimetres** — no public measurement exists to anchor against. |
 | Degradation Rate | 5-param Bahrain formula | State-space, 4 seasons, calibrated interval, **with the identifiability bound stated** |
 | Tyre Energy | "laps of useful life" | Conformal RUL — **and the same code already does this on jet engines** |
-| Puncture Risk | "threshold-based and probabilistic" | **Discrete-time hazard model with competing risks**, on real public failure labels (Puncture 41, Tyre 55, Wheel 88), with a published calibration curve |
+| Puncture Risk | "threshold-based and probabilistic" | **A structural exposure index, explicitly not a probability.** We collected the labels: 17 tyre failures in 12 seasons (2011-2022), and no cause detail at all after 2022. No probability is calibratable from public data -- by anyone. |
 
 **The honest line on Tread Remaining and Grip is a strength, not a retreat:**
 
@@ -282,7 +282,7 @@ about their work.
 | Live telemetry integration | 🟢 **Substantially built** — live filter + self-correcting interval, 95.2% over 69,206 laps |
 | Driver-in-the-loop | 🟡 Physics exists (`frictional_power_proxy`, `lap_energy`); closed loop is exp34 |
 | Multi-compound strategy simulation | 🟡 Simulator exists; needs uncertainty propagated through it (exp29) |
-| Full vehicle health monitoring | 🟢 **Already proven** — NASA turbofans + Suspension (431) / Brakes (250) labels in hand |
+| Full vehicle health monitoring | 🟢 **Already proven** — NASA turbofans + **151 vehicle failure events** (Gearbox 54, Brakes 50, Suspension 37) collected. Nine times the tyre-failure count, so this is where the hazard model belongs. |
 
 ---
 

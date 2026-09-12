@@ -2599,31 +2599,85 @@ position data, for our 203 sessions. Overnight download, 2–6 GB.</p>
 <p><strong>The test that makes it real:</strong> does the grip index predict the <em>next</em> lap's time
 loss better than tyre age alone? If it doesn't, it's decoration and we say so.</p>
 <hr />
-<h3>exp23 — Puncture and tyre-failure risk, from real failure labels 🔴</h3>
-<p><strong>The breakthrough here:</strong> real labels exist and they are free. Across F1 history,
-the public results database records retirement causes including <strong>Puncture (41),
-Tyre (55), Wheel (88), Wheel nut (9), Wheel bearing (37)</strong>. Plus race control
-messages give punctures that happened <em>during</em> a race without a retirement, which
-roughly multiplies the positive class.</p>
-<p><strong>Method — and why not a classifier.</strong> We'll use a <strong>discrete-time hazard model</strong>:
-for each lap, the probability of failure before the lap ends, given tyre age,
-accumulated energy, thermal stress and compound. Three reasons it must be a hazard
-model and not a yes/no classifier:</p>
+<h3>exp23 — Puncture risk: <strong>the experiment we ran, and the answer was no</strong> ✗ RESOLVED</h3>
+<p><strong>This experiment is already finished, and it did not go the way we planned.</strong>
+We collected the labels. There are not enough. This section records what we found
+because it changes what we ship — and because it applies to everybody, not just us.</p>
+<p><strong>What we did.</strong> <code>scripts/build_failure_labels.py</code> pulls every race classification
+from the public results table and groups the retirement causes by physical origin.
+We scanned the whole Pirelli era, <strong>2011–2022, 5,057 result rows</strong>.</p>
+<p><strong>What came back:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Cause group</th>
+<th>Events</th>
+<th>What it contains</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Competing risks</td>
+<td>351</td>
+<td>Collision 190, Accident 102, Collision damage 45, Spun off 13, Debris 1</td>
+</tr>
+<tr>
+<td><strong>Vehicle (non-tyre)</strong></td>
+<td><strong>151</strong></td>
+<td>Gearbox 54, Brakes 50, Suspension 37, Transmission 8, Driveshaft 2</td>
+</tr>
+<tr>
+<td>Wheel assembly</td>
+<td>24</td>
+<td>Wheel 16, Wheel nut 8</td>
+</tr>
+<tr>
+<td><strong>Tyre proper</strong></td>
+<td><strong>17</strong></td>
+<td><strong>Puncture 12, Tyre 5</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Seventeen tyre failures in twelve seasons.</strong></p>
+<p><strong>Three separate limits, all confirmed by measurement:</strong></p>
 <ol>
-<li>Risk <strong>accumulates</strong> over a stint. A classifier ignores that structure.</li>
-<li>Most stints end in a normal pit stop, not a failure — that's <strong>censoring</strong>, and
-ignoring it biases everything.</li>
-<li>A puncture from debris is a <strong>different event</strong> from a structural failure caused
-by wear. Pooling them would inflate the wear signal. These are competing risks
-and must be modelled separately.</li>
+<li><strong>The positive class is tiny.</strong> 17 events across twelve seasons of changing
+regulations, tyre constructions and cars. <code>Wheel nut</code> is a <em>pit-stop</em> failure,
+not a tyre one, so it does not help.</li>
+<li><strong>Detailed causes stop after 2022.</strong> From 2023 the public results carry only
+<code>Finished</code> / <code>Lapped</code> / <code>Retired</code>. The modern era has no cause labels at all.</li>
+<li><strong>Race control messages do not contain punctures.</strong> We checked three 2024
+races: <strong>0 tyre-related messages out of 249</strong>. They carry flags, DRS zones and
+pit-lane status. An earlier version of this document claimed these messages
+would multiply the positive class. <strong>That was wrong and is retracted.</strong></li>
 </ol>
-<p><strong>Then calibrate it.</strong> A risk score nobody has checked is decoration. We'll run a
-reliability diagram: when we say 3%, does it happen 3% of the time?</p>
-<p><strong>Honest caveat to state out loud:</strong> ~41 all-time punctures is a very small
-positive class and the modern-era subset is smaller. That is exactly why we use a
-hazard model with partial pooling and report wide intervals, rather than printing
-a confident-looking percentage. <strong>Saying &quot;rare event, wide interval, here is the
-calibration curve&quot; is stronger than saying &quot;7.2%&quot;.</strong></p>
+<p><strong>The conclusion, stated plainly:</strong></p>
+<blockquote>
+<p><strong>A validated puncture <em>probability</em> cannot be built from public data. Not by
+us, and not by anyone else either.</strong></p>
+</blockquote>
+<p><strong>So what do we ship for metric 5?</strong> A <strong>structural exposure index</strong> — accumulated
+energy, thermal stress, laps beyond expected life, kerb exposure — which is
+monotone in risk, physically motivated, and <strong>explicitly labelled as an index, not
+a probability</strong>. The UI must never print &quot;7.2% puncture risk&quot;, because that number
+would be invented.</p>
+<p><strong>Why this is a strong result rather than a failure.</strong> It is the sharpest, most
+respectful question we can ask about any competing system, including the existing
+TrackShift engine which lists &quot;threshold-based and probabilistic puncture risk
+scoring&quot;:</p>
+<blockquote>
+<p><em>&quot;We went looking for the labels needed to calibrate a puncture probability.
+There are seventeen in twelve seasons. So we report exposure rather than
+probability — and we would genuinely like to know what a probability here is
+calibrated against.&quot;</em></p>
+</blockquote>
+<p><strong>And the unexpected payoff.</strong> The <strong>vehicle</strong> group has <strong>151 events</strong> — roughly
+nine times the tyre count — across five component families with workable per-family
+counts (Gearbox 54, Brakes 50, Suspension 37).</p>
+<p><strong>The &quot;full vehicle health monitoring&quot; item that the current system lists as
+<em>future</em> work is better supported by public data than the puncture metric it
+already ships.</strong> That is where the hazard model should go, and that is exp30.</p>
+<p>Artefact: <code>data/reference/failure_events.json</code>.</p>
 <hr />
 <h3>exp24 — Calibrated remaining useful life, in laps 🔴</h3>
 <p><strong>The question.</strong> &quot;How many laps of useful life are left?&quot; with an interval, not a
@@ -2685,8 +2739,8 @@ a track temperature of about 42 °C.&quot;</em> A strategist can act on that.</p
 domain — bearings, batteries or industrial pumps — turns &quot;it worked once&quot; into
 &quot;it's general&quot;.</p>
 <p>This is also the direct evidence for the &quot;full vehicle health monitoring&quot; ambition.
-And we already have adjacent labels in the F1 data itself: <strong>Suspension (431) and
-Brakes (250)</strong> retirement causes, which the same hazard machinery from exp23
+And we already have adjacent labels in the F1 data itself: <strong>Suspension (37), Brakes (50)
+and Gearbox (54)</strong> retirement causes, which the same hazard machinery from exp23
 handles with no new method.</p>
 <hr />
 <h3>exp31 — Partial pooling across events 🟢</h3>
@@ -2723,8 +2777,13 @@ change in driving style — a closed-loop test rather than an open-loop one.</p>
 </thead>
 <tbody>
 <tr>
+<td>✅ Done</td>
+<td><strong>exp23</strong></td>
+<td>Answered: the labels do not exist. See above.</td>
+</tr>
+<tr>
 <td>🔴 Do first</td>
-<td>exp19, exp20, exp21, exp23, exp24, exp28</td>
+<td>exp19, exp20, exp21, exp24, exp28, <strong>exp30</strong></td>
 <td>Fix our weakest evidence, build the missing metrics, prove business value</td>
 </tr>
 <tr>
@@ -2791,7 +2850,7 @@ understands the product.</li>
 <tr>
 <td><strong>Puncture Risk</strong> ⚠️</td>
 <td>❌ <strong>Nothing</strong></td>
-<td>exp23: discrete-time hazard model on real failure labels, with a calibration curve.</td>
+<td>exp23 is <strong>done and negative</strong>: only 17 tyre failures exist in 12 seasons of public data, so no probability can be calibrated. We ship a <strong>structural exposure index</strong>, labelled as an index and never as a percentage.</td>
 </tr>
 </tbody>
 </table>
@@ -2897,9 +2956,9 @@ the output is a distribution over outcomes rather than a single predicted time.<
 <li>exp07 already proves the estimator is domain-agnostic: unmodified code, NASA
 turbofan engines, 22.7 cycles RMSE.</li>
 <li>A cross-industry endpoint already exists in our API.</li>
-<li>And the labels for the rest of the car are already in hand: <strong>Suspension (431),
-Brakes (250), Wheel bearing (37)</strong> — the same hazard machinery from exp23 extends
-to them with no new method needed.</li>
+<li>And the labels for the rest of the car are already in hand: <strong>Suspension (37),
+Brakes (50), Gearbox (54)</strong> — 151 vehicle events against only 17 tyre events, so
+the hazard model belongs here rather than on punctures.</li>
 </ul>
 <p><strong>The line to say:</strong> <em>&quot;They listed full vehicle health as a future opportunity. We
 shipped the cross-domain proof and validated it on aircraft engines.&quot;</em></p>
@@ -2924,9 +2983,9 @@ shipped the cross-domain proof and validated it on aircraft engines.&quot;</em><
 </tr>
 <tr>
 <td>2</td>
-<td><strong>Failure labels + race control messages</strong></td>
-<td>Puncture risk (exp23), vehicle health (11.4) — <strong>real labels, free</strong></td>
-<td>~half a day</td>
+<td><s>Failure labels</s></td>
+<td><strong>Done.</strong> 543 events, 2011-2022. Tyre labels too few (17); vehicle labels usable (151).</td>
+<td>complete</td>
 </tr>
 <tr>
 <td>3</td>

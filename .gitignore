@@ -69,3 +69,11 @@ data/season/
 # rebuilds the whole collection:  python scripts/fetch_papers.py
 research/papers/**/*.pdf
 research/papers/*.zip
+
+# Per-lap telemetry features. Rebuilt with scripts/build_telemetry.py; gigabytes
+# of derived data that the corpus can regenerate.
+data/telemetry/
+
+# Extracted paper text. Same reason as the PDFs: this is the full text of other
+# people's papers in a public repository. Regenerated from the PDFs on demand.
+research/notes/
