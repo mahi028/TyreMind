@@ -9,14 +9,16 @@ the game's own physics engine -- not estimated, not this project's prior.
 
     python scripts/build_f1_game_validation_corpus.py capture.bin --car-index 0
 
-This only reduces a capture to the lap-table schema
-`tyremind.models.ssm.tyre_ssm.fit_tyre_ssm` already consumes, with one extra
-column (`true_fuel_kg`) no synthetic session can supply honestly. It does not
-fit the estimator or score it -- that comparison (does the fitted fuel/
-degradation split match `true_fuel_kg`'s actual trend?) belongs next to
-`experiments/exp01_ground_truth_recovery.py`, which already knows how to score
-a recovered rate against a known one, once a real capture exists to point it
-at. Nobody on this project has produced one yet.
+This reduces a capture to the lap-table schema
+`tyremind.models.ssm.tyre_ssm.fit_tyre_ssm` already consumes, plus columns no
+synthetic session can supply honestly: `true_fuel_kg`, and -- when the capture
+carries Car Telemetry / Car Damage packets -- `tyre_pressure_psi`,
+`tyre_surface_temp_c`, `tyre_inner_temp_c`, `brake_temp_c` and
+`tyre_wear_pct`. It does not fit the estimator or score it -- that comparison
+(does the fitted fuel/degradation split match `true_fuel_kg`'s actual trend?)
+belongs next to `experiments/exp01_ground_truth_recovery.py`, which already
+knows how to score a recovered rate against a known one, once a real capture
+exists to point it at. Nobody on this project has produced one yet.
 
 Writes <output>.json: a list of per-lap rows, one file per capture.
 """
@@ -27,7 +29,7 @@ import argparse
 import json
 from pathlib import Path
 
-from tyremind.data.f1_game_telemetry import build_fuel_ground_truth_table, read_capture
+from tyremind.data.f1_game_telemetry import build_lap_ground_truth_table, read_capture
 
 
 def main() -> int:
@@ -44,10 +46,16 @@ def main() -> int:
         return 1
 
     print(f"  reading {args.capture} ...")
-    status_samples, lap_samples = read_capture(args.capture)
-    print(f"  {len(status_samples)} car-status samples, {len(lap_samples)} lap-data samples")
+    samples = read_capture(args.capture)
+    print(
+        f"  {len(samples.car_status)} car-status, {len(samples.lap_data)} lap-data, "
+        f"{len(samples.car_telemetry)} car-telemetry, {len(samples.car_damage)} car-damage samples"
+    )
 
-    rows = build_fuel_ground_truth_table(status_samples, lap_samples, args.car_index)
+    rows = build_lap_ground_truth_table(
+        samples.car_status, samples.lap_data, args.car_index,
+        telemetry_samples=samples.car_telemetry, damage_samples=samples.car_damage,
+    )
     if not rows:
         print(
             f"  no completed laps found for car index {args.car_index}; check that this "
