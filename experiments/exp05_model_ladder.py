@@ -26,9 +26,15 @@ import pandas as pd
 from tyremind.data.corpus import load_frames, read_lap_table
 from tyremind.data.synthetic import SessionConfig, generate_session
 from tyremind.models.baselines import model_ladder
+from tyremind.models.literature import extended_ladder
 from tyremind.models.evaluation import evaluate_ladder, score_rate_recovery
 
 RESULTS = Path(__file__).parent / "results" / "exp05_model_ladder.json"
+#: exp19 is the same harness against all nine rungs, including the three
+#: published models. It writes elsewhere so exp05's numbers stay reproducible --
+#: sharing the code and splitting the output is what stops the two experiments
+#: silently diverging, which duplicating this file would guarantee.
+RESULTS_EXTENDED = Path(__file__).parent / "results" / "exp19_field_comparison.json"
 DEMO_DIR = Path("data/demo")
 SEASON_DIR = Path("data/season")
 
@@ -70,10 +76,18 @@ def main() -> None:
         help="'season' scores every race in data/season instead of the four demo races",
     )
     parser.add_argument("--limit", type=int, default=20, help="cap on --corpus season races")
+    parser.add_argument(
+        "--ladder", choices=["core", "extended"], default="core",
+        help="'extended' adds ARIMA, Heilmeier and Cappello & Hoegh -- this is exp19, "
+             "run under experiments/PREREGISTRATION_exp19.md",
+    )
     args = parser.parse_args()
 
     warnings.filterwarnings("ignore")
     logging.getLogger("fastf1").setLevel(logging.ERROR)
+
+    ladder = extended_ladder if args.ladder == "extended" else model_ladder
+    destination = RESULTS_EXTENDED if args.ladder == "extended" else RESULTS
 
     if args.corpus == "season":
         # Four races was always a thin basis for ranking six models against each
@@ -95,7 +109,7 @@ def main() -> None:
     per_session = {}
     for session_id, lap_table in sessions.items():
         print(f"\n  {session_id} ({len(lap_table)} laps)")
-        scores = evaluate_ladder(lap_table, model_ladder(), n_folds=args.n_folds)
+        scores = evaluate_ladder(lap_table, ladder(), n_folds=args.n_folds)
         per_session[session_id] = [s.to_dict() for s in scores]
         for s in scores:
             status = f"FAILED {s.failed}" if s.failed else (
@@ -104,7 +118,7 @@ def main() -> None:
             print(f"    {s.model:<34} {status}")
 
     combined = []
-    for model_name in [m.name for m in model_ladder()]:
+    for model_name in [m.name for m in ladder()]:
         rows = [
             s
             for session in per_session.values()
@@ -152,7 +166,7 @@ def main() -> None:
     for i in range(args.n_seeds):
         session = generate_session(SessionConfig(seed=5000 + i))
         recovery_frames.append(
-            score_rate_recovery(model_ladder(), session.lap_table, session.truth.compound_rates)
+            score_rate_recovery(ladder(), session.lap_table, session.truth.compound_rates)
         )
     recovery = pd.concat(recovery_frames, ignore_index=True)
 
@@ -197,8 +211,8 @@ def main() -> None:
             )
             print("Predicting lap times well is not the same as understanding the tyre.")
 
-    RESULTS.parent.mkdir(parents=True, exist_ok=True)
-    RESULTS.write_text(
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(
         json.dumps(
             {
                 "experiment": "exp05_model_ladder",
@@ -215,7 +229,7 @@ def main() -> None:
             default=str,
         )
     )
-    print(f"\nwrote {RESULTS}")
+    print(f"\nwrote {destination}")
 
 
 if __name__ == "__main__":
