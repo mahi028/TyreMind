@@ -205,6 +205,58 @@ def summarise(rows: list[dict]) -> pd.DataFrame:
     return pd.DataFrame(out).sort_values("mae_laps")
 
 
+def common_subset(rows: list[dict]) -> tuple[pd.DataFrame, int]:
+    """Score every model on only the stops that *every* model answered.
+
+    Declining is legitimate -- a model that refuses when degradation does not
+    decide the stop is behaving correctly -- but it makes a raw mean error
+    incomparable, because the models that decline most are graded on the easiest
+    remaining cases. On the first run with guards enabled the naive rung answered
+    119 of 274 stops and its mean error halved; ours answered 246 and we appeared
+    to take the lead. Neither movement was a real improvement in judgement.
+
+    So the headline number is this one, and the per-model answer rate is reported
+    beside it rather than buried: declining is a property to be seen, not a way
+    to win.
+    """
+    frame = pd.DataFrame(rows)
+    answered = frame[frame["recommended"].notna()].copy()
+    if answered.empty:
+        return pd.DataFrame(), 0
+    answered["key"] = (answered["session"] + "|" + answered["driver"]
+                       + "|" + answered["actual"].astype(str))
+
+    models = sorted(answered["model"].unique())
+    shared: set | None = None
+    for model in models:
+        keys = set(answered.loc[answered["model"] == model, "key"])
+        shared = keys if shared is None else (shared & keys)
+    shared = shared or set()
+
+    out = []
+    total_stops = frame.drop_duplicates(["session", "driver", "actual"]).shape[0]
+    for model in models:
+        block = answered[(answered["model"] == model) & (answered["key"].isin(shared))]
+        if block.empty:
+            continue
+        error = block["error_laps"].astype(float)
+        n_answered = int((answered["model"] == model).sum())
+        out.append({
+            "model": model,
+            "n_common": int(len(block)),
+            "mae_laps": float(error.abs().mean()),
+            # Standard error of the mean absolute error, so "better" can be
+            # distinguished from "0.06 laps apart on 49 stops".
+            "mae_se": float(error.abs().std(ddof=1) / np.sqrt(len(block))),
+            "median_abs_error": float(error.abs().median()),
+            "bias_laps": float(error.mean()),
+            "hit_rate_within_2": float((error.abs() <= HIT_TOLERANCE).mean()),
+            "answered": n_answered,
+            "answer_rate": float(n_answered / total_stops) if total_stops else float("nan"),
+        })
+    return pd.DataFrame(out).sort_values("mae_laps"), len(shared)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--limit", type=int, default=12)
@@ -252,6 +304,26 @@ def main() -> None:
     print(f"  ({b['source']})")
     print(f"  {b['note']}")
 
+    fair, n_common = common_subset(all_rows)
+    if not fair.empty:
+        print("
+" + "=" * 104)
+        print(f"LIKE FOR LIKE -- the {n_common} stops every model answered. "
+              "Declining is legitimate; being graded on an easier subset is not.")
+        print("=" * 104)
+        print(f"{'model':<34}{'MAE':>8}{'+-SE':>7}{'median':>8}{'bias':>8}"
+              f"{'within2':>9}{'answered':>10}")
+        for _, row in fair.iterrows():
+            print(f"{row['model']:<34}{row['mae_laps']:>8.2f}{row['mae_se']:>7.2f}"
+                  f"{row['median_abs_error']:>8.1f}{row['bias_laps']:>+8.1f}"
+                  f"{row['hit_rate_within_2']:>9.0%}{row['answer_rate']:>9.0%}")
+        print("=" * 104)
+        best = fair.iloc[0]
+        rivals = fair[fair["mae_laps"] <= best["mae_laps"] + best["mae_se"]]
+        if len(rivals) > 1:
+            print("Within one standard error of the best, so comparable rather than better: "
+                  + ", ".join(rivals["model"]))
+
     RESULTS.parent.mkdir(parents=True, exist_ok=True)
     RESULTS.write_text(json.dumps({
         "experiment": "exp22_pit_stop_validation",
@@ -263,6 +335,8 @@ def main() -> None:
         "pit_loss_s": args.pit_loss,
         "literature_benchmark": LITERATURE_BENCHMARK,
         "summary": table.to_dict(orient="records"),
+        "like_for_like": fair.to_dict(orient="records"),
+        "n_common_stops": n_common,
         "rows": all_rows,
     }, indent=1), encoding="utf-8")
     print(f"\nwrote {RESULTS}")

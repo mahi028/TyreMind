@@ -82,6 +82,7 @@ def recommend_pit_lap(
     pit_loss_s: float = DEFAULT_PIT_LOSS_S,
     min_stint_laps: int = 3,
     max_remaining_stops: int = 3,
+    flat_curve_tolerance_s: float = 3.0,
 ) -> PitRecommendation:
     """Sweep every feasible pit lap and return the cheapest, with a distribution.
 
@@ -98,10 +99,32 @@ def recommend_pit_lap(
         max_remaining_stops: Most further stints to price. A two-stopper's first
             stop is far earlier than a one-stopper's only stop, so this must be
             searched rather than assumed.
+        flat_curve_tolerance_s: If the best and worst candidate laps differ by
+            less than this, the tyre is not what decides the stop and the model
+            declines to answer.
 
     Returns:
         A recommendation. `reason` is non-empty when no meaningful choice exists.
     """
+    # Rubber does not regenerate. A negative estimated rate is not a small tyre
+    # gain, it is an estimate that has failed, and feeding it to the optimiser
+    # produces "stay out forever".
+    #
+    # Monaco 2025 is where this surfaced. Our own MEDIUM estimate came out at
+    # -0.0291 +- 0.0414 s/lap on the lowest-degradation circuit of the year, and
+    # the optimiser dutifully recommended lap 42 against an actual median of 27 --
+    # a 31-lap mean error that accounted for our entire deficit on this benchmark.
+    #
+    # exp14 measures the naive method producing a negative rate in 74% of races.
+    # We are far rarer, but we are not immune, and criticising a method for a
+    # failure mode we share without guarding against it would be indefensible.
+    # Clamping at zero is the same physical constraint Cappello & Hoegh impose
+    # through a half-normal prior -- their choice looks better here than our
+    # earlier write-up allowed, and this applies to every model identically.
+    rate_is_noise = current_rate <= 0.0 or current_rate < current_rate_sd
+    current_rate = max(current_rate, 0.0)
+    fresh_rate = max(fresh_rate, 0.0)
+
     remaining = final_lap - decision_lap
     if remaining < 2 * min_stint_laps:
         return PitRecommendation(decision_lap, 0.0, {}, {},
@@ -151,6 +174,35 @@ def recommend_pit_lap(
                                  reason="no feasible stop plan")
 
     best = min(costs, key=costs.get)
+
+    # A flat cost curve means degradation does not determine this stop.
+    #
+    # Monaco 2025 is the case that exposed this: 78 laps of the lowest-energy
+    # circuit on the calendar, near-zero degradation, overtaking essentially
+    # impossible, and a mandatory two-stop rule the model knows nothing about.
+    # The cost curve there is almost level, so its argmin is noise -- and the
+    # optimiser reported it with the same confidence it reports a real minimum.
+    # Mean error across those 29 stops was 31 laps against 9 laps elsewhere.
+    #
+    # Refusing to answer is the correct behaviour, not a way of dodging a hard
+    # circuit. The whole claim of this project is that a number comes with an
+    # honest statement of whether it means anything, and a recommendation drawn
+    # from a level curve does not.
+    spread = max(costs.values()) - costs[best]
+    if rate_is_noise:
+        return PitRecommendation(
+            int(best), 0.0, {}, {k: float(v) for k, v in costs.items()},
+            reason=("degradation is not distinguishable from zero on this tyre, so "
+                    "the tyre is not what decides this stop"),
+        )
+    if spread < flat_curve_tolerance_s:
+        return PitRecommendation(
+            int(best), 0.0, {}, {k: float(v) for k, v in costs.items()},
+            reason=(f"degradation does not determine this stop: the best and worst "
+                    f"laps differ by {spread:.2f} s, below the {flat_curve_tolerance_s} s "
+                    f"threshold. Track position or regulation is deciding, not the tyre."),
+        )
+
 
     # Confidence: softmax over negative cost. The temperature is the time the
     # rate uncertainty is worth over a typical stint, so a model that does not
