@@ -16,7 +16,7 @@
 import { useMemo } from 'react'
 import ReactECharts from 'echarts-for-react'
 import { useThemeColours } from '../../lib/theme'
-import type { DecompositionRow, PitWindow, ProjectionResult } from '../../lib/api'
+import type { DecidedPitWindow, DecompositionRow, ProjectionResult } from '../../lib/api'
 
 /**
  * Axis, tooltip and legend styling shared by the briefing charts.
@@ -574,7 +574,7 @@ export function ProjectionFan({
  * Absolute race time is a four-digit number whose interesting variation lives in
  * the last two digits.
  */
-export function PitSweep({ window: w, colour }: { window: PitWindow; colour: string }) {
+export function PitSweep({ window: w, colour }: { window: DecidedPitWindow; colour: string }) {
   const { base, xAxis, yAxis, c } = useAxis()
 
   const option = useMemo(() => {

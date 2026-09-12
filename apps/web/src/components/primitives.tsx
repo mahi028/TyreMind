@@ -22,8 +22,13 @@ export function Panel({
   children: ReactNode
   className?: string
 }) {
+  // `plate` rather than a flat border: a hairline on a flat surface disappears
+  // on a projector, and every panel in the app then reads as one grey field.
+  // The class adds a bezel highlight and a soft drop, which is what separates
+  // them at distance. Defined once in index.css so this is the only place that
+  // decides what a panel looks like.
   return (
-    <section className={`bg-surface border border-line ${className}`}>
+    <section className={`plate ${className}`}>
       {title && (
         <header className="flex items-baseline justify-between gap-4 border-b border-line px-4 py-2.5">
           <h2 className="text-[13px] font-semibold tracking-tight text-ink">{title}</h2>

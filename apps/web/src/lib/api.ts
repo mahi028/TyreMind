@@ -497,15 +497,44 @@ async function getJson<T>(path: string): Promise<T> {
   return response.json() as Promise<T>
 }
 
+/**
+ * One calibrated pit window.
+ *
+ * `target_coverage` is what we claim; `measured_coverage` is what that width
+ * actually delivered on held-out real stops. They are separate fields on
+ * purpose. The old window claimed 31.9% and delivered 24.0%, and the only
+ * reason anybody knows that is that the two numbers were kept apart. A
+ * renderer that shows the target alone is showing a promise, not a measurement.
+ */
+export interface CalibratedWindow {
+  target_coverage: number
+  /** Null when the calibration artefact recorded no held-out figure. */
+  measured_coverage: number | null
+  half_width_laps: number
+  low: number
+  high: number
+  n_calibration?: number
+}
+
+/**
+ * The pit-window sweep, which has two shapes.
+ *
+ * When the analytic optimiser declines -- degradation not distinguishable from
+ * zero, or the best and worst laps costing the same -- the endpoint returns
+ * `declined: true`, `optimum_lap: null`, a `reason` in words, and none of the
+ * confidence fields. Those fields are therefore optional here, so TypeScript
+ * refuses to let a caller read `confidence_in_window` without first checking
+ * `declined`. The refusal is an answer and has to survive to the screen.
+ */
 export interface PitWindow {
   driver: string
   from_lap: number
   total_laps: number
   new_compound: string
-  stay_out_expected_time: number
-  optimum_lap: number
-  optimum_expected_time: number
-  window_within_1s: [number, number] | null
+  stay_out_expected_time?: number
+  optimum_lap: number | null
+  optimum_expected_time?: number
+  window_within_1s?: [number, number] | null
   sweep: {
     pit_lap: number
     expected_time: number
@@ -516,12 +545,47 @@ export interface PitWindow {
     probability_optimal: number
   }[]
   n_sims: number
+  /** True when the optimiser refused to name a lap. See `reason`. */
+  declined?: boolean
+  /** Why it refused, in the optimiser's own words. Present only when declined. */
+  reason?: string
   /** How often the single recommended lap actually won. Usually modest. */
-  confidence_in_optimum: number
+  confidence_in_optimum?: number
   /** How often the winner fell inside the shaded window. The honest headline. */
-  confidence_in_window: number
-  probability_box_within_3_laps: number
+  confidence_in_window?: number
+  probability_box_within_3_laps?: number
+  /**
+   * Conformally calibrated windows around the recommendation, widest last.
+   * Empty on a clone that has not built `data/reference/pit_calibration.json`.
+   */
+  calibrated_windows?: CalibratedWindow[]
   note: string
+}
+
+/** A pit window the optimiser was willing to answer. */
+export type DecidedPitWindow = PitWindow & {
+  optimum_lap: number
+  optimum_expected_time: number
+  stay_out_expected_time: number
+  confidence_in_optimum: number
+  probability_box_within_3_laps: number
+}
+
+/**
+ * Narrow a pit window to the answered case.
+ *
+ * Call this before reading any confidence figure. The declined branch is not an
+ * error state to be swallowed by a `?? 0` -- it is the optimiser saying the tyre
+ * is not what decides this stop, and it has its own rendering.
+ */
+export function isDecided(w: PitWindow): w is DecidedPitWindow {
+  return (
+    w.declined !== true &&
+    w.optimum_lap != null &&
+    w.optimum_expected_time != null &&
+    w.stay_out_expected_time != null &&
+    w.confidence_in_optimum != null
+  )
 }
 
 export const advanced = {

@@ -80,20 +80,49 @@
   --color-good: #1f8a5c;
 }
 
+/* Fonts are vendored, not fetched.
+   These four subsets used to be `url(https://fonts.gstatic.com/...)`, which
+   meant the product's own typography was a network dependency -- on a
+   conference wifi, or on the air-gapped laptop this is demoed from, the whole
+   interface silently fell back to the system stack mid-presentation. The files
+   now sit in `src/assets/fonts/` and Vite fingerprints them into `dist/`, so
+   the bundle is self-contained. Latin and Latin Extended only: nothing on
+   screen is Cyrillic or Greek, and shipping those subsets would quadruple the
+   weight for glyphs no panel renders. The fallback stacks below stay, because
+   a missing file should degrade rather than blank the text. */
 @font-face {
   font-family: 'Archivo';
-  src: url('https://fonts.gstatic.com/s/archivo/v25/k3k6o8UDI-1M0wlSV9XAw6lQkqWY8Q82sJaRE-NWIDdgffTTNDJp8B1oJ0vyVQ.woff2')
-    format('woff2');
+  src: url('./assets/fonts/archivo-latin.woff2') format('woff2');
   font-weight: 100 900;
   font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+    U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
-
+@font-face {
+  font-family: 'Archivo';
+  src: url('./assets/fonts/archivo-latin-ext.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308,
+    U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113,
+    U+2C60-2C7F, U+A720-A7FF;
+}
 @font-face {
   font-family: 'JetBrains Mono';
-  src: url('https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKxjPVmUsaaDhw.woff2')
-    format('woff2');
+  src: url('./assets/fonts/jetbrains-mono-latin.woff2') format('woff2');
   font-weight: 100 800;
   font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+    U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('./assets/fonts/jetbrains-mono-latin-ext.woff2') format('woff2');
+  font-weight: 100 800;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308,
+    U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113,
+    U+2C60-2C7F, U+A720-A7FF;
 }
 
 html {
@@ -275,6 +304,159 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-line-bright);
+}
+
+/* ---------------------------------------------------------------------------
+   Projector register
+
+   Everything below exists for one situation: this interface on a projector,
+   read by judges from about two metres, in a room that is not dark. Three
+   things fail at that distance -- hairline borders vanish, flat surfaces stack
+   into one grey field, and a static screen gives the eye no order to read in.
+   So: borders get a second, brighter edge; surfaces get a top highlight that
+   separates them the way a physical instrument bezel does; and the marks that
+   carry the argument arrive in sequence rather than all at once.
+
+   The motion is strictly one-shot on mount. Nothing here loops except the
+   scanline, because a looping animation behind a number a judge is trying to
+   read is an obstacle, not depth.
+--------------------------------------------------------------------------- */
+
+/* A very slow radial wash behind the whole app. It is almost subliminal at
+   desk distance and does most of the separating work on a projector, where the
+   flat #0e1418 ground otherwise reads as a black rectangle with text on it. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      118vmax 82vmax at 82% -12%,
+      color-mix(in oklab, var(--color-alert) 7%, transparent) 0%,
+      transparent 62%
+    ),
+    radial-gradient(
+      96vmax 70vmax at 6% 108%,
+      color-mix(in oklab, var(--color-fuel) 8%, transparent) 0%,
+      transparent 58%
+    );
+}
+[data-theme='light'] body::before {
+  opacity: 0.55;
+}
+
+/* A panel with an edge. The inset top line is the bezel highlight: one pixel
+   of lighter colour along the top of a surface is what makes it read as raised
+   rather than as a differently-coloured region of the same plane. */
+.plate {
+  position: relative;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--color-line-bright) 60%, transparent),
+    0 1px 0 color-mix(in oklab, #000 22%, transparent),
+    0 14px 34px -22px color-mix(in oklab, #000 70%, transparent);
+}
+[data-theme='light'] .plate {
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 1px 2px color-mix(in oklab, #16212a 8%, transparent),
+    0 12px 28px -20px color-mix(in oklab, #16212a 26%, transparent);
+}
+
+/* The accent rule that runs under a section title. Wider than a border and
+   fading out, so it reads as emphasis rather than as a table line. */
+.rule-accent {
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--rule-color, var(--color-alert)) 0%,
+    color-mix(in oklab, var(--rule-color, var(--color-alert)) 30%, transparent) 38%,
+    transparent 100%
+  );
+}
+
+/* Diagonal hatching. Used for the shortfall between a claim and what was
+   measured: a solid bar would read as a quantity we are proud of, and this is
+   the opposite. */
+.hatch {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    color-mix(in oklab, var(--hatch-color, var(--color-alert)) 55%, transparent) 0 2px,
+    transparent 2px 6px
+  );
+}
+
+/* Bars that grow from their own baseline. A bar that fades in is a picture of
+   a bar; a bar that grows is a picture of a measurement accumulating. */
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.grow-x {
+  transform-origin: left center;
+  animation: grow-x 760ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * 65ms);
+}
+
+/* Rows that arrive in reading order. `--i` is set per row by the component, so
+   a table of eleven regimes resolves top to bottom instead of flashing. */
+@keyframes settle {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.settle {
+  animation: settle 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * 55ms);
+}
+
+/* The marker for the lap a driver actually chose, against a window we claimed.
+   It pulses exactly three times and then stops. */
+@keyframes ping {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--ping-color, var(--color-good)) 55%, transparent);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 9px transparent;
+  }
+}
+.ping {
+  animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) 3;
+}
+
+/* Nested coverage windows. Each level is a band; the inner ones sit on top, so
+   the stack reads as "50% is inside 80% is inside 90%" without a legend. */
+.band {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--band-color, var(--color-good)) 30%, transparent),
+    color-mix(in oklab, var(--band-color, var(--color-good)) 14%, transparent)
+  );
+  border-left: 1px solid color-mix(in oklab, var(--band-color, var(--color-good)) 75%, transparent);
+  border-right: 1px solid color-mix(in oklab, var(--band-color, var(--color-good)) 75%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grow-x,
+  .settle {
+    animation: none;
+  }
+  .ping {
+    animation: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

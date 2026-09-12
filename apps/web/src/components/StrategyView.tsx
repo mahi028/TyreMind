@@ -16,13 +16,16 @@ import { useThemeColours } from '../lib/theme'
 import {
   advanced,
   compoundColour,
+  isDecided,
   resolveColour,
+  type DecidedPitWindow,
   type PitWindow,
   type RunRow,
   type StrategyResult,
 } from '../lib/api'
 import { PitWindowChart } from './charts'
 import { EstimateTag, ErrorNote, Loading, Panel, Stat } from './primitives'
+import { CalibratedWindows, DeclinedWindow } from './CalibratedWindows'
 import { Explainer } from './Explainer'
 
 export function StrategyView({
@@ -200,7 +203,61 @@ export function StrategyView({
             </div>
           </Panel>
 
-          {window && window.sweep.length > 2 && (
+          {/* The optimiser declining is an answer, and it arrives on the same
+              endpoint as a recommendation. Rendering the sweep chart with a
+              null optimum would draw a window around nothing. */}
+          {window && !isDecided(window) && (
+            <Panel title="When to box" aside="the optimiser declined">
+              <DeclinedWindow window={window} />
+            </Panel>
+          )}
+
+          {window && isDecided(window) && (
+            <Panel
+              title="The window to act on"
+              aside={`conformally calibrated on real stops`}
+            >
+              <div className="grid gap-5 lg:grid-cols-[1.5fr_1fr]">
+                <div>
+                  <CalibratedWindows
+                    windows={window.calibrated_windows ?? []}
+                    centre={window.optimum_lap}
+                    fromLap={window.from_lap}
+                    totalLaps={window.total_laps}
+                    actualLap={
+                      // The stint's last lap is the lap the set came off, which
+                      // is the stop -- unless the stint ran to the flag, in
+                      // which case there was no stop to mark.
+                      selected.last_lap < window.total_laps ? selected.last_lap : null
+                    }
+                  />
+                </div>
+                <div className="space-y-3 text-[12.5px] leading-relaxed text-ink-dim">
+                  <p>
+                    Two different windows appear on this screen and they answer different
+                    questions. The one below is a <strong className="text-ink">cost</strong>{' '}
+                    window: every lap inside it finishes within a second of the best. This one is
+                    a <strong className="text-ink">coverage</strong> window: this often, the lap
+                    that turns out to be right is inside it.
+                  </p>
+                  <p>
+                    The widths are large, and that is the honest price. The window this product
+                    used to ship was two laps either side of the recommendation with a probability
+                    nobody had checked; checked, it claimed far more than it delivered. The widths
+                    in the table are what a guarantee on real stops actually costs, and printing
+                    them is the difference between a guarantee and a decoration.
+                  </p>
+                  <p className="text-[11.5px] text-ink-faint">
+                    Thresholds from <span className="num">data/reference/pit_calibration.json</span>
+                    , fitted by split conformal on exp30&rsquo;s stops. The coverage beside each
+                    level was measured on stops the threshold was not fitted on.
+                  </p>
+                </div>
+              </div>
+            </Panel>
+          )}
+
+          {window && isDecided(window) && window.sweep.length > 2 && (
             <Panel
               title="Every lap you could stop on"
               aside={`optimum lap ${window.optimum_lap}`}
@@ -209,7 +266,7 @@ export function StrategyView({
                 <PitWindowChart
                   sweep={window.sweep}
                   optimum={window.optimum_lap}
-                  window={window.window_within_1s}
+                  window={window.window_within_1s ?? null}
                   stayOut={window.stay_out_expected_time}
                 />
                 <div className="space-y-3 text-[12.5px] leading-relaxed text-ink-dim">
@@ -405,7 +462,7 @@ function DistributionChart({ result }: { result: StrategyResult }) {
  * question, and on a long final stint it is frequently the better answer. Saying
  * so explicitly stops the chart's own optimum from reading as a recommendation.
  */
-function StayOutNote({ window: w }: { window: PitWindow }) {
+function StayOutNote({ window: w }: { window: DecidedPitWindow }) {
   const bestStop = Math.min(...w.sweep.map((r) => r.expected_time))
   const margin = bestStop - w.stay_out_expected_time
   if (margin <= 0) return null

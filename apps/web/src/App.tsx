@@ -33,12 +33,14 @@ import { StintDecomposition, TrackEvolutionChart } from './components/charts'
 import { CircuitView } from './components/CircuitView'
 import { Briefing } from './components/briefing/Briefing'
 import { RaceTheatre } from './components/track3d'
+import { Orchestration } from './components/evidence/Orchestration'
 import { AskPanel } from './components/AskPanel'
 import { ThemeToggle } from './lib/theme'
 
 type View =
   | 'briefing'
   | 'race'
+  | 'router'
   | 'overview'
   | 'explain'
   | 'circuit'
@@ -52,6 +54,10 @@ type View =
 const VIEWS: { key: View; label: string; blurb: string }[] = [
   { key: 'briefing', label: 'The five questions', blurb: 'The whole product, one screen' },
   { key: 'race', label: 'Run the race', blurb: 'Our call against his, live' },
+  // High in the rail on purpose: the routing table is the single strongest
+  // claim in the product and the one a judge is least likely to have seen
+  // anywhere else.
+  { key: 'router', label: 'Which model answers', blurb: 'Five tasks, three models, two not ours' },
   { key: 'overview', label: 'Start here', blurb: 'What this is, in plain terms' },
   { key: 'explain', label: 'Why is the car slow', blurb: 'Split pace into its causes' },
   { key: 'circuit', label: 'Where it wears', blurb: '3D lap, coloured by load' },
@@ -122,7 +128,17 @@ export default function App() {
 
   return (
     <div className="flex min-h-screen flex-col lg:h-screen lg:overflow-hidden">
-      <header className="z-20 flex shrink-0 flex-wrap items-center gap-x-5 gap-y-2 border-b border-line bg-ground px-4 py-2.5">
+      <header className="relative z-20 flex shrink-0 flex-wrap items-center gap-x-5 gap-y-2 border-b border-line bg-ground px-4 py-2.5">
+        {/* A hairline of accent along the very top of the shell. It is the one
+            piece of chrome that survives being projected, and it anchors the
+            whole layout to the compound palette rather than to grey. */}
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-px"
+          style={{
+            background:
+              'linear-gradient(90deg, var(--color-alert) 0%, color-mix(in oklab, var(--color-alert) 25%, transparent) 34%, transparent 62%)',
+          }}
+        />
         <div className="flex items-baseline gap-2.5">
           <span className="text-[15px] font-bold tracking-[-0.02em]">TYREMIND</span>
           <span className="hidden text-[11px] text-ink-faint sm:inline">
@@ -180,8 +196,13 @@ export default function App() {
                 <button
                   key={v.key}
                   onClick={() => setView(v.key)}
-                  className={`block w-full px-2 py-1.5 text-left transition-colors ${
-                    v.key === view ? 'bg-raised' : 'hover:bg-raised/50'
+                  // A 2px accent on the leading edge rather than a background
+                  // tint alone: at projector distance a slightly lighter panel
+                  // is not a legible "you are here", and a coloured edge is.
+                  className={`block w-full border-l-2 px-2 py-1.5 text-left transition-colors ${
+                    v.key === view
+                      ? 'border-alert bg-raised'
+                      : 'border-transparent hover:border-line-bright hover:bg-raised/50'
                   }`}
                 >
                   <span
@@ -208,6 +229,11 @@ export default function App() {
             // demonstrates is a specific race and a specific driver, and the
             // session rail would otherwise silently change what is being shown.
             <RaceTheatre />
+          ) : view === 'router' ? (
+            // Session-independent: the routing table and the experiments behind
+            // it are corpus-wide results, and scoping them to whichever session
+            // the rail happens to have selected would be a category error.
+            <Orchestration />
           ) : view === 'beyond' ? (
             <BeyondRacing />
           ) : view === 'ask' ? (

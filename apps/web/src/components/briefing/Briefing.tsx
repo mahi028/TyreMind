@@ -25,6 +25,8 @@ import {
   advanced,
   api,
   compoundColour,
+  isDecided,
+  type CalibratedWindow,
   type DecompositionRow,
   type DegradationRow,
   type PitWindow,
@@ -34,6 +36,7 @@ import {
   type TrustResult,
 } from '../../lib/api'
 import { ErrorNote, Loading } from '../primitives'
+import { CalibratedWindows, DeclinedWindow } from '../CalibratedWindows'
 import { Caption, Fact, Flag, Interval, IntervalRow, Note, Probability, Question } from './ui'
 import {
   ConsensusSpread,
@@ -854,6 +857,20 @@ function WhatHappensNext({
 
 // --- 4 ---------------------------------------------------------------------
 
+/**
+ * The widest calibrated window, which is the one the headline quotes.
+ *
+ * Widest rather than narrowest on purpose. The answer line is read off a
+ * projector and will be quoted back; quoting the 50% window there would be
+ * quoting the most flattering number on the panel, and the 90% window is the
+ * one a strategist would actually be willing to commit to.
+ */
+function headlineWindow(w: PitWindow): CalibratedWindow | null {
+  const windows = w.calibrated_windows ?? []
+  if (!windows.length) return null
+  return windows.reduce((a, b) => (b.target_coverage > a.target_coverage ? b : a))
+}
+
 function WhenDoIBox({
   window: w,
   error,
@@ -870,20 +887,36 @@ function WhenDoIBox({
         endpoint="/pit-window"
         question="When do I box?"
         answer={
-          w ? (
+          w && isDecided(w) ? (
             <>
               Lap <span className="num text-ink">{w.optimum_lap}</span> is the single best guess, and
               it only wins {(w.confidence_in_optimum * 100).toFixed(0)}% of simulated races. The
-              window{' '}
-              {w.window_within_1s ? (
-                <span className="num text-ink">
-                  {w.window_within_1s[0]}–{w.window_within_1s[1]}
-                </span>
+              calibrated{' '}
+              {headlineWindow(w) ? (
+                <>
+                  <span className="num text-ink">
+                    {headlineWindow(w)!.low}–{headlineWindow(w)!.high}
+                  </span>{' '}
+                  window covers{' '}
+                  {((headlineWindow(w)!.measured_coverage ?? 0) * 100).toFixed(1)}% of real stops
+                </>
               ) : (
-                'around it'
+                <>
+                  window{' '}
+                  {w.window_within_1s ? (
+                    <span className="num text-ink">
+                      {w.window_within_1s[0]}–{w.window_within_1s[1]}
+                    </span>
+                  ) : (
+                    'around it'
+                  )}{' '}
+                  wins {((w.confidence_in_window ?? 0) * 100).toFixed(0)}%
+                </>
               )}{' '}
-              wins {(w.confidence_in_window * 100).toFixed(0)}% — which is the number to act on.
+              — which is the number to act on.
             </>
+          ) : w ? (
+            'Degradation is not what decides this stop, and the optimiser says so.'
           ) : (
             'Expected race time for every remaining pit lap, simulated.'
           )
@@ -896,6 +929,8 @@ function WhenDoIBox({
           </Flag>
         ) : !w ? (
           <Loading what="the pit window" />
+        ) : !isDecided(w) ? (
+          <DeclinedWindow window={w} />
         ) : (
           <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
             <div>
@@ -917,15 +952,31 @@ function WhenDoIBox({
                   foot={`Fit ${w.new_compound.toLowerCase()}. ${w.total_laps - w.from_lap} laps remain.`}
                 />
                 <Fact
-                  label="Window"
+                  label="Cost window"
                   value={
                     w.window_within_1s
                       ? `${w.window_within_1s[0]}–${w.window_within_1s[1]}`
                       : 'none within 1 s'
                   }
-                  foot="Every lap inside costs under a second more than the best."
+                  foot="Every lap inside costs under a second more than the best. A cost statement, not a coverage one."
                 />
               </div>
+
+              {/* The calibrated window is the one a strategist acts on, and it
+                  is the only window here whose stated coverage was measured
+                  against outcomes rather than summed from the simulation's own
+                  probabilities. */}
+              {(w.calibrated_windows?.length ?? 0) > 0 && (
+                <div>
+                  <Caption>Calibrated window · claimed against measured</Caption>
+                  <CalibratedWindows
+                    windows={w.calibrated_windows ?? []}
+                    centre={w.optimum_lap}
+                    fromLap={w.from_lap}
+                    totalLaps={w.total_laps}
+                  />
+                </div>
+              )}
 
               <div className="grid gap-5 sm:grid-cols-2">
                 <Probability
@@ -935,10 +986,10 @@ function WhenDoIBox({
                   foot="Deliberately unimpressive. Any tool claiming certainty about one lap is not simulating."
                 />
                 <Probability
-                  label="Confidence in the window"
-                  value={w.confidence_in_window}
+                  label="Simulation's confidence in the cost window"
+                  value={w.confidence_in_window ?? 0}
                   tone="good"
-                  foot="The honest headline: how often the fastest choice fell inside the shaded band."
+                  foot="How often the fastest choice fell inside the shaded band, in simulation. exp30 measured this family of numbers against real stops and found them overconfident, which is what the calibrated window above replaces."
                 />
               </div>
 
