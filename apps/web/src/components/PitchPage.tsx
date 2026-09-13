@@ -52,6 +52,7 @@ function Beat({
   kicker,
   claim,
   line,
+  read,
   children,
   tone = 'var(--color-alert)',
 }: {
@@ -59,6 +60,8 @@ function Beat({
   kicker: string
   claim: string
   line: string
+  /** How to read the chart, in one plain sentence. Sits under it, not beside. */
+  read?: string
   children: React.ReactNode
   tone?: string
 }) {
@@ -79,7 +82,23 @@ function Beat({
           </h2>
           <p className="mt-3 max-w-[44ch] text-[13.5px] leading-relaxed text-ink-dim">{line}</p>
         </div>
-        <div className="min-w-0">{children}</div>
+        <div className="min-w-0">
+          {children}
+          {read && (
+            <div
+              className="mt-3 flex items-start gap-2.5 border-l-2 py-1 pl-3"
+              style={{ borderColor: tone }}
+            >
+              <span
+                className="mt-[1px] shrink-0 text-[9.5px] tracking-[0.16em] uppercase"
+                style={{ color: tone }}
+              >
+                Read
+              </span>
+              <span className="text-[12.5px] leading-snug text-ink-dim">{read}</span>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   )
@@ -225,6 +244,7 @@ export function PitchPage({
         n="01"
         kicker="The problem"
         claim="Four things move a lap time. Only one of them is the tyre."
+        read="The orange band is the tyre and it grows every lap. The blue below the line is fuel burn pulling the other way, which is why the dashed total barely moves."
         line="The tyre is wearing out and slowing the car down. Meanwhile the fuel is burning off and speeding it up by about the same amount, the track is gaining grip, and traffic comes and goes. They arrive added together, as a single number on a timing screen."
       >
         {decomp.length ? (
@@ -239,6 +259,7 @@ export function PitchPage({
         n="02"
         kicker="Why it is still unsolved"
         claim="So the obvious method says tyres get faster as they wear out."
+        read="Anything reaching into the red half means a tyre reported as improving with age. The textbook bars land there. Ours do not."
         line={
           backwards.length
             ? `Fit a line through lap time against tyre age — the textbook approach — and on this race it reports tyres improving with age on ${backwards.length} of ${Object.keys(summary?.compounds ?? {}).length} compounds. Fuel is hiding the tyre, and it is bigger than the tyre. This is not a corner case. It happens in roughly three races out of four.`
@@ -257,6 +278,7 @@ export function PitchPage({
         n="03"
         kicker="What we built"
         claim="We pull the tyre out, and the answer sharpens as the stint runs."
+        read="Follow the grey band from left to right. It starts wide because the model has seen almost nothing, and closes as laps accumulate."
         line="The dark line is what the pit wall knew at that moment, using only the laps already driven. Watch the shaded band close in. That is the model learning from evidence rather than asserting a number — and it is the difference between a guess and a decision."
         tone="var(--color-good)"
       >
@@ -272,6 +294,7 @@ export function PitchPage({
         n="04"
         kicker="What a strategist gets"
         claim="Then it tells you where the car will be, and how sure it is."
+        read="The solid line is the expected loss and the shaded band is the honest range. The dotted line marks the point where the tyre stops being competitive."
         line="The band widens the further out it looks, and it should. A tool that drew a confident line twenty laps into the future would be lying, and a strategist would find out the hard way. Ours widens honestly, which is what makes the near-term call worth acting on."
         tone="var(--color-good)"
       >
@@ -287,6 +310,7 @@ export function PitchPage({
         n="05"
         kicker="The decision it exists to make"
         claim="Every candidate lap, raced a thousand times over."
+        read="Lowest point on the solid curve is the best lap to stop. The shaded block is every lap within a second of it, which is the window a strategist keeps open."
         line="This is not a rule of thumb. For each lap he could stop on, we simulate the rest of the race repeatedly and count how often that lap turns out to have been the right one. The dip is the answer, and the shaded band is the range a strategist should actually keep open."
         tone="var(--color-soft)"
       >
@@ -313,6 +337,7 @@ export function PitchPage({
         n="06"
         kicker="Why a simpler tool cannot do this"
         claim="Tyres do not wear out in straight lines."
+        read="Only the grey bar fades evenly. Everything else warms up, recovers, or falls off a cliff, and a straight-line model is the wrong shape for all of them."
         line="We measured the shape of nearly three thousand real stints. Barely half fade evenly. The rest warm up, recover, or fall off a cliff — and the cliff is the one that ends races. Every competing model assumes a straight line, so it is the wrong shape for almost half of real racing. Ours was never told what shape to expect."
         tone="var(--color-medium)"
       >
@@ -328,6 +353,7 @@ export function PitchPage({
         n="07"
         kicker="Why you can trust the number"
         claim="Four independent methods, asked the same question separately."
+        read="Each row is the same question under a different assumption. The bars overlap heavily, so the answer is not an artefact of any one choice."
         line="We do not ask the model once. We re-run it under deliberately different assumptions about the things we cannot measure, and see whether the answer moves. When four disagreeing starting points land on the same figure, that figure is a property of the race rather than of our choices. When they scatter, we say so instead of picking one."
         tone="var(--color-fuel)"
       >
@@ -348,6 +374,7 @@ export function PitchPage({
         n="08"
         kicker="And why you can trust the confidence"
         claim="Most tools claim a confidence. We measured ours, and it was wrong."
+        read="The dashed diagonal is perfect honesty. Green tracks it. Orange sags below, which is a model claiming more certainty than it has earned."
         line="The straight diagonal is a tool being exactly as sure as it should be. Every competing model sags below it — claiming more certainty than it earns, which is the failure that gets a strategist hurt. Ours sagged too until we rebuilt the confidence from measured outcomes rather than theory. Almost nobody runs this test at all."
         tone="var(--color-fuel)"
       >
@@ -363,6 +390,7 @@ export function PitchPage({
         n="09"
         kicker="It is bigger than racing"
         claim="The same engine, unchanged, predicts when a jet engine will fail."
+        read="Each dot is one engine. The dashed line is a perfect prediction, and dots below it mean we expected failure sooner than it came, which is the safe way to be wrong."
         line="Strip the motorsport words away and this is a general problem: something wears out while it works, you cannot measure it directly, and other things move the only signal you can see. We pointed the identical code at NASA's turbofan benchmark without changing a line. Each dot is an engine. Below the line is the safe direction to be wrong, and most of ours are."
         tone="var(--color-good)"
       >
@@ -476,16 +504,18 @@ function NaiveVersusOurs({ summary }: { summary: SessionSummary }) {
 
   return (
     <div>
-      <div className="flex items-baseline justify-between text-[11px] text-ink-faint">
-        <span className="text-alert">← impossible: tyre getting faster</span>
-        <span>seconds lost per lap</span>
-        <span style={{ color: 'var(--color-good)' }}>real wear →</span>
+      <div className="flex items-baseline justify-between text-[11px]">
+        <span className="font-medium text-alert">← physically impossible</span>
+        <span className="text-ink-faint">seconds lost per lap</span>
+        <span className="font-medium" style={{ color: 'var(--color-good)' }}>
+          real wear →
+        </span>
       </div>
 
       <div className="mt-3 space-y-4">
         {rows.map((r) => (
           <div key={r.compound}>
-            <div className="mb-1.5 text-[12px] font-medium text-ink">{r.compound}</div>
+            <div className="mb-1.5 text-[12.5px] font-semibold text-ink">{r.compound}</div>
             {[
               { name: 'Textbook method', v: r.naive, bad: r.naive < 0 },
               { name: 'TyreMind', v: r.ours, bad: false },
@@ -501,13 +531,22 @@ function NaiveVersusOurs({ summary }: { summary: SessionSummary }) {
                   className="grid grid-cols-[104px_1fr_66px] items-center gap-3 py-[3px]"
                 >
                   <span className="text-[11.5px] text-ink-dim">{bar.name}</span>
-                  <div className="relative h-5 bg-raised">
+                  <div className="relative h-6 overflow-hidden bg-raised">
+                    {/* The impossible half, washed once behind every bar so the
+                        reader sees the region before reading a label. */}
                     <div
-                      className="absolute top-0 bottom-0 w-px"
-                      style={{ left: `${zero}%`, background: 'var(--color-line-bright)' }}
+                      className="absolute top-0 bottom-0 left-0"
+                      style={{
+                        width: `${zero}%`,
+                        background: 'color-mix(in oklab, var(--color-alert) 13%, transparent)',
+                      }}
                     />
                     <div
-                      className="absolute top-[3px] bottom-[3px]"
+                      className="absolute top-0 bottom-0 w-px"
+                      style={{ left: `${zero}%`, background: 'var(--color-ink-faint)' }}
+                    />
+                    <div
+                      className="absolute top-[4px] bottom-[4px] rounded-[1px]"
                       style={{ left: `${left}%`, width: `${width}%`, background: colour }}
                     />
                   </div>
@@ -525,7 +564,19 @@ function NaiveVersusOurs({ summary }: { summary: SessionSummary }) {
         ))}
       </div>
 
-      <p className="mt-3 text-[11.5px] leading-relaxed text-ink-faint">
+      <div className="mt-1.5 grid grid-cols-[104px_1fr_66px] gap-3">
+        <span />
+        <div className="relative h-4">
+          <span
+            className="num absolute -translate-x-1/2 text-[10px] text-ink-faint"
+            style={{ left: `${x(0)}%` }}
+          >
+            0
+          </span>
+        </div>
+        <span />
+      </div>
+      <p className="mt-1.5 text-[11.5px] leading-relaxed text-ink-faint">
         Both are fitted on exactly the same laps of this race. The only difference is that ours
         accounts for the fuel burning off underneath.
       </p>
