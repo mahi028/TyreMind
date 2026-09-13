@@ -34,6 +34,7 @@ DEFAULT_SOURCE = Path("docs/data_doc.md")
 TITLES = {
     "data_doc": "TyreMind — Data & Progress Document",
     "MASTER_DOC": "TyreMind — The Complete Explanation",
+    "SPEAKING_SCRIPT": "TyreMind — Speaking Script",
 }
 
 # Print rules matter more than screen rules here. `break-inside: avoid` on tables

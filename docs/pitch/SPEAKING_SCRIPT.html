@@ -1,0 +1,371 @@
+<!doctype html><html lang='en'><head><meta charset='utf-8'><title>TyreMind — Speaking Script</title><style>
+:root {
+  --ink: #14171c;
+  --muted: #5b6472;
+  --rule: #d8dde5;
+  --accent: #c8102e;
+  --panel: #f6f8fa;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background: #fff;
+  font: 10.5pt/1.55 "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+.page { max-width: 190mm; margin: 0 auto; padding: 0 2mm; }
+
+h1, h2, h3, h4 { line-height: 1.25; margin: 1.4em 0 0.5em; break-after: avoid; }
+h1 {
+  font-size: 19pt;
+  border-bottom: 2.5px solid var(--accent);
+  padding-bottom: 0.28em;
+  break-before: page;
+  margin-top: 0;
+}
+h1:first-of-type { break-before: avoid; }
+h2 { font-size: 14pt; color: #0d1117; border-bottom: 1px solid var(--rule); padding-bottom: 0.2em; }
+h3 { font-size: 11.8pt; color: #1d2530; }
+h4 { font-size: 10.8pt; color: var(--muted); }
+
+p, li { orphans: 3; widows: 3; }
+ul, ol { padding-left: 1.3em; }
+li { margin: 0.22em 0; }
+
+strong { color: #000; }
+em { color: #2a3038; }
+
+a { color: #0b5fd0; text-decoration: none; }
+
+hr { border: 0; border-top: 1px solid var(--rule); margin: 1.6em 0; }
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.9em 0;
+  font-size: 9.2pt;
+  break-inside: avoid;
+}
+th, td {
+  border: 1px solid var(--rule);
+  padding: 4.5px 7px;
+  text-align: left;
+  vertical-align: top;
+}
+th { background: var(--panel); font-weight: 600; }
+tbody tr:nth-child(even) td { background: #fbfcfd; }
+
+code {
+  font: 9pt/1.45 "Cascadia Mono", Consolas, monospace;
+  background: var(--panel);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+pre {
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  padding: 9px 11px;
+  overflow-x: auto;
+  break-inside: avoid;
+  font-size: 8.8pt;
+  line-height: 1.45;
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+
+blockquote {
+  margin: 1em 0;
+  padding: 0.6em 1em;
+  border-left: 3px solid var(--accent);
+  background: #fff8f8;
+  break-inside: avoid;
+}
+blockquote p { margin: 0.4em 0; }
+
+@page { size: A4; margin: 15mm 12mm 14mm; }
+@media print { body { font-size: 10pt; } }
+</style></head><body><div class='page'><h1>TyreMind — what to say, and when</h1>
+<p><strong>Seven minutes, ten beats, one screen.</strong> Open the app on <strong>The pitch</strong> and scroll
+as you talk. Do not switch screens. Everything you need is on this one page.</p>
+<p>Words in <strong>bold</strong> are the lines worth saying close to verbatim. Everything else
+is yours to paraphrase. Lines in <em>italics</em> are stage directions, not speech.</p>
+<hr />
+<h2>Before you start</h2>
+<p><em>Have the app open at <code>#/pitch</code>, race set to Monza. Scrolled to the top.</em></p>
+<p>Say nothing about the technology in the first thirty seconds. Say what goes
+wrong without it.</p>
+<hr />
+<h2>00 · The hook — 30 seconds</h2>
+<p><em>Top of the page. Do not scroll yet.</em></p>
+<blockquote>
+<p><strong>A Formula 1 race is decided by one number that nobody can measure.</strong></p>
+<p><strong>How fast the tyre is going away.</strong> Get it right, you win the pit stop. Get it
+wrong, you lose the race in the pit lane, and you lose it to a decision you
+made three laps too early.</p>
+<p>Around ten teams in the world can measure it properly. <strong>Everybody else is
+guessing.</strong></p>
+</blockquote>
+<p><em>Pause. Then scroll to beat 1.</em></p>
+<hr />
+<h2>01 · Why it is hard — 45 seconds</h2>
+<p><em>The stacked chart. Point at the orange band.</em></p>
+<blockquote>
+<p>Here is why it is hard. <strong>Four things move a lap time at the same time.</strong></p>
+<p>The orange is the tyre wearing out, slowing the car down. It grows every lap.</p>
+<p>The blue underneath is the fuel burning off. The car is getting lighter, so it
+is getting faster — by almost exactly the same amount, in the opposite
+direction.</p>
+<p><em>Point at the dashed line.</em></p>
+<p><strong>And that is what the timing screen shows you.</strong> The two cancel out. The one
+number everybody watches barely moves, while underneath it the tyre is dying.</p>
+</blockquote>
+<hr />
+<h2>02 · The physics check — 45 seconds</h2>
+<p><em>The car diagram. This is your credibility beat. Slow down here.</em></p>
+<blockquote>
+<p>Before I show you what we built, let me show you how you know the physics
+underneath is real.</p>
+<p>These are the four tyres on the car, seen from above. The darker ones did more
+work. <strong>Lean on right-hand corners all lap and the left-hand tyres carry the
+load.</strong></p>
+<p><em>Point at the green box.</em></p>
+<p>So from tyre wear alone, our model says this circuit runs clockwise. It does
+run clockwise. <strong>We never told it. It works that out on seven of the eight
+circuits we tested.</strong></p>
+<p><strong>If the physics underneath were wrong, it could not do that.</strong></p>
+</blockquote>
+<hr />
+<h2>03 · What we built — 40 seconds</h2>
+<p><em>The narrowing band.</em></p>
+<blockquote>
+<p>Now the product. We separate the four causes and report only the tyre.</p>
+<p><em>Trace the band left to right with your finger.</em></p>
+<p><strong>Watch the grey band close.</strong> On the left the model has seen almost nothing,
+so it is honest about being unsure. As the laps come in, it narrows.</p>
+<p>That is a model learning from evidence rather than asserting a number. <strong>It is
+the difference between a guess and a decision.</strong></p>
+</blockquote>
+<hr />
+<h2>04 · The forecast — 30 seconds</h2>
+<p><em>The fan.</em></p>
+<blockquote>
+<p>Then it tells you where the car will be in three laps, and in fifteen.</p>
+<p><strong>Notice the band gets wider the further out it looks.</strong> It should. Anyone who
+draws you a confident line twenty laps into the future is lying to you, and a
+strategist finds that out the hard way.</p>
+</blockquote>
+<hr />
+<h2>05 · The decision — 40 seconds</h2>
+<p><em>The pit window curve. This is what they buy.</em></p>
+<blockquote>
+<p>And this is the thing a team actually pays for.</p>
+<p>Every lap he could stop on. For each one we simulate the rest of the race over
+and over and count how often that lap turns out to have been right.</p>
+<p><em>Point at the dip, then the shaded block.</em></p>
+<p><strong>The lowest point is the answer. The shaded block is the window a strategist
+keeps open.</strong> Not a number — a window. That is how the decision is actually
+made on a pit wall.</p>
+</blockquote>
+<hr />
+<h2>06 · Why a simpler tool cannot do this — 30 seconds</h2>
+<p><em>The four bars.</em></p>
+<blockquote>
+<p>You might ask why this needs anything clever. Here is why.</p>
+<p>We measured the shape of nearly three thousand real stints. <strong>Only just over
+half fade evenly.</strong> The rest warm up, recover, or fall off a cliff — and the
+cliff is the one that ends races.</p>
+<p><strong>Every competing model assumes a straight line.</strong> So it is the wrong shape for
+almost half of real racing. Ours was never told what shape to expect.</p>
+</blockquote>
+<hr />
+<h2>07 · Trust, part one — 30 seconds</h2>
+<p><em>The consensus rows.</em></p>
+<blockquote>
+<p>Two reasons you can trust the number.</p>
+<p>First: we do not ask the model once. We re-run it under deliberately different
+assumptions about the things nobody can measure.</p>
+<p><em>Point at the overlap.</em></p>
+<p><strong>When four disagreeing starting points land on the same answer, that answer
+belongs to the race, not to our choices.</strong> When they scatter, we say so instead
+of picking the one we like.</p>
+</blockquote>
+<hr />
+<h2>08 · Trust, part two — 50 seconds</h2>
+<p><em>The calibration diagonal. This is your strongest beat. Do not rush it.</em></p>
+<blockquote>
+<p>Second, and this is the one I would want to hear if I were you.</p>
+<p>The dashed diagonal is a tool being exactly as confident as it deserves to be.</p>
+<p><em>Point at the orange lines sagging below it.</em></p>
+<p><strong>Every competing model sits below that line. They all claim more certainty
+than they have earned.</strong> That is the failure that gets a strategist hurt.</p>
+<p><strong>Ours did too.</strong> It told us it was right ninety-five times in a hundred. We
+checked it against sixty-nine thousand real laps. It was right seventy-five.</p>
+<p>So we rebuilt the confidence from measured outcomes instead of theory. <em>Point
+at the green pair on the diagonal.</em> <strong>That is us now.</strong></p>
+<p><strong>Almost nobody runs this test. That is why almost everything on the market
+overstates how sure it is.</strong></p>
+</blockquote>
+<hr />
+<h2>09 · Bigger than racing — 30 seconds</h2>
+<p><em>The scatter.</em></p>
+<blockquote>
+<p>One more thing. Strip the motorsport words away and this is a general problem.
+<strong>Something wears out while it works, you cannot measure it directly, and other
+things move the only signal you can see.</strong></p>
+<p>We pointed the identical code at NASA's jet engine benchmark without changing a
+line. Each dot is an engine. <strong>It is not a Formula 1 trick.</strong></p>
+</blockquote>
+<hr />
+<h2>10 · The business — 60 seconds</h2>
+<p><em>The four pillars, then the closing line.</em></p>
+<blockquote>
+<p>So who buys it.</p>
+<p><strong>Roughly ten teams in the world can do this today</strong> — they have departments,
+licensed data and budgets. <strong>Every series below them makes the same pit calls,
+on the same compounds, from the same public timing feed, with nothing.</strong></p>
+<p>F2, F3, F4, regional single-seaters, GT, endurance privateers, club racing.</p>
+<p><strong>The capability is not new. It has simply never been cheap enough to reach
+them.</strong></p>
+<p><em>Point at the pillars.</em></p>
+<p>It runs on a laptop a team already owns. No GPU, no cloud bill, and the data it
+needs is public. It needs four fields — lap time, tyre type, tyre age, lap
+number — and <strong>every series already publishes all four.</strong></p>
+<p><strong>And nothing leaves the garage.</strong> No upload, no vendor sees their data. In
+motorsport that is not a feature. It is the condition of sale.</p>
+</blockquote>
+<hr />
+<h2>The close — 20 seconds</h2>
+<p><em>Stop scrolling. Look up.</em></p>
+<blockquote>
+<p>Everyone can build a dashboard that shows a tyre wear number.</p>
+<p><strong>We built one that is right, that tells you how confident it is and is
+genuinely right that often, and that we then tried very hard to break
+ourselves.</strong></p>
+<p><strong>Thirteen of our own ideas failed. We published all thirteen.</strong> Including a
+far more advanced physics model we built specifically to try to beat our own
+system. It lost, so we did not ship it.</p>
+<p><strong>We would rather you checked us than believed us.</strong></p>
+</blockquote>
+<hr />
+<h1>If they interrupt</h1>
+<p>Short answers. Do not over-explain. Offer the screen.</p>
+<p><strong>&quot;Is this live or a recording?&quot;</strong></p>
+<blockquote>
+<p>Live. <em>Change the race in the sidebar.</em> Every chart on the page just refitted.</p>
+</blockquote>
+<p><strong>&quot;How do you know you are right, if nobody publishes real tyre wear?&quot;</strong></p>
+<blockquote>
+<p>We do not need the right answer to prove a method is wrong. A method that says
+tyres get faster as they wear has disproved itself, and that happens in about
+three races out of four. That result needs no trust at all.</p>
+</blockquote>
+<p><strong>&quot;What is your accuracy?&quot;</strong></p>
+<blockquote>
+<p>Four point three times better than the closest published research model at
+recovering the wear rate. But the number I would rather you asked about is the
+confidence one — it is on screen, and we are the only ones who measured it.</p>
+</blockquote>
+<p><strong>&quot;Where are you weakest?&quot;</strong></p>
+<blockquote>
+<p>A simpler model forecasts raw lap times better than we do, and we send that
+question to it rather than pretending otherwise. On real pit stops we tie with
+the closest published research rather than beating it. Both are on the evidence
+screen.</p>
+</blockquote>
+<p><strong>&quot;Who is your competition?&quot;</strong></p>
+<blockquote>
+<p>Inside Formula 1, the teams' own departments, and we are not trying to displace
+those. Below Formula 1 there is nothing, which is the whole business.</p>
+</blockquote>
+<p><strong>&quot;How long did this take / is it finished?&quot;</strong></p>
+<blockquote>
+<p>It runs offline from a clean clone today. Six hundred and fifteen automated
+tests, thirty-two recorded experiments, every result file in the repository.</p>
+</blockquote>
+<p><strong>&quot;What would you do with investment?&quot;</strong></p>
+<blockquote>
+<p>Two things. Get it into one junior championship as a pilot, and build the
+hierarchical layer that lets a compound parameter carry across a season
+properly — we tested one version of that and it failed, and the result file
+says so.</p>
+</blockquote>
+<hr />
+<h1>Things not to say</h1>
+<ul>
+<li>Do not say <strong>Kalman filter</strong>, <strong>state-space</strong>, <strong>conformal</strong> or <strong>posterior</strong>
+unless someone asks a technical question first. They are correct and they end
+a non-technical listener's attention.</li>
+<li>Do not claim to beat a professional strategist. The measured margin is small
+and the honest claim is against the standard method.</li>
+<li>Do not oversell the market. You have no revenue figures and inventing one is
+the fastest way to lose a room that has been checking everything else.</li>
+<li>Do not skip the failures. Thirteen refuted ideas is your credibility, not your
+weakness.</li>
+</ul>
+<hr />
+<h1>Timing</h1>
+<table>
+<thead>
+<tr>
+<th>Beat</th>
+<th>Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hook</td>
+<td>0:30</td>
+</tr>
+<tr>
+<td>01 Why it is hard</td>
+<td>0:45</td>
+</tr>
+<tr>
+<td>02 Physics check</td>
+<td>0:45</td>
+</tr>
+<tr>
+<td>03 What we built</td>
+<td>0:40</td>
+</tr>
+<tr>
+<td>04 The forecast</td>
+<td>0:30</td>
+</tr>
+<tr>
+<td>05 The decision</td>
+<td>0:40</td>
+</tr>
+<tr>
+<td>06 Why simpler fails</td>
+<td>0:30</td>
+</tr>
+<tr>
+<td>07 Trust, consensus</td>
+<td>0:30</td>
+</tr>
+<tr>
+<td>08 Trust, calibration</td>
+<td>0:50</td>
+</tr>
+<tr>
+<td>09 Bigger than racing</td>
+<td>0:30</td>
+</tr>
+<tr>
+<td>10 The business</td>
+<td>1:00</td>
+</tr>
+<tr>
+<td>Close</td>
+<td>0:20</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>7:30</strong></td>
+</tr>
+</tbody>
+</table>
+<p>If you are cut to five minutes, drop beats 04, 06 and 09. Never drop 02, 08 or
+10.</p>
+</div></body></html>
