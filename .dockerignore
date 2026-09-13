@@ -1,0 +1,10 @@
+# Without this, apps/web/node_modules built on the host (Windows, in this
+# checkout) gets copied straight over the container's own Linux `npm ci`
+# install in the frontend stage, and Vite's native binaries (esbuild, rollup)
+# are platform-specific -- the build breaks. This is a correctness
+# requirement for the Dockerfile, not just a smaller build context.
+apps/web/node_modules
+apps/web/dist
+
+.git
+f1-telemetry
