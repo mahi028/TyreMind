@@ -25,6 +25,7 @@
 import { useEffect, useState } from 'react'
 
 import { api, compoundColour, fixed, type SessionRef, type SessionSummary } from '../lib/api'
+import { BusinessCase } from './BusinessCase'
 
 /** Views this page can send a judge to, described without jargon. */
 const TOUR: {
@@ -431,6 +432,9 @@ export function SummaryPage({
           ))}
         </div>
       </section>
+
+      {/* ── the commercial case ────────────────────────────────────────── */}
+      <BusinessCase />
 
       {/* ── the one line to leave with ─────────────────────────────────── */}
       <section
