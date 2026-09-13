@@ -35,9 +35,11 @@ import { Briefing } from './components/briefing/Briefing'
 import { RaceTheatre } from './components/track3d'
 import { Orchestration } from './components/evidence/Orchestration'
 import { AskPanel } from './components/AskPanel'
+import { SummaryPage } from './components/SummaryPage'
 import { ThemeToggle } from './lib/theme'
 
 type View =
+  | 'summary'
   | 'briefing'
   | 'race'
   | 'router'
@@ -52,6 +54,10 @@ type View =
   | 'beyond'
 
 const VIEWS: { key: View; label: string; blurb: string }[] = [
+  // First in the rail and the default landing view. Written for a judge with
+  // eight minutes and no motorsport background; every other screen assumes a
+  // reader who wants the method.
+  { key: 'summary', label: 'Summary', blurb: 'Start here — what this is and why it can be trusted' },
   { key: 'briefing', label: 'The five questions', blurb: 'The whole product, one screen' },
   { key: 'race', label: 'Run the race', blurb: 'Our call against his, live' },
   // High in the rail on purpose: the routing table is the single strongest
@@ -82,7 +88,7 @@ const VIEW_KEYS = new Set<string>(VIEWS.map((v) => v.key))
  */
 function viewFromHash(): View {
   const key = window.location.hash.replace(/^#\/?/, '')
-  return VIEW_KEYS.has(key) ? (key as View) : 'briefing'
+  return VIEW_KEYS.has(key) ? (key as View) : 'summary'
 }
 
 export default function App() {
@@ -222,6 +228,12 @@ export default function App() {
         <main className="min-w-0 flex-1 p-3 lg:overflow-y-auto">
           {!sessionId ? (
             <Loading what="the session catalogue" />
+          ) : view === 'summary' ? (
+            <SummaryPage
+              sessionId={sessionId}
+              session={current}
+              onNavigate={(v) => setView(v as View)}
+            />
           ) : view === 'briefing' ? (
             <Briefing sessionId={sessionId} session={current} onNavigate={setView} />
           ) : view === 'race' ? (
