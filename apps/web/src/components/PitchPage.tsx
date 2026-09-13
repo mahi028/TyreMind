@@ -27,16 +27,24 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import {
+  advanced,
   api,
   type DecompositionRow,
   type DegradationRow,
   type ProjectionResult,
+  type PitWindow,
   type RunRow,
   type SessionRef,
   type SessionSummary,
+  type TrustResult,
 } from '../lib/api'
-import { DegradationRegimes, RulScatter } from './charts'
-import { ContributionStack, ProjectionFan, RateRibbon } from './briefing/charts'
+import { DegradationRegimes, PitWindowChart, ReliabilityCurve, RulScatter } from './charts'
+import {
+  ConsensusSpread,
+  ContributionStack,
+  ProjectionFan,
+  RateRibbon,
+} from './briefing/charts'
 
 /** A beat of the argument: a claim, the picture that proves it, one line under. */
 function Beat({
@@ -97,6 +105,8 @@ export function PitchPage({
   const [rates, setRates] = useState<DegradationRow[]>([])
   const [decomp, setDecomp] = useState<DecompositionRow[]>([])
   const [projection, setProjection] = useState<ProjectionResult | null>(null)
+  const [pit, setPit] = useState<PitWindow | null>(null)
+  const [trust, setTrust] = useState<TrustResult | null>(null)
   const [experiments, setExperiments] = useState<Record<string, any>>({})
 
   useEffect(() => {
@@ -105,7 +115,8 @@ export function PitchPage({
 
   useEffect(() => {
     if (!sessionId) return
-    setSummary(null); setRuns([]); setRates([]); setDecomp([]); setProjection(null)
+    setSummary(null); setRuns([]); setRates([]); setDecomp([])
+    setProjection(null); setPit(null); setTrust(null)
     api.summary(sessionId).then(setSummary).catch(() => undefined)
     api.runs(sessionId).then(setRuns).catch(() => undefined)
     api.degradation(sessionId, false).then((d) => setRates(d.rows)).catch(() => undefined)
@@ -126,6 +137,11 @@ export function PitchPage({
       .catch(() => undefined)
     const lap = Math.round(hero.first_lap + (hero.last_lap - hero.first_lap) * 0.7)
     api.projection(sessionId, hero.driver, lap, 20).then(setProjection).catch(() => undefined)
+    // A third of the way in: far enough that the model has evidence, early
+    // enough that the stop is still a live decision rather than a formality.
+    const decide = Math.round(hero.first_lap + (hero.last_lap - hero.first_lap) * 0.34)
+    advanced.pitWindow(sessionId, hero.driver, decide).then(setPit).catch(() => undefined)
+    advanced.trust(sessionId, hero.compound, 20).then(setTrust).catch(() => undefined)
   }, [sessionId, hero])
 
   const heroRates = useMemo(
@@ -156,6 +172,24 @@ export function PitchPage({
   }, [cliff])
 
   const nasa = experiments['exp07_cross_domain']
+
+  const shape = experiments['exp16_calibration_shape']
+  const reliability = useMemo(() => {
+    if (!shape?.per_model) return []
+    return Object.entries<any>(shape.per_model).map(([model, m]) => ({
+      model,
+      levels: m.reliability.levels,
+      gaussian: m.reliability.gaussian,
+      adaptive: m.reliability.adaptive,
+    }))
+  }, [shape])
+
+  const consensus = useMemo(() => {
+    const block = trust?.consensus
+    if (!block) return null
+    const key = hero?.compound && block[hero.compound] ? hero.compound : Object.keys(block)[0]
+    return key ? block[key] : null
+  }, [trust, hero])
 
   return (
     <div className="space-y-3">
@@ -248,9 +282,35 @@ export function PitchPage({
         )}
       </Beat>
 
-      {/* ── 05 why the simple fix fails ──────────────────────────────────── */}
+      {/* ── 05 the decision ──────────────────────────────────────────────── */}
       <Beat
         n="05"
+        kicker="The decision it exists to make"
+        claim="Every candidate lap, raced a thousand times over."
+        line="This is not a rule of thumb. For each lap he could stop on, we simulate the rest of the race repeatedly and count how often that lap turns out to have been the right one. The dip is the answer, and the shaded band is the range a strategist should actually keep open."
+        tone="var(--color-soft)"
+      >
+        {/* The optimiser declines when degradation is too flat to separate the
+            candidate laps, and says so rather than inventing a lap. Both fields
+            are nullable for that reason, so the chart only renders when there is
+            a real decision behind it. */}
+        {pit?.sweep?.length && pit.optimum_lap != null && pit.stay_out_expected_time != null ? (
+          <PitWindowChart
+            sweep={pit.sweep}
+            optimum={pit.optimum_lap}
+            window={pit.window_within_1s as [number, number] | null}
+            stayOut={pit.stay_out_expected_time}
+          />
+        ) : pit?.declined ? (
+          <Waiting what="This stint is too flat to separate one lap from another — so we decline rather than guess." />
+        ) : (
+          <Waiting what="Simulating the rest of the race…" />
+        )}
+      </Beat>
+
+      {/* ── 06 why the simple fix fails ──────────────────────────────────── */}
+      <Beat
+        n="06"
         kicker="Why a simpler tool cannot do this"
         claim="Tyres do not wear out in straight lines."
         line="We measured the shape of nearly three thousand real stints. Barely half fade evenly. The rest warm up, recover, or fall off a cliff — and the cliff is the one that ends races. Every competing model assumes a straight line, so it is the wrong shape for almost half of real racing. Ours was never told what shape to expect."
@@ -263,25 +323,44 @@ export function PitchPage({
         )}
       </Beat>
 
-      {/* ── 06 the trust ─────────────────────────────────────────────────── */}
+      {/* ── 07 four methods, one answer ──────────────────────────────────── */}
       <Beat
-        n="06"
-        kicker="Why you can trust it"
-        claim="Our first version was overconfident. We caught it ourselves."
-        line="It claimed to be right ninety-five times in a hundred. We checked it against tens of thousands of real laps and it was right seventy-five. So we rebuilt the confidence from measured outcomes instead of theory, and checked again. Almost nobody runs this test, which is why almost every system on the market overstates how sure it is."
+        n="07"
+        kicker="Why you can trust the number"
+        claim="Four independent methods, asked the same question separately."
+        line="We do not ask the model once. We re-run it under deliberately different assumptions about the things we cannot measure, and see whether the answer moves. When four disagreeing starting points land on the same figure, that figure is a property of the race rather than of our choices. When they scatter, we say so instead of picking one."
         tone="var(--color-fuel)"
       >
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Claim label="What it promised" value="95" sub="times in a hundred" tone="var(--color-ink-dim)" />
-          <Claim label="What it delivered, before we fixed it" value="75" sub="times in a hundred" tone="var(--color-alert)" />
-          <Claim label="After rebuilding it from outcomes" value="95" sub="times in a hundred" tone="var(--color-good)" />
-          <Claim label="Checked against" value="69,206" sub="real racing laps" tone="var(--color-good)" />
-        </div>
+        {consensus ? (
+          <ConsensusSpread
+            estimates={consensus.estimates}
+            consensus={consensus.consensus}
+            consensusSd={consensus.consensus_sd}
+            colour="var(--color-medium)"
+          />
+        ) : (
+          <Waiting what="Re-running under alternative assumptions…" />
+        )}
+      </Beat>
+
+      {/* ── 08 calibration ───────────────────────────────────────────────── */}
+      <Beat
+        n="08"
+        kicker="And why you can trust the confidence"
+        claim="Most tools claim a confidence. We measured ours, and it was wrong."
+        line="The straight diagonal is a tool being exactly as sure as it should be. Every competing model sags below it — claiming more certainty than it earns, which is the failure that gets a strategist hurt. Ours sagged too until we rebuilt the confidence from measured outcomes rather than theory. Almost nobody runs this test at all."
+        tone="var(--color-fuel)"
+      >
+        {reliability.length ? (
+          <ReliabilityCurve rows={reliability} />
+        ) : (
+          <Waiting what="Loading the calibration test…" />
+        )}
       </Beat>
 
       {/* ── 07 not a racing trick ────────────────────────────────────────── */}
       <Beat
-        n="07"
+        n="09"
         kicker="It is bigger than racing"
         claim="The same engine, unchanged, predicts when a jet engine will fail."
         line="Strip the motorsport words away and this is a general problem: something wears out while it works, you cannot measure it directly, and other things move the only signal you can see. We pointed the identical code at NASA's turbofan benchmark without changing a line. Each dot is an engine. Below the line is the safe direction to be wrong, and most of ours are."
@@ -301,7 +380,7 @@ export function PitchPage({
       >
         <div className="px-6 py-6">
           <div className="flex items-baseline gap-2.5">
-            <span className="num text-[12px] text-alert">08</span>
+            <span className="num text-[12px] text-alert">10</span>
             <span className="text-[10.5px] tracking-[0.18em] text-ink-faint uppercase">
               Why the industry can actually take this up
             </span>
@@ -450,30 +529,6 @@ function NaiveVersusOurs({ summary }: { summary: SessionSummary }) {
         Both are fitted on exactly the same laps of this race. The only difference is that ours
         accounts for the fuel burning off underneath.
       </p>
-    </div>
-  )
-}
-
-function Claim({
-  label,
-  value,
-  sub,
-  tone,
-}: {
-  label: string
-  value: string
-  sub: string
-  tone: string
-}) {
-  return (
-    <div className="border border-line bg-raised/30 px-4 py-4">
-      <div className="text-[11px] leading-snug text-ink-faint">{label}</div>
-      <div className="mt-2 flex items-baseline gap-2">
-        <span className="num text-[32px] leading-none font-semibold" style={{ color: tone }}>
-          {value}
-        </span>
-        <span className="text-[11.5px] text-ink-faint">{sub}</span>
-      </div>
     </div>
   )
 }
