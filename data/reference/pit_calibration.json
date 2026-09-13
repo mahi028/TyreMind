@@ -1,0 +1,30 @@
+{
+ "_note": "Conformal pit-window thresholds. `half_width_laps` is fitted on all stops; `measured_coverage_held_out` is what that width achieved on stops it was not fitted on, averaged over repeated splits. The coverage we claim is the one we measured.",
+ "model": "TyreMind state-space",
+ "source": "experiments\\results\\exp30_pit_confidence_calibration.json",
+ "generated_at": "2026-09-12T22:54:37.619426+00:00",
+ "n_splits": 200,
+ "entries": {
+  "0.50": {
+   "target_coverage": 0.5,
+   "half_width_laps": 5.0,
+   "measured_coverage_held_out": 0.5384552845528455,
+   "mean_half_width_held_out": 5.215,
+   "n_calibration": 246
+  },
+  "0.80": {
+   "target_coverage": 0.8,
+   "half_width_laps": 10.0,
+   "measured_coverage_held_out": 0.831178861788618,
+   "mean_half_width_held_out": 10.065,
+   "n_calibration": 246
+  },
+  "0.90": {
+   "target_coverage": 0.9,
+   "half_width_laps": 13.0,
+   "measured_coverage_held_out": 0.9079674796747967,
+   "mean_half_width_held_out": 13.345,
+   "n_calibration": 246
+  }
+ }
+}

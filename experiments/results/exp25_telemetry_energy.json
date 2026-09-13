@@ -1,0 +1,349 @@
+{
+ "experiment": "exp25_telemetry_energy",
+ "generated_at": "2026-09-12T18:08:12.560260+00:00",
+ "n_stints": 2219,
+ "n_circuits": 24,
+ "n_sessions": 84,
+ "features": {
+  "energy_mj_total": "total frictional energy per lap",
+  "mean_abs_lateral_g": "mean lateral acceleration",
+  "loaded_fraction": "share of the lap above 0.5 g lateral",
+  "p95_lateral_g": "peak lateral acceleration",
+  "mean_abs_long_g": "mean longitudinal acceleration",
+  "braking_fraction": "share of the lap on the brakes"
+ },
+ "stint_level": {
+  "energy_mj_total": {
+   "n": 2219,
+   "rho": -0.03989800051787859,
+   "p_value": 0.060226075431762144
+  },
+  "mean_abs_lateral_g": {
+   "n": 2219,
+   "rho": -0.1095099486144364,
+   "p_value": 2.3252464310528823e-07
+  },
+  "loaded_fraction": {
+   "n": 2219,
+   "rho": -0.1529984719648867,
+   "p_value": 4.298192958991872e-13
+  },
+  "p95_lateral_g": {
+   "n": 2219,
+   "rho": -0.09661314818801739,
+   "p_value": 5.1351669116943946e-06
+  },
+  "mean_abs_long_g": {
+   "n": 2219,
+   "rho": -0.0009513649786951394,
+   "p_value": 0.9642746902290398
+  },
+  "braking_fraction": {
+   "n": 2219,
+   "rho": 0.0319234783790626,
+   "p_value": 0.13275356211715506
+  }
+ },
+ "circuit_level": {
+  "energy_mj_total": {
+   "n": 24,
+   "rho": -0.11652173913043477,
+   "p_value": 0.5876690329511151
+  },
+  "mean_abs_lateral_g": {
+   "n": 24,
+   "rho": -0.03043478260869565,
+   "p_value": 0.8877339355759605
+  },
+  "loaded_fraction": {
+   "n": 24,
+   "rho": -0.17043478260869566,
+   "p_value": 0.4258955363074479
+  },
+  "p95_lateral_g": {
+   "n": 24,
+   "rho": -0.0626086956521739,
+   "p_value": 0.7713343005112614
+  },
+  "mean_abs_long_g": {
+   "n": 24,
+   "rho": -0.11565217391304347,
+   "p_value": 0.5904783168868414
+  },
+  "braking_fraction": {
+   "n": 24,
+   "rho": 0.05652173913043478,
+   "p_value": 0.7930697839291405
+  }
+ },
+ "n_significant_stint": 3,
+ "n_wrong_signed": 3,
+ "n_significant_circuit": 0,
+ "supported": false,
+ "per_circuit": [
+  {
+   "circuit": "abu-dhabi-grand-prix",
+   "slope": 0.10317840899938267,
+   "n_stints": 110,
+   "energy_mj_total": 71.98628730358125,
+   "mean_abs_lateral_g": 0.14982515001637137,
+   "loaded_fraction": 0.032632591121256924,
+   "p95_lateral_g": 0.44235790218148563,
+   "mean_abs_long_g": 0.6726819980069321,
+   "braking_fraction": 0.16747318977031078
+  },
+  {
+   "circuit": "australian-grand-prix",
+   "slope": 0.062111973817844654,
+   "n_stints": 109,
+   "energy_mj_total": 69.68384501648589,
+   "mean_abs_lateral_g": 0.16203082227098226,
+   "loaded_fraction": 0.023295794193362394,
+   "p95_lateral_g": 0.40056295213808457,
+   "mean_abs_long_g": 0.601463996842106,
+   "braking_fraction": 0.1489982309414091
+  },
+  {
+   "circuit": "austrian-grand-prix",
+   "slope": 0.11024334102241722,
+   "n_stints": 160,
+   "energy_mj_total": 66.05665592376585,
+   "mean_abs_lateral_g": 0.13704277714362662,
+   "loaded_fraction": 0.018154032507025637,
+   "p95_lateral_g": 0.3759627332015161,
+   "mean_abs_long_g": 0.7255735065110838,
+   "braking_fraction": 0.1935040763910492
+  },
+  {
+   "circuit": "azerbaijan-grand-prix",
+   "slope": 0.058995338215007985,
+   "n_stints": 112,
+   "energy_mj_total": 84.39478863484487,
+   "mean_abs_lateral_g": 0.10184441491897044,
+   "loaded_fraction": 0.019023102745198806,
+   "p95_lateral_g": 0.3396323298374668,
+   "mean_abs_long_g": 0.7730854243032563,
+   "braking_fraction": 0.22378548450906233
+  },
+  {
+   "circuit": "bahrain-grand-prix",
+   "slope": 0.16795154909236884,
+   "n_stints": 222,
+   "energy_mj_total": 74.22713551111612,
+   "mean_abs_lateral_g": 0.11604073307665513,
+   "loaded_fraction": 0.008545730747946938,
+   "p95_lateral_g": 0.3244741953593221,
+   "mean_abs_long_g": 0.7275359246862003,
+   "braking_fraction": 0.21016997902201812
+  },
+  {
+   "circuit": "belgian-grand-prix",
+   "slope": 0.16958511319386346,
+   "n_stints": 150,
+   "energy_mj_total": 84.87642807208391,
+   "mean_abs_lateral_g": 0.14319570796161926,
+   "loaded_fraction": 0.01853094670087036,
+   "p95_lateral_g": 0.38660126113237436,
+   "mean_abs_long_g": 0.5790281986654988,
+   "braking_fraction": 0.1582737077672712
+  },
+  {
+   "circuit": "british-grand-prix",
+   "slope": 0.08424062468949835,
+   "n_stints": 140,
+   "energy_mj_total": 70.96072596447561,
+   "mean_abs_lateral_g": 0.1758108999819885,
+   "loaded_fraction": 0.02438664185108139,
+   "p95_lateral_g": 0.42017478461667956,
+   "mean_abs_long_g": 0.5468916363188554,
+   "braking_fraction": 0.1601168886116793
+  },
+  {
+   "circuit": "canadian-grand-prix",
+   "slope": 0.04991971253213976,
+   "n_stints": 115,
+   "energy_mj_total": 67.16209353939004,
+   "mean_abs_lateral_g": 0.12262904352492954,
+   "loaded_fraction": 0.00905300155844219,
+   "p95_lateral_g": 0.3002071042802351,
+   "mean_abs_long_g": 0.7801186599196807,
+   "braking_fraction": 0.20732951143329403
+  },
+  {
+   "circuit": "dutch-grand-prix",
+   "slope": 0.09188115356975221,
+   "n_stints": 125,
+   "energy_mj_total": 57.006902345795034,
+   "mean_abs_lateral_g": 0.18751052475940494,
+   "loaded_fraction": 0.04413965024177818,
+   "p95_lateral_g": 0.4831857849197726,
+   "mean_abs_long_g": 0.6534709105873283,
+   "braking_fraction": 0.20799777722436605
+  },
+  {
+   "circuit": "emilia-romagna-grand-prix",
+   "slope": 0.05956876156547932,
+   "n_stints": 22,
+   "energy_mj_total": 68.14618943393938,
+   "mean_abs_lateral_g": 0.13962427556732293,
+   "loaded_fraction": 0.025525815898860386,
+   "p95_lateral_g": 0.41194770635362504,
+   "mean_abs_long_g": 0.695709219387997,
+   "braking_fraction": 0.19405143667522742
+  },
+  {
+   "circuit": "french-grand-prix",
+   "slope": 0.09441476793206746,
+   "n_stints": 39,
+   "energy_mj_total": 73.42900412171376,
+   "mean_abs_lateral_g": 0.15341054010890345,
+   "loaded_fraction": 0.018449134064522487,
+   "p95_lateral_g": 0.39110635882086003,
+   "mean_abs_long_g": 0.6048619841553029,
+   "braking_fraction": 0.2063362450148357
+  },
+  {
+   "circuit": "hungarian-grand-prix",
+   "slope": 0.10546003164065594,
+   "n_stints": 62,
+   "energy_mj_total": 62.8048562576649,
+   "mean_abs_lateral_g": 0.15978754052940503,
+   "loaded_fraction": 0.01102784040656068,
+   "p95_lateral_g": 0.36163478552542333,
+   "mean_abs_long_g": 0.7580235462838156,
+   "braking_fraction": 0.23114193412990852
+  },
+  {
+   "circuit": "italian-grand-prix",
+   "slope": 0.09199523228862973,
+   "n_stints": 86,
+   "energy_mj_total": 77.8693860741828,
+   "mean_abs_lateral_g": 0.11431080846205183,
+   "loaded_fraction": 0.011145648151137678,
+   "p95_lateral_g": 0.31932272653216687,
+   "mean_abs_long_g": 0.6062653170250744,
+   "braking_fraction": 0.14903473098807585
+  },
+  {
+   "circuit": "japanese-grand-prix",
+   "slope": 0.1740431055215297,
+   "n_stints": 53,
+   "energy_mj_total": 70.40029634361687,
+   "mean_abs_lateral_g": 0.16948522068599448,
+   "loaded_fraction": 0.028757085980577586,
+   "p95_lateral_g": 0.4246437349095189,
+   "mean_abs_long_g": 0.5828010122588203,
+   "braking_fraction": 0.1677875102638948
+  },
+  {
+   "circuit": "las-vegas-grand-prix",
+   "slope": -0.0003895356702233033,
+   "n_stints": 51,
+   "energy_mj_total": 86.05447483490424,
+   "mean_abs_lateral_g": 0.12057708217109193,
+   "loaded_fraction": 0.010134597975711007,
+   "p95_lateral_g": 0.33291753351715914,
+   "mean_abs_long_g": 0.6539238424884312,
+   "braking_fraction": 0.1920313258988272
+  },
+  {
+   "circuit": "mexico-city-grand-prix",
+   "slope": 0.13635727103366188,
+   "n_stints": 63,
+   "energy_mj_total": 59.25405010747866,
+   "mean_abs_lateral_g": 0.11901197405134205,
+   "loaded_fraction": 0.008339533322377435,
+   "p95_lateral_g": 0.28433821596758385,
+   "mean_abs_long_g": 0.7102539748055617,
+   "braking_fraction": 0.23049689209470317
+  },
+  {
+   "circuit": "miami-grand-prix",
+   "slope": 0.03452324088528174,
+   "n_stints": 82,
+   "energy_mj_total": 67.50976025983374,
+   "mean_abs_lateral_g": 0.14833075239332302,
+   "loaded_fraction": 0.019156406540215994,
+   "p95_lateral_g": 0.38555229292959275,
+   "mean_abs_long_g": 0.6267532097234398,
+   "braking_fraction": 0.19328038714582932
+  },
+  {
+   "circuit": "monaco-grand-prix",
+   "slope": 0.022864587297252204,
+   "n_stints": 65,
+   "energy_mj_total": 50.36197455345987,
+   "mean_abs_lateral_g": 0.1519293004896113,
+   "loaded_fraction": 0.010728404267084,
+   "p95_lateral_g": 0.348558677864099,
+   "mean_abs_long_g": 0.8227387047897446,
+   "braking_fraction": 0.2934826630220078
+  },
+  {
+   "circuit": "qatar-grand-prix",
+   "slope": 0.0029105585458079094,
+   "n_stints": 59,
+   "energy_mj_total": 70.80656709189027,
+   "mean_abs_lateral_g": 0.1818584192849199,
+   "loaded_fraction": 0.04674101108437737,
+   "p95_lateral_g": 0.48740354906532557,
+   "mean_abs_long_g": 0.6117730144235508,
+   "braking_fraction": 0.16211800727556053
+  },
+  {
+   "circuit": "saudi-arabian-grand-prix",
+   "slope": 0.04819151540733931,
+   "n_stints": 85,
+   "energy_mj_total": 81.4039338184474,
+   "mean_abs_lateral_g": 0.1754529755208532,
+   "loaded_fraction": 0.03586220812343459,
+   "p95_lateral_g": 0.44678767869051,
+   "mean_abs_long_g": 0.5871040067719735,
+   "braking_fraction": 0.1462747289355736
+  },
+  {
+   "circuit": "singapore-grand-prix",
+   "slope": 0.07698942418579077,
+   "n_stints": 52,
+   "energy_mj_total": 73.48861577252751,
+   "mean_abs_lateral_g": 0.12172783360877525,
+   "loaded_fraction": 0.008817985063099885,
+   "p95_lateral_g": 0.3067032365732844,
+   "mean_abs_long_g": 0.8138145100231129,
+   "braking_fraction": 0.23942578637644601
+  },
+  {
+   "circuit": "spanish-grand-prix",
+   "slope": 0.1339553396435691,
+   "n_stints": 143,
+   "energy_mj_total": 62.046367696244005,
+   "mean_abs_lateral_g": 0.1691086904137394,
+   "loaded_fraction": 0.020363909917082933,
+   "p95_lateral_g": 0.39787466712092084,
+   "mean_abs_long_g": 0.65949614620661,
+   "braking_fraction": 0.1949046519151164
+  },
+  {
+   "circuit": "s\u00e3o-paulo-grand-prix",
+   "slope": 0.10874243900324723,
+   "n_stints": 60,
+   "energy_mj_total": 58.81877556704784,
+   "mean_abs_lateral_g": 0.17405998708434275,
+   "loaded_fraction": 0.010461234598518243,
+   "p95_lateral_g": 0.36467552881933657,
+   "mean_abs_long_g": 0.6577977908205704,
+   "braking_fraction": 0.19364812862633773
+  },
+  {
+   "circuit": "united-states-grand-prix",
+   "slope": 0.07398782131497782,
+   "n_stints": 54,
+   "energy_mj_total": 71.38240074418104,
+   "mean_abs_lateral_g": 0.1538333624474766,
+   "loaded_fraction": 0.019108719555115908,
+   "p95_lateral_g": 0.39694473761326665,
+   "mean_abs_long_g": 0.7038590257731437,
+   "braking_fraction": 0.20434605101585318
+  }
+ ]
+}

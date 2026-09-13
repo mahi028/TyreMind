@@ -30,10 +30,14 @@ import { Explainer } from './components/Explainer'
 import { StintDecomposition, TrackEvolutionChart } from './components/charts'
 import { CircuitView } from './components/CircuitView'
 import { RaceView } from './components/RaceView'
+import { Briefing } from './components/briefing/Briefing'
+import { Orchestration } from './components/evidence/Orchestration'
 import { AskPanel } from './components/AskPanel'
 import { ThemeToggle } from './lib/theme'
 
 type View =
+  | 'briefing'
+  | 'router'
   | 'overview'
   | 'race'
   | 'explain'
@@ -70,8 +74,14 @@ const IconActivity = icon(<path d="M2 8.5h3l1.5-4L9 12l1.5-6.5L11.5 8.5H14" />)
 const IconCheck = icon(<path d="M8 1.5 13.5 4v4c0 3.5-2.5 5.6-5.5 6.5-3-0.9-5.5-3-5.5-6.5V4L8 1.5ZM5.7 8l1.6 1.6L10.4 6.4" />)
 const IconSearch = icon(<><circle cx="7" cy="7" r="4.5" /><path d="m13.5 13.5-3-3" /></>)
 const IconGlobe = icon(<><circle cx="8" cy="8" r="5.8" /><path d="M2.2 8h11.6M8 2.2c-2 2-2 9.6 0 11.6m0-11.6c2 2 2 9.6 0 11.6" /></>)
+// Five stacked dots: the "five questions" briefing is a summary of everything
+// else, so its mark is deliberately the plainest one in the rail.
+const IconBriefing = icon(<><circle cx="8" cy="3.4" r="1.1" /><circle cx="3.4" cy="8" r="1.1" /><circle cx="8" cy="8" r="1.1" /><circle cx="12.6" cy="8" r="1.1" /><circle cx="8" cy="12.6" r="1.1" /></>)
+// A fork: one input, several possible models to answer it.
+const IconRouter = icon(<path d="M3 4h3l3 4 3-4h1M3 12h3l3-4 3 4h1" />)
 
 const VIEWS: { key: View; label: string; icon: (props: { className?: string }) => ReactNode }[] = [
+  { key: 'briefing', label: 'Briefing',    icon: IconBriefing },
   { key: 'overview', label: 'Overview',    icon: IconHome },
   { key: 'race',     label: 'Race',        icon: IconRace },
   { key: 'explain',  label: 'Explain',     icon: IconLayers },
@@ -79,6 +89,7 @@ const VIEWS: { key: View; label: string; icon: (props: { className?: string }) =
   { key: 'tyre',     label: 'Tyre twin',   icon: IconGauge },
   { key: 'strategy', label: 'Strategy',    icon: IconFlag },
   { key: 'live',     label: 'Live',        icon: IconActivity },
+  { key: 'router',   label: 'Model router',icon: IconRouter },
   { key: 'evidence', label: 'Evidence',    icon: IconCheck },
   { key: 'ask',      label: 'Ask',         icon: IconSearch },
   { key: 'beyond',   label: 'Beyond',      icon: IconGlobe },
@@ -88,7 +99,7 @@ const VIEW_KEYS = new Set<string>(VIEWS.map((v) => v.key))
 
 function viewFromHash(): View {
   const key = window.location.hash.replace(/^#\/?/, '')
-  return VIEW_KEYS.has(key) ? (key as View) : 'overview'
+  return VIEW_KEYS.has(key) ? (key as View) : 'briefing'
 }
 
 /** Session type badge: Race, FP2, Q, etc. */
@@ -187,6 +198,16 @@ export default function App() {
 
   return (
     <div className="flex h-dvh flex-col bg-ground lg:flex-row lg:overflow-hidden">
+      {/* A hairline of accent along the very top of the shell: the one piece of
+          chrome that survives being projected, anchoring the layout to the
+          brand colour rather than to grey. */}
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 z-30 h-px"
+        style={{
+          background:
+            'linear-gradient(90deg, var(--color-alert) 0%, color-mix(in oklab, var(--color-alert) 25%, transparent) 34%, transparent 62%)',
+        }}
+      />
 
       {/* Mobile header, folds into the sidebar on desktop */}
       <header className="flex h-14 shrink-0 items-center gap-3 border-b border-line bg-surface px-4 lg:hidden">
@@ -328,6 +349,13 @@ export default function App() {
         <main className="flex-1 overflow-y-auto p-4">
           {!sessionId ? (
             <Loading what="the session catalogue" />
+          ) : view === 'briefing' ? (
+            <Briefing sessionId={sessionId} session={current} />
+          ) : view === 'router' ? (
+            // Session-independent: the routing table and the experiments behind
+            // it are corpus-wide results, and scoping them to whichever session
+            // the rail happens to have selected would be a category error.
+            <Orchestration />
           ) : view === 'beyond' ? (
             <BeyondRacing />
           ) : view === 'ask' ? (

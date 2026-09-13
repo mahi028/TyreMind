@@ -11,6 +11,8 @@ import json
 import logging
 from pathlib import Path
 
+from functools import lru_cache
+
 import numpy as np
 from fastapi import FastAPI, HTTPException
 
@@ -436,6 +438,47 @@ def health_timeline(session_id: str, driver: str, run_id: int) -> dict:
     }
 
 
+@lru_cache(maxsize=1)
+def _pit_calibration() -> dict:
+    """Conformal pit-window thresholds, or empty when the artefact is absent.
+
+    Absent is a normal state on a fresh clone -- the artefact is built by
+    `scripts/build_pit_calibration.py` from exp30 -- and the endpoint degrades to
+    serving no calibrated window rather than inventing one.
+    """
+    path = Path("data/reference/pit_calibration.json")
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def _calibrated_windows(centre: int, final_lap: int) -> list[dict]:
+    """Windows at each calibrated coverage level, widest guarantee last.
+
+    Each carries the coverage actually measured on held-out stops alongside the
+    coverage targeted, so a reader can see the two agree instead of taking the
+    target on trust.
+    """
+    artefact = _pit_calibration()
+    out = []
+    for entry in artefact.get("entries", {}).values():
+        half = entry.get("half_width_laps")
+        if half is None:
+            continue
+        out.append({
+            "target_coverage": entry["target_coverage"],
+            "measured_coverage": entry.get("measured_coverage_held_out"),
+            "half_width_laps": half,
+            "low": max(centre - int(half), 1),
+            "high": min(centre + int(half), final_lap),
+            "n_calibration": entry.get("n_calibration"),
+        })
+    return sorted(out, key=lambda w: w["target_coverage"])
+
+
 def pit_window(
     session_id: str,
     driver: str,
@@ -493,6 +536,7 @@ def pit_window(
         raise HTTPException(status_code=400, detail="no laps remain to pit on")
 
     sweep = []
+    draws = []
     for pit_lap in candidates:
         outcome = simulate_strategy(
             state,
@@ -501,6 +545,7 @@ def pit_window(
             n_sims=n_sims,
             seed=11,  # common random numbers: the shape is signal, not noise
         )
+        draws.append(np.asarray(outcome.race_times, dtype=float))
         sweep.append(
             {
                 "pit_lap": pit_lap,
@@ -511,9 +556,83 @@ def pit_window(
             }
         )
 
-    best = min(sweep, key=lambda r: r["expected_time"])
+    # Probability that each lap is the right one.
+    #
+    # Every candidate was simulated against the same random draws, so draw i can
+    # be read across all candidates as one coherent race: whichever lap is
+    # fastest in that draw is the lap that would have been right. Counting the
+    # winners gives an honest probability rather than a softmax over expected
+    # times, which would have been a number shaped like a probability without
+    # being one.
+    #
+    # This is what lets the product say "box on lap 34, 62% confident" instead of
+    # "box on lap 34". A strategist cannot act on a bare recommendation; the
+    # width of the belief is the decision.
+    matrix = np.vstack(draws)                      # candidates x simulations
+    winners = np.argmin(matrix, axis=0)
+    counts = np.bincount(winners, minlength=len(candidates)).astype(float)
+    probabilities = counts / max(counts.sum(), 1.0)
+    # Named `entry`, not `row`: `row` is the lap Series holding tyre_age and
+    # compound, and shadowing it here left a latent KeyError that only fired once
+    # something downstream read it again.
+    for entry, probability in zip(sweep, probabilities):
+        entry["probability_optimal"] = float(probability)
+
+    # The recommendation comes from the ANALYTIC optimiser, not from this sweep.
+    #
+    # There were two recommenders in this repository and they disagreed. For
+    # Antonelli at Bahrain lap 5 the simulation answered lap 20 and the analytic
+    # sweep answered lap 11; he boxed on lap 11. The analytic one is what exp22
+    # and exp30 score, so every published figure -- 5.92 laps mean error, lift
+    # 1.97 over chance, a 7.9-point calibration gap -- describes it and not this.
+    # Serving a different number from the one we validated would make all of
+    # those figures describe something the product does not do.
+    #
+    # The simulation is kept for what it is good at: a cost curve over the whole
+    # remaining race, including traffic and the cliff, which the analytic form
+    # does not model. It gives the SHAPE. The analytic optimiser gives the CALL.
+    from tyremind.models.pit_decision import recommend_pit_lap
+
+    current_rate = tyres[current]
+    alternatives_rates = [tyres[c].degradation_rate for c in tyres if c != current]
+    analytic = recommend_pit_lap(
+        current_rate=float(current_rate.degradation_rate),
+        current_rate_sd=float(getattr(current_rate, "degradation_rate_sd", 0.05) or 0.05),
+        fresh_rate=float(np.mean(alternatives_rates)) if alternatives_rates
+        else float(current_rate.degradation_rate),
+        current_age=float(row["tyre_age"]),
+        decision_lap=int(lap),
+        final_lap=total_laps,
+        pit_loss_s=DEFAULT_PIT_LOSS_S,
+    )
+
+    if analytic.reason:
+        # The optimiser declined -- degradation is not what decides this stop.
+        # That refusal is the honest answer and must survive to the caller rather
+        # than being quietly replaced by the simulation's pick.
+        return {
+            "driver": driver,
+            "from_lap": int(lap),
+            "total_laps": total_laps,
+            "new_compound": fresh,
+            "optimum_lap": None,
+            "declined": True,
+            "reason": analytic.reason,
+            "sweep": sweep,
+            "n_sims": n_sims,
+            "note": "No recommendation: the tyre is not what decides this stop.",
+        }
+
+    best = next((r for r in sweep if r["pit_lap"] == analytic.lap), None)
+    if best is None:
+        best = min(sweep, key=lambda r: r["expected_time"])
     # How wide is the window that costs less than a second against the optimum?
     tolerable = [r["pit_lap"] for r in sweep if r["expected_time"] <= best["expected_time"] + 1.0]
+    # Probabilities from the analytic optimiser, so the confidence figures match
+    # the ones exp30 measured a calibration gap for.
+    analytic_probabilities = analytic.distribution
+    for row_ in sweep:
+        row_["probability_optimal"] = float(analytic_probabilities.get(row_["pit_lap"], 0.0))
 
     return {
         "driver": driver,
@@ -526,9 +645,27 @@ def pit_window(
         "window_within_1s": [min(tolerable), max(tolerable)] if tolerable else None,
         "sweep": sweep,
         "n_sims": n_sims,
+        # The headline confidence: how often the recommended lap actually won.
+        "declined": False,
+        "confidence_in_optimum": float(analytic.confidence),
+        # The calibrated window, which is the one a strategist should act on.
+        # Its stated coverage was measured on held-out real stops rather than
+        # summed from a softmax whose temperature nobody validated: exp30 found
+        # the old window claimed 31.9% and delivered 24.0%.
+        "calibrated_windows": _calibrated_windows(analytic.lap, total_laps),
+        # And the same for the window, which is usually the number a strategist
+        # wants: not "is lap 34 exactly right" but "am I in the right window".
+        "confidence_in_window": float(
+            sum(r["probability_optimal"] for r in sweep if r["pit_lap"] in set(tolerable))
+        ) if tolerable else None,
+        "probability_box_within_3_laps": float(
+            sum(r["probability_optimal"] for r in sweep if r["pit_lap"] <= lap + 3)
+        ),
         "note": (
             "Model estimate. The width of the window matters as much as its "
-            "centre: a flat curve means the exact lap is not critical."
+            "centre: a flat curve means the exact lap is not critical. "
+            "Probabilities are the share of simulated races in which each lap "
+            "was the fastest choice, under common random numbers."
         ),
     }
 

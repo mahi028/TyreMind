@@ -101,6 +101,26 @@ class SessionConfig:
     observation_noise_df: float = 5.0
 
     scrubbed_set_probability: float = 0.25
+
+    #: How the tyre and fuel effects split across the three sectors.
+    #:
+    #: These are deliberately **not** parallel, because that is the whole
+    #: hypothesis exp26 measured on real data: fuel costs time where the car
+    #: accelerates and brakes, degradation costs it where the car is
+    #: grip-limited, and the two therefore load differently. A generator that
+    #: split both by time share would make the sector model look identified when
+    #: it is not, which is the one mistake that would invalidate the test.
+    #:
+    #: Sector 2 is the grip-limited one here and sector 1 the acceleration-heavy
+    #: one, roughly matching the pattern exp26 found. Each vector sums to 1.
+    tyre_loading: tuple[float, float, float] = (0.20, 0.55, 0.25)
+    fuel_loading: tuple[float, float, float] = (0.45, 0.25, 0.30)
+
+    #: Independent noise on each sector, on top of the whole-lap noise. Without
+    #: it the three sector times would be a deterministic split of the lap and
+    #: the sector model would face an easier problem than reality poses.
+    sector_noise_sd: float = 0.05
+
     seed: int = 20260904
 
 
@@ -112,6 +132,10 @@ class GroundTruth:
         compound_rates: True baseline degradation rate per compound, s/lap.
         cliff_onset: True cliff onset age per compound, laps.
         fuel_slope: True fuel burn-off slope, s/lap.
+        tyre_loading: True split of the tyre effect across the three sectors.
+        fuel_loading: True split of the fuel effect. Deliberately not parallel to
+            `tyre_loading` -- that non-parallelism is what makes the sector model
+            identifiable, and a test that recovers it is testing the claim.
         traffic_coefficient: True traffic penalty at index 1.0, s.
         driver_pace: True car/driver pace offset per driver, s.
         track_evolution: Session lap to true track effect, s.
@@ -123,6 +147,8 @@ class GroundTruth:
     compound_rates: dict[str, float]
     cliff_onset: dict[str, float]
     fuel_slope: float
+    tyre_loading: tuple[float, float, float]
+    fuel_loading: tuple[float, float, float]
     traffic_coefficient: float
     driver_pace: dict[str, float]
     track_evolution: pd.DataFrame
@@ -265,6 +291,23 @@ def generate_session(config: SessionConfig | None = None) -> SyntheticSession:
                     + noise
                 )
 
+                # Split the lap into three sectors. Everything that is not tyre
+                # or fuel is divided by time share, since only those two are
+                # hypothesised to load unevenly; giving every term its own
+                # loading would let the model exploit structure that the real
+                # world has not been shown to have.
+                base_split = np.asarray(cfg.tyre_loading) * 0 + 1.0 / 3.0
+                other = lap_time - tyre_term - fuel_term
+                sector_values = (
+                    other * base_split
+                    + tyre_term * np.asarray(cfg.tyre_loading)
+                    + fuel_term * np.asarray(cfg.fuel_loading)
+                    + rng.normal(0.0, cfg.sector_noise_sd, size=3)
+                )
+                sector_times = {
+                    f"sector_{k}": float(v) for k, v in enumerate(sector_values, start=1)
+                }
+
                 rows.append(
                     {
                         "driver": driver,
@@ -275,6 +318,7 @@ def generate_session(config: SessionConfig | None = None) -> SyntheticSession:
                         "lap_time": lap_time,
                         "compound": compound,
                         "traffic_index": traffic_index,
+                        **sector_times,
                     }
                 )
                 truth_rows.append(
@@ -321,6 +365,8 @@ def generate_session(config: SessionConfig | None = None) -> SyntheticSession:
         compound_rates=dict(cfg.compound_rates),
         cliff_onset=dict(cfg.cliff_onset),
         fuel_slope=cfg.fuel_slope,
+        tyre_loading=cfg.tyre_loading,
+        fuel_loading=cfg.fuel_loading,
         traffic_coefficient=cfg.traffic_coefficient,
         driver_pace=driver_pace,
         track_evolution=track_evolution,

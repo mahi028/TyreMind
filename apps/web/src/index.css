@@ -148,7 +148,6 @@
     U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
     U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
-
 @font-face {
   font-family: 'JetBrains Mono';
   src: url('/fonts/jetbrains-mono-latin.woff2') format('woff2');
@@ -241,9 +240,10 @@ body {
 }
 
 /* ---------------------------------------------------------------------------
-   Tyre tread texture — used on the sidebar as a subtle geometric motif
-   
-   Diagonal grooves, like actual tyre tread geometry. Not a photo texture —
+   Tyre tread texture: a subtle geometric motif, available for any panel that
+   wants it.
+
+   Diagonal grooves, like actual tyre tread geometry. Not a photo texture:
    pure CSS, recessive at 3% opacity. Orientation echoes the grooves cut into
    a dry-weather compound.
 --------------------------------------------------------------------------- */
@@ -256,6 +256,129 @@ body {
     color-mix(in oklab, var(--color-line) 40%, transparent) 5px
   );
 }
+
+/* ---------------------------------------------------------------------------
+   Briefing view
+
+   The five-question screen is read off a projector from across a room, so it
+   runs at a larger type scale than the working views and leans on motion only
+   where the motion carries meaning: an interval that grows from its centre
+   reads as "this is a spread", where a rectangle that is simply present reads
+   as "this is a bar".
+
+   All of it is plain CSS rather than a motion library, because every one of
+   these is a one-shot reveal on mount and a dependency would buy nothing.
+--------------------------------------------------------------------------- */
+
+/* A beam that opens outwards from its own mean tick. */
+@keyframes beam-open {
+  from {
+    transform: scaleX(0.04);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+.beam-open {
+  transform-origin: var(--beam-origin, 50%) 50%;
+  animation: beam-open 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Sections reveal as they scroll into the viewport; `.seen` is set by an
+   IntersectionObserver so a section below the fold is not already spent by the
+   time a judge reaches it. */
+.reveal {
+  opacity: 0;
+}
+.reveal.seen {
+  animation: rise 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes sweep {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* The live-status hairline under the briefing header. */
+.scanline {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in oklab, var(--color-alert) 70%, transparent) 45%,
+    color-mix(in oklab, var(--color-alert) 70%, transparent) 55%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: sweep 3.4s linear infinite;
+}
+
+/* Lap scrubber. Styled explicitly because the native track is unreadable on a
+   dark ground at projector distance. */
+.scrub {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 22px;
+  background: transparent;
+  cursor: pointer;
+}
+.scrub::-webkit-slider-runnable-track {
+  height: 4px;
+  background: var(--color-line);
+}
+.scrub::-moz-range-track {
+  height: 4px;
+  background: var(--color-line);
+}
+.scrub::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 4px;
+  height: 22px;
+  margin-top: -9px;
+  border-radius: 0;
+  background: var(--color-alert);
+}
+.scrub::-moz-range-thumb {
+  width: 4px;
+  height: 22px;
+  border: 0;
+  border-radius: 0;
+  background: var(--color-alert);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+  }
+  .scanline {
+    animation: none;
+  }
+}
+
+/* The header and rail are held in place structurally by the app shell in
+   App.tsx -- the page itself does not scroll on a wide screen, only the working
+   area does. Sticky positioning was doing half the job: the rail stayed and the
+   header did not. On narrow screens the layout stacks and scrolls normally,
+   because a fixed rail would eat most of a phone. */
 
 /* Speed-line sweep — used for active/selected state transitions */
 @keyframes speed-sweep {
@@ -340,8 +463,158 @@ input[type='range'] {
 }
 
 /* ---------------------------------------------------------------------------
-   Reduced motion
+   Projector register
+
+   Everything below exists for one situation: this interface on a projector,
+   read by judges from about two metres, in a room that is not dark. Three
+   things fail at that distance -- hairline borders vanish, flat surfaces stack
+   into one grey field, and a static screen gives the eye no order to read in.
+   So: borders get a second, brighter edge; surfaces get a top highlight that
+   separates them the way a physical instrument bezel does; and the marks that
+   carry the argument arrive in sequence rather than all at once.
+
+   The motion is strictly one-shot on mount. Nothing here loops except the
+   scanline, because a looping animation behind a number a judge is trying to
+   read is an obstacle, not depth.
 --------------------------------------------------------------------------- */
+
+/* A very slow radial wash behind the whole app. It is almost subliminal at
+   desk distance and does most of the separating work on a projector, where the
+   flat #0e1418 ground otherwise reads as a black rectangle with text on it. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      118vmax 82vmax at 82% -12%,
+      color-mix(in oklab, var(--color-alert) 7%, transparent) 0%,
+      transparent 62%
+    ),
+    radial-gradient(
+      96vmax 70vmax at 6% 108%,
+      color-mix(in oklab, var(--color-fuel) 8%, transparent) 0%,
+      transparent 58%
+    );
+}
+[data-theme='light'] body::before {
+  opacity: 0.55;
+}
+
+/* A panel with an edge. The inset top line is the bezel highlight: one pixel
+   of lighter colour along the top of a surface is what makes it read as raised
+   rather than as a differently-coloured region of the same plane. */
+.plate {
+  position: relative;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--color-line-bright) 60%, transparent),
+    0 1px 0 color-mix(in oklab, #000 22%, transparent),
+    0 14px 34px -22px color-mix(in oklab, #000 70%, transparent);
+}
+[data-theme='light'] .plate {
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 1px 2px color-mix(in oklab, #16212a 8%, transparent),
+    0 12px 28px -20px color-mix(in oklab, #16212a 26%, transparent);
+}
+
+/* The accent rule that runs under a section title. Wider than a border and
+   fading out, so it reads as emphasis rather than as a table line. */
+.rule-accent {
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--rule-color, var(--color-alert)) 0%,
+    color-mix(in oklab, var(--rule-color, var(--color-alert)) 30%, transparent) 38%,
+    transparent 100%
+  );
+}
+
+/* Diagonal hatching. Used for the shortfall between a claim and what was
+   measured: a solid bar would read as a quantity we are proud of, and this is
+   the opposite. */
+.hatch {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    color-mix(in oklab, var(--hatch-color, var(--color-alert)) 55%, transparent) 0 2px,
+    transparent 2px 6px
+  );
+}
+
+/* Bars that grow from their own baseline. A bar that fades in is a picture of
+   a bar; a bar that grows is a picture of a measurement accumulating. */
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.grow-x {
+  transform-origin: left center;
+  animation: grow-x 760ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * 65ms);
+}
+
+/* Rows that arrive in reading order. `--i` is set per row by the component, so
+   a table of eleven regimes resolves top to bottom instead of flashing. */
+@keyframes settle {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.settle {
+  animation: settle 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * 55ms);
+}
+
+/* The marker for the lap a driver actually chose, against a window we claimed.
+   It pulses exactly three times and then stops. */
+@keyframes ping {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--ping-color, var(--color-good)) 55%, transparent);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 9px transparent;
+  }
+}
+.ping {
+  animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) 3;
+}
+
+/* Nested coverage windows. Each level is a band; the inner ones sit on top, so
+   the stack reads as "50% is inside 80% is inside 90%" without a legend. */
+.band {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--band-color, var(--color-good)) 30%, transparent),
+    color-mix(in oklab, var(--band-color, var(--color-good)) 14%, transparent)
+  );
+  border-left: 1px solid color-mix(in oklab, var(--band-color, var(--color-good)) 75%, transparent);
+  border-right: 1px solid color-mix(in oklab, var(--band-color, var(--color-good)) 75%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grow-x,
+  .settle {
+    animation: none;
+  }
+  .ping {
+    animation: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

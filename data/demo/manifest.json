@@ -62,5 +62,21 @@
     "session": "R",
     "label": "2024 Barcelona - R",
     "cached": false
+  },
+  {
+    "session_id": "2025-bahrain-grand-prix-R",
+    "year": 2025,
+    "grand_prix": "Bahrain Grand Prix",
+    "session": "R",
+    "label": "2025 Bahrain GP - Race",
+    "cached": true
+  },
+  {
+    "session_id": "2025-austrian-grand-prix-R",
+    "year": 2025,
+    "grand_prix": "Austrian Grand Prix",
+    "session": "R",
+    "label": "2025 Austrian GP - Race",
+    "cached": true
   }
 ]

@@ -63,6 +63,32 @@ def read_lap_table(path: Path) -> pd.DataFrame:
     return frame
 
 
+
+def read_telemetry_table(path: Path) -> pd.DataFrame:
+    """Read a per-lap telemetry file written by `scripts/build_telemetry.py`.
+
+    Telemetry tables are not lap tables: they carry no `tyre_age`, so the
+    fuel-counter repair in `read_lap_table` does not apply and would be a no-op.
+    They still get their own loader rather than a bare `pd.read_parquet`, for two
+    reasons.
+
+    The first is that `tests/unit/test_loader_discipline.py` forbids direct
+    parquet reads outside this module, and the rule is worth more absolute than
+    qualified -- the bug it exists to prevent came back in five files precisely
+    because the repair was something callers had to remember. An exemption for
+    "files that are not lap tables" is an exemption someone will later apply to a
+    file that is one.
+
+    The second is that this is where a repair goes if telemetry ever needs one.
+
+    Args:
+        path: Parquet file, one row per driver per lap.
+
+    Returns:
+        The telemetry frame, joinable to a lap table on (driver, session_lap).
+    """
+    return pd.read_parquet(path)
+
 @dataclass(frozen=True)
 class CorpusSession:
     """One session on disk, with enough identity to order it."""

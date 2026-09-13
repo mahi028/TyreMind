@@ -209,8 +209,13 @@ def chunk_result(payload: dict, source: str) -> list[Passage]:
     def add(text: str, heading: str) -> None:
         passages.append(Passage(text, source, heading, "result"))
 
-    summary = payload.get("summary", {}).get("overall")
-    if summary:
+    # `summary` is a dict in exp01 and a list of per-model rows in exp22. Reaching
+    # straight through it was fine until an experiment shaped it differently, and
+    # then every retrieval query 500ed on an AttributeError -- a whole route taken
+    # down by one new result file. Ask what it is before reaching into it.
+    summary_block = payload.get("summary")
+    summary = summary_block.get("overall") if isinstance(summary_block, dict) else None
+    if isinstance(summary, dict) and "ssm_mae" in summary:
         add(
             f"Experiment {name}: TyreMind recovers a known degradation rate with mean "
             f"absolute error {summary['ssm_mae']:.4f} s/lap against the naive method's "

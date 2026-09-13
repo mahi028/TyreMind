@@ -1,0 +1,844 @@
+{
+ "experiment": "exp33_kerb_exposure",
+ "generated_at": "2026-09-13T00:04:48.360087+00:00",
+ "preregistration": "experiments/PREREGISTRATION_exp33.md",
+ "n_stints": 3139,
+ "n_circuits": 25,
+ "n_races": 82,
+ "n_drivers": 31,
+ "n_stints_with_excursion": 639,
+ "n_excursions": 865,
+ "mean_slope_s_per_lap2": 0.08409218463251784,
+ "excursion_lap_position": {
+  "mean_excursion_lap_in_run": 12.16928608689172,
+  "mean_stint_lap_in_run": 11.618173014839279
+ },
+ "measurement_gate": {
+  "n_race_sessions": 84,
+  "median_dev_median_m": 0.03818422270879404,
+  "median_dev_p90_m": 0.10719135722572626,
+  "median_dev_p99_m": 0.3543577654039366,
+  "median_dev_p999_m": 7.6242731482670045,
+  "median_dev_max_m": 9.994807951616469,
+  "median_reference_stability_m": 0.03281612761936363,
+  "median_pair_min_separation_m": 0.0,
+  "fraction_of_sessions_with_coincident_cars": 1.0,
+  "mean_pairs_within_2m_per_session": 188.33333333333334,
+  "mean_pairs_per_session": 189.54761904761904,
+  "n_coincident_pairs": 15581,
+  "n_pairs_total": 15922,
+  "gates": {
+   "G1_p99_at_least_2m": false,
+   "G2_p99_exceeds_5x_reference_stability": true,
+   "G3_cars_not_coincident": false
+  },
+  "measure_a_valid": false
+ },
+ "measure_b_track_limits": {
+  "T1_pooled": {
+   "n": 3139,
+   "rho": -0.0029193321275000584,
+   "p_value": 0.8701279374700981,
+   "min_detectable_rho": 0.049999999999999996
+  },
+  "T2_within_circuit": {
+   "n": 3139,
+   "rho": 0.008463924331907778,
+   "p_value": 0.6354813385338376,
+   "min_detectable_rho": 0.049999999999999996
+  },
+  "T3_within_driver_and_circuit": {
+   "n": 2809,
+   "rho": 0.005247497284213642,
+   "p_value": 0.7810158263416683,
+   "min_detectable_rho": 0.052858422504372456
+  },
+  "T3_n_cells": 480,
+  "T4_paired_within_driver_and_circuit": {
+   "n_pairs": 332,
+   "underpowered": false,
+   "mean_difference_s_per_lap2": -0.002268884572384081,
+   "median_difference_s_per_lap2": -0.0010805295146535353,
+   "fraction_positive": 0.4879518072289157,
+   "standard_error": 0.003535266610683051,
+   "ci95_s_per_lap2": [
+    -0.00919800712932286,
+    0.004660237984554699
+   ],
+   "wilcoxon_statistic": 26960.0,
+   "p_value": 0.6980545839514776,
+   "pairs": [
+    {
+     "circuit": "canadian-grand-prix",
+     "driver": "RUS",
+     "n_wide": 1,
+     "n_clean": 7,
+     "difference_s_per_lap2": -0.28618295684594836
+    },
+    {
+     "circuit": "monaco-grand-prix",
+     "driver": "STR",
+     "n_wide": 1,
+     "n_clean": 5,
+     "difference_s_per_lap2": 0.27777277863611144
+    },
+    {
+     "circuit": "canadian-grand-prix",
+     "driver": "RIC",
+     "n_wide": 1,
+     "n_clean": 3,
+     "difference_s_per_lap2": -0.25231343529791905
+    },
+    {
+     "circuit": "monaco-grand-prix",
+     "driver": "LEC",
+     "n_wide": 1,
+     "n_clean": 5,
+     "difference_s_per_lap2": -0.23759684710005607
+    },
+    {
+     "circuit": "belgian-grand-prix",
+     "driver": "NOR",
+     "n_wide": 4,
+     "n_clean": 4,
+     "difference_s_per_lap2": -0.20486587783462273
+    },
+    {
+     "circuit": "canadian-grand-prix",
+     "driver": "MAG",
+     "n_wide": 2,
+     "n_clean": 3,
+     "difference_s_per_lap2": -0.18745708493915364
+    },
+    {
+     "circuit": "hungarian-grand-prix",
+     "driver": "COL",
+     "n_wide": 2,
+     "n_clean": 1,
+     "difference_s_per_lap2": 0.17820875417152804
+    },
+    {
+     "circuit": "belgian-grand-prix",
+     "driver": "MAG",
+     "n_wide": 1,
+     "n_clean": 5,
+     "difference_s_per_lap2": -0.17080801329085749
+    },
+    {
+     "circuit": "japanese-grand-prix",
+     "driver": "PER",
+     "n_wide": 1,
+     "n_clean": 2,
+     "difference_s_per_lap2": 0.16572003782803263
+    },
+    {
+     "circuit": "austrian-grand-prix",
+     "driver": "LAT",
+     "n_wide": 1,
+     "n_clean": 1,
+     "difference_s_per_lap2": -0.15791515151514923
+    },
+    {
+     "circuit": "belgian-grand-prix",
+     "driver": "SAI",
+     "n_wide": 2,
+     "n_clean": 4,
+     "difference_s_per_lap2": 0.15236386707729854
+    },
+    {
+     "circuit": "chinese-grand-prix",
+     "driver": "GAS",
+     "n_wide": 1,
+     "n_clean": 1,
+     "difference_s_per_lap2": 0.14884869991474758
+    },
+    {
+     "circuit": "belgian-grand-prix",
+     "driver": "LAT",
+     "n_wide": 1,
+     "n_clean": 1,
+     "difference_s_per_lap2": 0.14651778074866129
+    },
+    {
+     "circuit": "spanish-grand-prix",
+     "driver": "ALB",
+     "n_wide": 4,
+     "n_clean": 5,
+     "difference_s_per_lap2": 0.14124014216086614
+    },
+    {
+     "circuit": "monaco-grand-prix",
+     "driver": "TSU",
+     "n_wide": 1,
+     "n_clean": 3,
+     "difference_s_per_lap2": -0.1365697403966813
+    },
+    {
+     "circuit": "japanese-grand-prix",
+     "driver": "ALB",
+     "n_wide": 1,
+     "n_clean": 2,
+     "difference_s_per_lap2": 0.13202142911228518
+    },
+    {
+     "circuit": "belgian-grand-prix",
+     "driver": "ALB",
+     "n_wide": 1,
+     "n_clean": 5,
+     "difference_s_per_lap2": -0.13148968014776916
+    },
+    {
+     "circuit": "singapore-grand-prix",
+     "driver": "ALB",
+     "n_wide": 1,
+     "n_clean": 4,
+     "difference_s_per_lap2": -0.12667850280964177
+    },
+    {
+     "circuit": "qatar-grand-prix",
+     "driver": "MAG",
+     "n_wide": 2,
+     "n_clean": 3,
+     "difference_s_per_lap2": -0.12256328069360525
+    },
+    {
+     "circuit": "emilia-romagna-grand-prix",
+     "driver": "PER",
+     "n_wide": 1,
+     "n_clean": 3,
+     "difference_s_per_lap2": -0.12240462347426888
+    },
+    {
+     "circuit": "chinese-grand-prix",
+     "driver": "TSU",
+     "n_wide": 1,
+     "n_clean": 1,
+     "difference_s_per_lap2": -0.12205597590815169
+    },
+    {
+     "circuit": "singapore-grand-prix",
+     "driver": "RUS",
+     "n_wide": 2,
+     "n_clean": 5,
+     "difference_s_per_lap2": 0.12201220970936119
+    },
+    {
+     "circuit": "belgian-grand-prix",
+     "driver": "SAR",
+     "n_wide": 1,
+     "n_clean": 2,
+     "difference_s_per_lap2": -0.12054390346496056
+    },
+    {
+     "circuit": "hungarian-grand-prix",
+     "driver": "RIC",
+     "n_wide": 1,
+     "n_clean": 3,
+     "difference_s_per_lap2": -0.11922653776716025
+    },
+    {
+     "circuit": "singapore-grand-prix",
+     "driver": "STR",
+     "n_wide": 1,
+     "n_clean": 3,
+     "difference_s_per_lap2": -0.11770794160368664
+    }
+   ]
+  }
+ },
+ "T5_leave_one_circuit_out": {
+  "n": 3139,
+  "n_circuits": 25,
+  "features": [
+   "limits_rate"
+  ],
+  "baseline_mae": 0.050918438588867104,
+  "augmented_mae": 0.050981314467152816,
+  "improvement_pct": -0.12348351604689473,
+  "wilcoxon_p": 0.23605594199208868,
+  "helps": false,
+  "hurts": false,
+  "conclusive": true
+ },
+ "measure_a_lateral_deviation": {
+  "1m0": {
+   "pooled": {
+    "n": 3139,
+    "rho": 0.06775009655635247,
+    "p_value": 0.00014547293615799664,
+    "min_detectable_rho": 0.049999999999999996
+   },
+   "within_circuit": {
+    "n": 3139,
+    "rho": 0.09120355143709363,
+    "p_value": 3.0801399625775526e-07,
+    "min_detectable_rho": 0.049999999999999996
+   },
+   "within_driver_and_circuit": {
+    "n": 2809,
+    "rho": 0.10453612332538564,
+    "p_value": 2.8053720841815715e-08,
+    "min_detectable_rho": 0.052858422504372456
+   },
+   "mean_stint_exposure_frac": 0.0005330911238553389
+  },
+  "1m5": {
+   "pooled": {
+    "n": 3139,
+    "rho": 0.014056883446058915,
+    "p_value": 0.4311138055062937,
+    "min_detectable_rho": 0.049999999999999996
+   },
+   "within_circuit": {
+    "n": 3139,
+    "rho": 0.02315933871374118,
+    "p_value": 0.1945622659181672,
+    "min_detectable_rho": 0.049999999999999996
+   },
+   "within_driver_and_circuit": {
+    "n": 2809,
+    "rho": 0.04608499555469876,
+    "p_value": 0.014577225692316273,
+    "min_detectable_rho": 0.052858422504372456
+   },
+   "mean_stint_exposure_frac": 0.00033096892426200884
+  },
+  "2m0": {
+   "pooled": {
+    "n": 3139,
+    "rho": 0.06329232834095824,
+    "p_value": 0.0003878578624968708,
+    "min_detectable_rho": 0.049999999999999996
+   },
+   "within_circuit": {
+    "n": 3139,
+    "rho": 0.02606711979637361,
+    "p_value": 0.14425622397892807,
+    "min_detectable_rho": 0.049999999999999996
+   },
+   "within_driver_and_circuit": {
+    "n": 2809,
+    "rho": 0.05594974071627529,
+    "p_value": 0.003013670755400673,
+    "min_detectable_rho": 0.052858422504372456
+   },
+   "mean_stint_exposure_frac": 0.00022752164178373516
+  },
+  "2m5": {
+   "pooled": {
+    "n": 3139,
+    "rho": 0.09629565042749602,
+    "p_value": 6.460912110321514e-08,
+    "min_detectable_rho": 0.049999999999999996
+   },
+   "within_circuit": {
+    "n": 3139,
+    "rho": 0.027599509406650884,
+    "p_value": 0.12210692859999231,
+    "min_detectable_rho": 0.049999999999999996
+   },
+   "within_driver_and_circuit": {
+    "n": 2809,
+    "rho": 0.06960098781615384,
+    "p_value": 0.0002227707619120876,
+    "min_detectable_rho": 0.052858422504372456
+   },
+   "mean_stint_exposure_frac": 0.00011689631598360654
+  },
+  "3m0": {
+   "pooled": {
+    "n": 3139,
+    "rho": -0.03564814515196917,
+    "p_value": 0.045815406927224536,
+    "min_detectable_rho": 0.049999999999999996
+   },
+   "within_circuit": {
+    "n": 3139,
+    "rho": -0.026924414500443156,
+    "p_value": 0.1315133758537521,
+    "min_detectable_rho": 0.049999999999999996
+   },
+   "within_driver_and_circuit": {
+    "n": 2809,
+    "rho": -0.023139145528196015,
+    "p_value": 0.22020130830646167,
+    "min_detectable_rho": 0.052858422504372456
+   },
+   "mean_stint_exposure_frac": 3.5517844158184475e-05
+  },
+  "4m0": {
+   "pooled": {
+    "n": 3139,
+    "rho": -0.009438532015159913,
+    "p_value": 0.5970748392263782,
+    "min_detectable_rho": 0.049999999999999996
+   },
+   "within_circuit": {
+    "n": 3139,
+    "rho": -0.03811613776186658,
+    "p_value": 0.03272428254180588,
+    "min_detectable_rho": 0.049999999999999996
+   },
+   "within_driver_and_circuit": {
+    "n": 2809,
+    "rho": -0.024716549496809834,
+    "p_value": 0.19033317921814388,
+    "min_detectable_rho": 0.052858422504372456
+   },
+   "mean_stint_exposure_frac": 2.2171491441376305e-06
+  }
+ },
+ "measure_a_role": "NEGATIVE CONTROL",
+ "bonferroni_alpha": 0.004166666666666667,
+ "measure_a_survivors": [
+  "1m0/circuit",
+  "1m0/cell",
+  "2m0/cell",
+  "2m5/cell"
+ ],
+ "post_hoc_artefact_floor": {
+  "declared": "post-hoc, prompted by a non-null negative control",
+  "empirical_false_positive_floor_rho": 0.10453612332538564,
+  "floor_set_by": "1m0/within_driver_and_circuit",
+  "measure_b_max_abs_rho": 0.008463924331907778,
+  "measure_b_below_floor": true,
+  "pace_association": {
+   "within_circuit": {
+    "exposure_vs_mean_lap_time": {
+     "n": 3139,
+     "rho": 0.16789238863687353,
+     "p_value": 2.797979855974868e-21,
+     "min_detectable_rho": 0.049999999999999996
+    },
+    "mean_lap_time_vs_slope": {
+     "n": 3139,
+     "rho": 0.14925720019861624,
+     "p_value": 4.235216599072348e-17,
+     "min_detectable_rho": 0.049999999999999996
+    }
+   },
+   "within_driver_and_circuit": {
+    "exposure_vs_mean_lap_time": {
+     "n": 2809,
+     "rho": 0.18249278132692745,
+     "p_value": 1.848436674728398e-22,
+     "min_detectable_rho": 0.052858422504372456
+    },
+    "mean_lap_time_vs_slope": {
+     "n": 2809,
+     "rho": 0.11492949063638849,
+     "p_value": 1.0038101951787459e-09,
+     "min_detectable_rho": 0.052858422504372456
+    }
+   }
+  }
+ },
+ "where_they_go_off": {
+  "events_by_circuit": {
+   "Spielberg": 172,
+   "Austin": 104,
+   "Yas Island": 99,
+   "Lusail": 85,
+   "Sakhir": 72,
+   "Monza": 63,
+   "Monaco": 60,
+   "Jeddah": 55,
+   "Montr\u00e9al": 54,
+   "Barcelona": 48,
+   "Silverstone": 47,
+   "Marina Bay": 43,
+   "Spa-Francorchamps": 42,
+   "Budapest": 38,
+   "Miami": 33,
+   "Suzuka": 32,
+   "Mexico City": 28,
+   "Zandvoort": 22,
+   "Imola": 22,
+   "Las Vegas": 22,
+   "Le Castellet": 10,
+   "Melbourne": 8,
+   "Shanghai": 8,
+   "Baku": 4,
+   "Miami Gardens": 4,
+   "S\u00e3o Paulo": 1
+  },
+  "corners_by_circuit": {
+   "Spielberg": {
+    "10": 101,
+    "9": 39,
+    "1": 18,
+    "3": 12,
+    "6": 2
+   },
+   "Austin": {
+    "12": 32,
+    "19": 25,
+    "20": 17,
+    "9": 10,
+    "11": 6,
+    "13": 6,
+    "6": 3,
+    "1": 3,
+    "16": 1,
+    "15": 1
+   },
+   "Yas Island": {
+    "1": 74,
+    "4": 10,
+    "6": 6,
+    "16": 4,
+    "7": 3,
+    "12": 1,
+    "11": 1
+   },
+   "Lusail": {
+    "12": 14,
+    "10": 14,
+    "5": 9,
+    "1": 8,
+    "16": 8,
+    "15": 7,
+    "4": 7,
+    "13": 5,
+    "2": 4,
+    "6": 3,
+    "14": 3,
+    "7": 2,
+    "8": 1
+   },
+   "Sakhir": {
+    "4": 29,
+    "13": 28,
+    "10": 6,
+    "15": 4,
+    "11": 2,
+    "7": 1,
+    "8": 1,
+    "1": 1
+   },
+   "Monza": {
+    "5": 20,
+    "2": 18,
+    "7": 12,
+    "4": 6,
+    "1": 4,
+    "10": 3
+   },
+   "Monaco": {
+    "10": 50,
+    "11": 7,
+    "16": 2,
+    "1": 1
+   },
+   "Jeddah": {
+    "2": 25,
+    "23": 16,
+    "4": 5,
+    "22": 3,
+    "5": 2,
+    "unknown": 1,
+    "15": 1,
+    "11": 1,
+    "17": 1
+   },
+   "Montr\u00e9al": {
+    "14": 31,
+    "13": 6,
+    "9": 5,
+    "2": 3,
+    "1": 3,
+    "6": 2,
+    "unknown": 1,
+    "4": 1,
+    "7": 1,
+    "8": 1
+   },
+   "Barcelona": {
+    "12": 11,
+    "9": 11,
+    "2": 10,
+    "5": 7,
+    "13": 3,
+    "10": 3,
+    "14": 2,
+    "4": 1
+   },
+   "Silverstone": {
+    "15": 18,
+    "9": 12,
+    "6": 4,
+    "1": 3,
+    "2": 2,
+    "18": 2,
+    "12": 2,
+    "3": 2,
+    "14": 1,
+    "11": 1
+   },
+   "Marina Bay": {
+    "2": 21,
+    "7": 11,
+    "19": 4,
+    "17": 4,
+    "5": 1,
+    "16": 1,
+    "18": 1
+   },
+   "Spa-Francorchamps": {
+    "4": 24,
+    "9": 5,
+    "6": 4,
+    "11": 3,
+    "10": 2,
+    "15": 1,
+    "19": 1,
+    "14": 1,
+    "18": 1
+   },
+   "Budapest": {
+    "4": 16,
+    "7": 10,
+    "1": 5,
+    "11": 3,
+    "2": 2,
+    "5": 1,
+    "14": 1
+   },
+   "Miami": {
+    "12": 9,
+    "15": 8,
+    "5": 7,
+    "6": 3,
+    "7": 3,
+    "11": 1,
+    "2": 1,
+    "17": 1
+   },
+   "Suzuka": {
+    "17": 11,
+    "14": 10,
+    "9": 8,
+    "2": 2,
+    "13": 1
+   },
+   "Mexico City": {
+    "2": 8,
+    "1": 5,
+    "8": 3,
+    "12": 2,
+    "17": 2,
+    "4": 2,
+    "5": 2,
+    "14": 2,
+    "6": 1,
+    "3": 1
+   },
+   "Zandvoort": {
+    "3": 17,
+    "12": 3,
+    "1": 2
+   },
+   "Imola": {
+    "14": 5,
+    "17": 5,
+    "6": 3,
+    "9": 2,
+    "15": 2,
+    "18": 2,
+    "13": 1,
+    "10": 1,
+    "3": 1
+   },
+   "Las Vegas": {
+    "8": 13,
+    "17": 4,
+    "7": 2,
+    "12": 1,
+    "4": 1,
+    "1": 1
+   },
+   "Le Castellet": {
+    "3": 7,
+    "6": 3
+   },
+   "Melbourne": {
+    "6": 2,
+    "12": 2,
+    "13": 1,
+    "2": 1,
+    "4": 1,
+    "1": 1
+   },
+   "Shanghai": {
+    "6": 4,
+    "14": 4
+   },
+   "Baku": {
+    "16": 2,
+    "15": 1,
+    "1": 1
+   },
+   "Miami Gardens": {
+    "11": 2,
+    "6": 1,
+    "15": 1
+   },
+   "S\u00e3o Paulo": {
+    "2": 1
+   }
+  },
+  "total_events": 1176,
+  "races_with_no_events": 4,
+  "n_races": 84,
+  "busiest_races": [
+   {
+    "session": "2023-austrian-grand-prix-R",
+    "circuit": "Spielberg",
+    "n_events": 82,
+    "n_laps": 1354,
+    "by_corner": {
+     "10": 56,
+     "9": 26
+    }
+   },
+   {
+    "session": "2022-austrian-grand-prix-R",
+    "circuit": "Spielberg",
+    "n_events": 65,
+    "n_laps": 1324,
+    "by_corner": {
+     "10": 44,
+     "9": 13,
+     "1": 8
+    }
+   },
+   {
+    "session": "2023-qatar-grand-prix-R",
+    "circuit": "Lusail",
+    "n_events": 49,
+    "n_laps": 1006,
+    "by_corner": {
+     "12": 14,
+     "5": 9,
+     "15": 7,
+     "4": 6,
+     "13": 4,
+     "2": 4,
+     "1": 3,
+     "16": 2
+    }
+   },
+   {
+    "session": "2024-united-states-grand-prix-R",
+    "circuit": "Austin",
+    "n_events": 39,
+    "n_laps": 1059,
+    "by_corner": {
+     "12": 16,
+     "20": 7,
+     "19": 5,
+     "9": 4,
+     "11": 3,
+     "1": 2,
+     "16": 1,
+     "13": 1
+    }
+   },
+   {
+    "session": "2025-abu-dhabi-grand-prix-R",
+    "circuit": "Yas Island",
+    "n_events": 39,
+    "n_laps": 1156,
+    "by_corner": {
+     "1": 32,
+     "6": 4,
+     "4": 2,
+     "7": 1
+    }
+   },
+   {
+    "session": "2023-united-states-grand-prix-R",
+    "circuit": "Austin",
+    "n_events": 34,
+    "n_laps": 1014,
+    "by_corner": {
+     "19": 14,
+     "12": 6,
+     "20": 5,
+     "6": 3,
+     "11": 3,
+     "9": 2,
+     "13": 1
+    }
+   },
+   {
+    "session": "2023-abu-dhabi-grand-prix-R",
+    "circuit": "Yas Island",
+    "n_events": 33,
+    "n_laps": 1157,
+    "by_corner": {
+     "1": 17,
+     "4": 8,
+     "16": 4,
+     "7": 2,
+     "6": 1,
+     "12": 1
+    }
+   },
+   {
+    "session": "2025-bahrain-grand-prix-R",
+    "circuit": "Sakhir",
+    "n_events": 31,
+    "n_laps": 1118,
+    "by_corner": {
+     "13": 22,
+     "4": 4,
+     "11": 2,
+     "10": 2,
+     "1": 1
+    }
+   },
+   {
+    "session": "2025-united-states-grand-prix-R",
+    "circuit": "Austin",
+    "n_events": 31,
+    "n_laps": 1067,
+    "by_corner": {
+     "12": 10,
+     "19": 6,
+     "20": 5,
+     "13": 4,
+     "9": 4,
+     "1": 1,
+     "15": 1
+    }
+   },
+   {
+    "session": "2024-canadian-grand-prix-R",
+    "circuit": "Montr\u00e9al",
+    "n_events": 29,
+    "n_laps": 1272,
+    "by_corner": {
+     "14": 14,
+     "2": 3,
+     "9": 3,
+     "1": 3,
+     "6": 2,
+     "unknown": 1,
+     "4": 1,
+     "7": 1,
+     "8": 1
+    }
+   }
+  ],
+  "n_events_on_analysed_laps": 865,
+  "retention": 0.7355442176870748
+ },
+ "verdict": "null",
+ "verdict_lines": [
+  "MEASUREMENT: Measure A fails its pre-registered validity gate (G1_p99_at_least_2m, G3_cars_not_coincident). The public position feed reports on-track position along a single path; the lateral coordinate is not in it. Lateral deviation from the racing line cannot be measured from public F1 data, and the sweep below is a negative control, not a result.",
+  "CONTROL NOT NULL: a measure that provably carries no information about where the car was still reaches significance in 4 of 12 pre-registered contrasts. Within-circuit and within-driver demeaning does not immunise this corpus against artefacts, so the nominal alpha understates the false-positive rate and every correlation below must be read against the empirical floor rather than against 0.05.",
+  "H1 NULL: kerb exposure, as public data can measure it, does not predict the degradation slope. Reported as a null and not as a trend, per the pre-registration."
+ ],
+ "supported": false
+}

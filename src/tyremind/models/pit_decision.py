@@ -303,3 +303,120 @@ def excluded_stops(lap_table: pd.DataFrame, stops: list[int], *,
         if any(neighbour in sc for neighbour in (lap - 1, lap, lap + 1, lap + 2)):
             dropped.add(lap)
     return dropped
+
+
+@dataclass(frozen=True)
+class CalibratedWindow:
+    """A pit window whose stated coverage has been measured, not asserted.
+
+    Attributes:
+        centre: Recommended lap.
+        half_width: Laps either side. Chosen from data, not set by hand.
+        low: First lap of the window.
+        high: Last lap of the window.
+        target_coverage: What we claim.
+        n_calibration: Stops the threshold was fitted on.
+    """
+
+    centre: int
+    half_width: float
+    low: int
+    high: int
+    target_coverage: float
+    n_calibration: int
+
+    def contains(self, lap: int) -> bool:
+        return self.low <= lap <= self.high
+
+    def to_dict(self) -> dict:
+        return {
+            "centre": self.centre,
+            "half_width": self.half_width,
+            "low": self.low,
+            "high": self.high,
+            "target_coverage": self.target_coverage,
+            "n_calibration": self.n_calibration,
+        }
+
+
+class PitWindowCalibrator:
+    """Replace a chosen window and a softmax mass with a measured guarantee.
+
+    The window shipped until now was two laps either side of the recommendation,
+    and its stated probability was the softmax mass inside it. Both were choices.
+    The half-width was picked because teams talk in windows of about that size,
+    and the softmax temperature -- `rate_sd * horizon^2 / 2` -- was picked because
+    it was dimensionally sensible. Neither was ever validated, and exp30 measured
+    what they were worth: we claimed 31.9% and delivered 24.0%, overconfident by
+    7.9 points, with the error concentrated at high claimed probabilities where a
+    strategist is most likely to act without hedging.
+
+    Split conformal removes both choices. The nonconformity score is simply how
+    many laps the recommendation missed by on a calibration stop; the window is
+    the finite-sample-corrected quantile of those misses. The resulting coverage
+    guarantee holds under exchangeability with no assumption about the shape of
+    the error distribution -- which matters here because the misses are visibly
+    skewed, teams pitting earlier than pure degradation cost implies because of
+    track position.
+
+    The width is the price. A calibrated 80% window is wider than the two laps we
+    used to show, and that is the honest trade: the old window was narrow because
+    nobody had checked it.
+    """
+
+    def __init__(self, target_coverage: float = 0.8) -> None:
+        if not 0.0 < target_coverage < 1.0:
+            raise ValueError(f"target_coverage must be in (0, 1), got {target_coverage}")
+        self.target_coverage = float(target_coverage)
+        self._half_width: float | None = None
+        self._n: int = 0
+
+    def fit(self, recommended: np.ndarray, actual: np.ndarray) -> PitWindowCalibrator:
+        """Fit on stops that will not be used to measure coverage.
+
+        Args:
+            recommended: Lap each model call named.
+            actual: Lap the driver actually boxed on.
+
+        Returns:
+            self.
+
+        Raises:
+            ValueError: If the arrays disagree in length.
+        """
+        from tyremind.models.conformal import conformal_quantile
+
+        recommended = np.asarray(recommended, dtype=float)
+        actual = np.asarray(actual, dtype=float)
+        if recommended.shape != actual.shape:
+            raise ValueError("recommended and actual must be the same length")
+
+        scores = np.abs(recommended - actual)
+        scores = scores[np.isfinite(scores)]
+        self._half_width = conformal_quantile(scores, 1.0 - self.target_coverage)
+        self._n = int(scores.size)
+        return self
+
+    @property
+    def fitted(self) -> bool:
+        return self._half_width is not None and np.isfinite(self._half_width)
+
+    def window(self, recommendation: PitRecommendation, final_lap: int) -> CalibratedWindow | None:
+        """The calibrated window around a recommendation.
+
+        Returns None when the calibration set was too small to represent the
+        requested coverage -- `conformal_quantile` returns infinity there, and an
+        infinite window is not a recommendation. Refusing is the honest output,
+        the same way the optimiser refuses a flat cost curve.
+        """
+        if not self.fitted or recommendation.reason:
+            return None
+        half = float(self._half_width)
+        return CalibratedWindow(
+            centre=recommendation.lap,
+            half_width=half,
+            low=max(recommendation.lap - int(np.floor(half)), 1),
+            high=min(recommendation.lap + int(np.ceil(half)), final_lap),
+            target_coverage=self.target_coverage,
+            n_calibration=self._n,
+        )
