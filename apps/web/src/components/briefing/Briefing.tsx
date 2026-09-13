@@ -769,7 +769,7 @@ function HowFastIsHeLosingIt({
             </div>
 
             <div>
-              <Caption>The rest of the field, same session</Caption>
+              <Caption>The rest of the field, same session — separated by compound, not by driver</Caption>
               <div className="space-y-2.5">
                 {field.map((r) => (
                   <IntervalRow
@@ -792,9 +792,21 @@ function HowFastIsHeLosingIt({
                 ))}
               </div>
               <Note>
-                Whole-stint estimates. Overlapping intervals mean two cars are not measurably
-                different however far apart their centres sit — a different statement from a
-                leaderboard, and the one the data supports.
+                <strong className="text-ink">
+                  Every car on the same compound gets the same number, and that is the model
+                  talking, not a bug.
+                </strong>{' '}
+                The fit carries a parameter for how far a stint may sit from its
+                compound&rsquo;s mean rate. On all eight sessions tested it lands on its lower
+                bound, so the posterior shrinks every driver onto one rate per compound. The
+                lap times do not support saying this driver wore his tyres faster than that
+                one.
+              </Note>
+              <Note>
+                That agrees with exp15, where driver style as an explicit feature made
+                prediction 0.88% <em>worse</em>. Read this column as a compound comparison
+                with the field&rsquo;s names attached, not as a driver leaderboard. The dot
+                beside each name is the compound, and that is what actually separates them.
               </Note>
             </div>
           </div>
