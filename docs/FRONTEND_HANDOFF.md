@@ -141,7 +141,7 @@ residual. The per-lap run view is clean (residuals around 0.08 s).
 
 ```json
 {"rows":[{"session_lap":12,"tyre_age":8.0,"compound":"MEDIUM",
-  "observed_delta":0.004,"residual":-0.080,"tyre_share":48.9,
+  "observed_delta":0.004,"residual":-0.080,"tyre_share":0.489,
   "tyre":0.196,"fuel":-0.078,"track":-0.033,"traffic":0.0,
   "tyre_sd":0.083,"fuel_sd":0.016,"track_sd":0.013,"traffic_sd":0.0}]}
 ```
@@ -150,6 +150,21 @@ Stack `tyre / fuel / track / traffic`. **Render `residual` as its own visible
 band labelled "unexplained".** Hiding it would claim we explain more than we do,
 and an engineer who spots a hidden residual will not trust anything else on the
 screen.
+
+**`tyre_share` is a fraction, not a percentage, and it is not safe to render as
+one.** It is `tyre_seconds / observed_delta`, so multiply by 100 yourself. Two
+things it does that a percentage cannot, both of which have already produced a
+bug in this repository:
+
+- **It can exceed 1.** Measured between 0.82 and 15.79 across the demo sessions.
+  When the car barely slowed but the tyre was still costing time, the other
+  terms cancelled the rest, and the ratio is large and correct. A progress bar
+  fed this value runs off the end of its track.
+- **It is `null` when the car did not slow down at all**, because a share of a
+  non-slowdown is not a quantity. Check for null before formatting.
+
+If what you want is "how much of this lap was the tyre" on a bounded scale, use
+`tyre` against `observed_delta` directly and say which you plotted.
 
 ### `/api/session/{id}/projection?driver=VER&lap=18` — **question 3**
 
@@ -160,13 +175,22 @@ screen.
  "horizon":[1,2,3,...,20],
  "loss":[1.98,2.27,2.55,...],
  "loss_sd":[0.46,0.54,0.63,...],
- "rate":0.287,"rate_sd":0.041,
- "breach_probability":0.91,
- "applicability":"...", "is_model_estimate":true}
+ "rate":[0.287,0.287,0.287,...],
+ "rate_sd":[0.041,0.041,0.041,...],
+ "breach_probability":[0.91,0.94,0.96,...],
+ "applicability":[1.0,1.0,1.0,...],
+ "is_model_estimate":true}
 ```
 
 Plot `loss` as a line and `loss ± 1.96 × loss_sd` as the band. **The band widens
 with horizon — that is the honest part, do not clamp it.**
+
+**Every field after `threshold_s` except `is_model_estimate` is an array, one
+entry per horizon step, and all of them are the same length as `horizon`.** That
+includes `rate`, `rate_sd`, `breach_probability` and `applicability`. An earlier
+version of this document showed `rate` and `breach_probability` as scalars; they
+never were, and a client reading `data.rate.toFixed()` gets a runtime error
+rather than a wrong number.
 
 ### `/api/session/{id}/pit-window?driver=VER&lap=18` — **question 4**
 

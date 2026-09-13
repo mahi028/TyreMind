@@ -223,7 +223,7 @@ export default function App() {
           {!sessionId ? (
             <Loading what="the session catalogue" />
           ) : view === 'briefing' ? (
-            <Briefing sessionId={sessionId} session={current} />
+            <Briefing sessionId={sessionId} session={current} onNavigate={setView} />
           ) : view === 'race' ? (
             // Self-contained: it picks its own session, because the case it
             // demonstrates is a specific race and a specific driver, and the

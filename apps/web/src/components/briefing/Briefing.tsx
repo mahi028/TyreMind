@@ -59,12 +59,17 @@ const QUESTIONS = [
 /** Horizons the panel calls out by name, because those are the ones asked for. */
 const CALLOUT_HORIZONS = [3, 15]
 
+/** The views this screen hands off to. A subset of the app's own view keys. */
+export type BriefingExit = 'race' | 'circuit' | 'evidence'
+
 export function Briefing({
   sessionId,
   session,
+  onNavigate,
 }: {
   sessionId: string
   session: SessionRef | undefined
+  onNavigate: (view: BriefingExit) => void
 }) {
   const [runs, setRuns] = useState<RunRow[]>([])
   const [run, setRun] = useState<RunRow | null>(null)
@@ -114,7 +119,67 @@ export function Briefing({
       <Controls runs={runs} run={run} lap={lap} onRun={selectRun} onLap={setLap} />
       <Panels key={`${sessionId}:${run.driver}:${run.run_id}`} sessionId={sessionId} run={run} lap={lap} />
       <Provenance />
+      <NextScreens onNavigate={onNavigate} />
     </div>
+  )
+}
+
+/**
+ * Where to go after the five answers.
+ *
+ * This screen is the landing view, so it is also the only route a judge who
+ * never touches the left rail will take. Two of the things the brief explicitly
+ * asks for -- a 3D simulation and post-race validation against actual race-day
+ * pace -- live on other screens, and an answer that cannot be found is the same
+ * as an answer that is missing.
+ */
+function NextScreens({ onNavigate }: { onNavigate: (view: BriefingExit) => void }) {
+  const exits: { view: BriefingExit; title: string; blurb: string }[] = [
+    {
+      view: 'race',
+      title: 'Run the race',
+      blurb:
+        'A real car on a real circuit in 3D, with the pit call recomputed in the browser each lap and the 246-stop aggregate under it.',
+    },
+    {
+      view: 'circuit',
+      title: 'Where on the lap it wears',
+      blurb:
+        'The circuit in 3D, coloured by tyre loading, from the positioning feed — real elevation, not a flat map.',
+    },
+    {
+      view: 'evidence',
+      title: 'Does it work',
+      blurb:
+        'Friday predicted against Sunday measured, nine models on two jobs, and the calibration curve behind the 95%.',
+    },
+  ]
+
+  return (
+    <section className="border border-line bg-surface">
+      <header className="border-b border-line px-5 py-3">
+        <h2 className="text-[13px] font-semibold text-ink">
+          The five answers are above. The evidence behind them is through here.
+        </h2>
+      </header>
+      <div className="grid gap-px bg-line sm:grid-cols-3">
+        {exits.map((exit) => (
+          <button
+            key={exit.view}
+            onClick={() => onNavigate(exit.view)}
+            className="group bg-surface px-5 py-4 text-left transition-colors hover:bg-raised"
+          >
+            <div className="flex items-baseline gap-2">
+              <span className="text-[14px] font-medium text-ink">{exit.title}</span>
+              <span className="text-[13px] text-ink-faint transition-colors group-hover:text-alert">
+                &rarr;
+              </span>
+            </div>
+            <p className="mt-1.5 text-[12px] leading-snug text-ink-dim">{exit.blurb}</p>
+          </button>
+        ))}
+      </div>
+    </section>
   )
 }
 

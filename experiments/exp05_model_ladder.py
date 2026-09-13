@@ -215,7 +215,14 @@ def main() -> None:
     destination.write_text(
         json.dumps(
             {
-                "experiment": "exp05_model_ladder",
+                # Derived from the destination, not hard-coded. This script
+                # writes two result files -- the original ladder and the nine
+                # model extension in exp19_field_comparison.json -- and a fixed
+                # string put "exp05_model_ladder" inside both. A reader who
+                # opened the exp19 file found it claiming to be exp05, which is
+                # exactly the kind of mislabelling that sends someone to the
+                # wrong script.
+                "experiment": destination.stem,
                 "generated_at": datetime.now(UTC).isoformat(),
                 "corpus": args.corpus,
                 "sessions": list(sessions),

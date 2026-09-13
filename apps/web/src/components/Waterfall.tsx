@@ -131,6 +131,13 @@ export function Waterfall({ decomposition }: { decomposition: Decomposition }) {
  * slowdown" is not a meaningful quantity, and printing one anyway would be the
  * exact overclaim the platform is built to avoid. That case is common and
  * interesting in its own right -- a stint where fuel masks a dying tyre.
+ *
+ * `tyre_share` is also unbounded above. It is tyre seconds over observed delta,
+ * and when the car barely slowed while the tyre was still costing time the ratio
+ * runs well past 1 -- up to 15.79 across the demo sessions. `Number.isFinite`
+ * passes for that, so without its own branch this panel printed "Only 1579% of
+ * this slowdown is the tyre" alongside a remainder of -1479%. Above 1 the
+ * sentence has to change, not the number.
  */
 function KeyInsight({ decomposition }: { decomposition: Decomposition }) {
   const { observed_delta, tyre_seconds, confounder_seconds, tyre_share } = decomposition
@@ -154,6 +161,15 @@ function KeyInsight({ decomposition }: { decomposition: Decomposition }) {
             over this stint and the gain came from elsewhere &mdash; mostly fuel burn-off, worth{' '}
             {Math.abs(confounder_seconds).toFixed(2)} s. Reading pace alone would miss a degrading
             tyre completely.
+          </>
+        ) : Number.isFinite(tyre_share) && tyre_share > 1 ? (
+          <>
+            The tyre cost <strong style={{ color: compoundColour(decomposition.compound) }}>
+              {tyre_seconds.toFixed(2)} s
+            </strong>{' '}
+            but the lap was only {observed_delta.toFixed(2)} s slower, so something else was giving
+            time back and hiding most of the damage &mdash; {signed(confounder_seconds, 2)} s of it.
+            The stopwatch understates this tyre.
           </>
         ) : Number.isFinite(tyre_share) ? (
           <>
