@@ -26,6 +26,10 @@ from pathlib import Path
 #: documents, so they cannot share one page setup.
 DOCUMENTS = [
     ("deck", Path("docs/pitch/deck.html"), Path("docs/pitch/TyreMind_Pitch_Deck.pdf")),
+    # The twelve-slide judging deck. `deck.html` stays as the long technical
+    # version; this is the one that gets presented, so it renders alongside it
+    # rather than replacing it.
+    ("finale", Path("docs/pitch/finale.html"), Path("docs/pitch/TyreMind_Finale_Deck.pdf")),
     ("dossier", Path("docs/pitch/dossier.html"),
      Path("docs/pitch/TyreMind_Technical_Dossier.pdf")),
     ("roadmap", Path("docs/plan/ROADMAP.html"), Path("docs/plan/ROADMAP.pdf")),
