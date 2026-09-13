@@ -903,12 +903,36 @@ function WhatHappensNext({
               </div>
 
               <div className="grid gap-5 sm:grid-cols-2">
-                <Fact
-                  label="Competitive life left"
-                  value={`${projection.competitive_life_laps}`}
-                  unit="laps"
-                  foot={`Could be as few as ${projection.competitive_life_lower} or as many as ${projection.competitive_life_upper}. The spread is the answer; the centre alone would be a guess dressed up.`}
-                />
+                {/* When the tyre is already past the threshold every bound
+                    collapses onto the floor of one lap, and the old wording read
+                    "could be as few as 1 or as many as 1" under a caption
+                    promising that the spread was the answer. A degenerate
+                    interval is a statement in its own right -- he is out of
+                    window now -- and it deserves its own sentence rather than a
+                    template that quietly contradicts itself. */}
+                {projection.competitive_life_lower === projection.competitive_life_upper ? (
+                  <Fact
+                    label="Competitive life left"
+                    value={
+                      projection.loss[0] >= projection.threshold_s
+                        ? 'past it'
+                        : `${projection.competitive_life_laps}`
+                    }
+                    unit={projection.loss[0] >= projection.threshold_s ? '' : 'laps'}
+                    foot={
+                      projection.loss[0] >= projection.threshold_s
+                        ? `He is already ${projection.loss[0].toFixed(2)} s off a fresh set, past the ${projection.threshold_s} s threshold. There is no window left to size, which is why no range is shown here.`
+                        : `Every bound lands on the same lap, so the horizon is too short to separate them. Not a precise answer, an unresolved one.`
+                    }
+                  />
+                ) : (
+                  <Fact
+                    label="Competitive life left"
+                    value={`${projection.competitive_life_laps}`}
+                    unit="laps"
+                    foot={`Could be as few as ${projection.competitive_life_lower} or as many as ${projection.competitive_life_upper}. The spread is the answer; the centre alone would be a guess dressed up.`}
+                  />
+                )}
                 <Probability
                   label="Past the threshold within 20 laps"
                   value={projection.breach_probability[projection.breach_probability.length - 1]}
