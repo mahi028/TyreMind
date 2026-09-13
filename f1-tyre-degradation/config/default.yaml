@@ -1,0 +1,155 @@
+# All constants live here. No magic numbers inside functions.
+# Units are named in every key: _s = seconds, _kg = kilograms, _c = celsius, _ms = metres/second.
+
+seed: 42
+
+# ---- data acquisition (Phase 1) ----
+data:
+  # Split across two parallel downloaders to multiply effective throughput past
+  # FastF1's 500-calls/hour-per-network limit: this machine takes 2022-2023,
+  # Colab (notebooks/colab_download.ipynb) takes 2024-2026. No overlap, so no
+  # wasted duplicate work. Restore to [2022,2023,2024,2025,2026] once both
+  # halves are merged back together, or if running standalone.
+  seasons: [2022, 2023]                    # sessions are derived per-event from the schedule
+                                             # itself (Session1..Session5), not a fixed list --
+                                             # sprint weekends have a different lineup than
+                                             # conventional ones (see download.py).
+  cache_dir: "./cache"
+  raw_dir: "./data/raw"
+  errors_csv: "./data/download_errors.csv"
+  rate_limit_sleep_s: 1.0
+
+  # Tyre "eras" -- different regulation/Pirelli-construction regimes must not be pooled naively.
+  # The exact mid-2023 construction-change race could not be confirmed from available sources
+  # (contradictory reporting), so this deliberately uses the coarser, defensible split: a full
+  # calendar year per era rather than a specific mid-season race.
+  era_boundaries:
+    GE1: {start_year: 2022, end_year: 2022}
+    GE2: {start_year: 2023, end_year: 2025}
+    R26: {start_year: 2026, end_year: 2026}
+
+  # Pre-season testing: fastf1.get_testing_session(year, test_number, session_number) has no
+  # enumeration API, so probe this bounded grid per year and treat a ValueError ("no such test")
+  # as "doesn't exist", not a download failure.
+  testing_probe:
+    test_numbers: [1, 2, 3]
+    session_numbers: [1, 2, 3]
+
+# ---- cleaning (Phase 2) ----
+clean:
+  max_tyre_age: 45
+  min_stint_laps: 4
+  outlier_mad_multiplier: 3.0
+  clean_air_gap_s: 2.0            # gap to car ahead beyond which traffic is negligible
+  train_seasons: [2022, 2023, 2024]
+  test_season: 2025                # held out untouched until Phase 6
+  val_fraction: 0.15                # of train-season EVENTS, not rows
+  split_seed: 42
+
+# ---- fuel model (Phase 1.2 / 1.4) — FIXED, never learned ----
+fuel:
+  time_per_kg_s: 0.030             # s/lap per kg
+  burn_per_lap_kg: 1.70            # kg/lap
+  sensitivity_time_per_kg_s: [0.025, 0.030, 0.035]
+  sensitivity_burn_per_lap_kg: [1.5, 1.7, 1.9]
+  race_start_fuel_kg: 110.0        # used only in Phase 6 race validation
+
+# ---- tyre head (Phase 1.3) ----
+tyre:
+  max_age: 45                      # MAX_AGE — cumulative-increment table length
+  smoothness_weight: 4.0           # penalty on the 2nd difference of increments across age --
+                                     # nothing else stops the MLP's max_age output columns from
+                                     # being wildly different lap to lap (the conditioning vector
+                                     # carries no age information at all). Without this, the fitted
+                                     # curve can be jagged noise whose *average* over a window still
+                                     # passes a slope check while fooling cliff detection.
+  l1_weight: 0.0                    # L1 penalty on the raw increments (see NAM.tyre_l1_penalty).
+                                     # Swept 0-10.0: a value (0.3) LOOKED like it fixed the negative
+                                     # control while passing slope/cliff checks, but failed a fresh
+                                     # synthetic realization (different curves/cliffs/seed) it was
+                                     # never tuned against -- slope error 5x worse, 2 of 3 cliffs
+                                     # undetected, negative control back to baseline. That was
+                                     # fitting the validation metric, not a real fix. Left at 0.0;
+                                     # any future value must clear a held-out realization it was
+                                     # NOT tuned on before being trusted.
+
+# ---- traffic head ----
+traffic:
+  gap_clip_s: 10.0
+  zero_penalty_gap_s: 3.0          # g_traffic pulled toward 0 beyond this gap
+  zero_penalty_weight: 0.05        # weight of that penalty term in the training loss
+
+# ---- evolution head ----
+evo:
+  shrinkage_weight: 0.0            # tested 0.1-1.0: makes both slope AND negative-control
+                                     # WORSE across the whole range (confirmed empirically) --
+                                     # shrinking toward zero is the wrong target when the true
+                                     # amplitude is itself nonzero. Left at 0, not "untuned".
+                                     # L2 penalty on g_evo's own output -- an amplitude
+                                    # prior in penalty form. Session_progress and
+                                    # tyre_age are collinear within a stint (the same
+                                    # collinearity TyreMind's README calls "the second
+                                    # collinearity, not anticipated"); without a prior
+                                    # pulling g_evo toward zero, it over-fits and steals
+                                    # part of the true tyre-degradation slope.
+
+# ---- model architecture (Phase 5) ----
+model:
+  head_hidden_dim: 64
+  head_hidden_layers: 2
+  activation: "gelu"
+  dropout: 0.1
+  embed_dim_compound: 4
+  embed_dim_circuit: 8
+  embed_dim_driver: 8
+  embed_dim_team: 4
+  n_seeds: 8                       # ensemble size
+
+# ---- loss (Phase 1.5) ----
+loss:
+  huber_delta_s: 0.25
+  asymmetric_ratio: 1.5            # over-prediction penalised this much more than under-prediction
+
+# ---- training ----
+train:
+  optimizer: "adamw"
+  lr: 1.0e-3
+  batch_size: 1024
+  max_epochs: 300
+  early_stop_patience: 20
+  weight_decay: 1.0e-4
+  schedule: "cosine"
+  tyre_warmup_epochs: 0            # Available (freezes TyreHead's params for this many epochs so
+                                     # b_entry/g_evo/g_cond fit first) but NOT currently needed --
+                                     # see heads.TyreHead's init fix, which alone took the ~25%
+                                     # catastrophic-non-convergence rate at n~13,000 rows to 0/8
+                                     # seeds tested. Left wired in and off by default rather than
+                                     # removed, in case real data (noisier than synthetic) still
+                                     # needs it.
+
+# ---- synthetic simulator (Phase 3) — ground truth ----
+simulator:
+  compounds: ["SOFT", "MEDIUM", "HARD"]
+  true_linear_slope_s_per_lap:
+    SOFT: 0.09
+    MEDIUM: 0.055
+    HARD: 0.035
+  true_cliff_age:
+    SOFT: 14
+    MEDIUM: 22
+    HARD: 30
+  true_post_cliff_slope_multiplier: 4.0
+  n_sessions: 40
+  n_drivers_per_session: 20
+  n_runs_per_driver: [2, 4]        # inclusive range
+
+# ---- recovery-test acceptance thresholds (Phase 3) — do not relax, fix the model instead ----
+acceptance:
+  slope_tolerance_s_per_lap: 0.015
+  cliff_tolerance_laps: 3
+  evolution_correlation_min: 0.90
+  negative_control_slope_max_s_per_lap: 0.01
+
+# ---- strategy tool (Phase 7) ----
+strategy:
+  pit_loss_s: 22.0

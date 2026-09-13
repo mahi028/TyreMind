@@ -1,0 +1,9 @@
+session,raw_laps,drivers,max_stint,pit_stops,deleted_laps,inaccurate_laps,no_laptime,compounds,max_tyre_life,rainfall_any,track_temp_range,air_temp_range
+2024-barcelona-FP2,571,20,6,91,0,181,73,"HARD,MEDIUM,SOFT",25.0,False,41.2-44.2,24.5-25.6
+2024-barcelona-R,1310,20,4,42,14,104,0,"HARD,MEDIUM,SOFT",37.0,True,38.3-43.6,23.6-24.7
+2024-monza-FP2,454,20,7,94,0,183,99,"MEDIUM,SOFT",22.0,False,41.6-48.0,33.7-34.4
+2024-monza-R,1008,20,4,31,13,81,0,"HARD,MEDIUM,SOFT",43.0,False,43.5-54.6,32.2-34.1
+2024-silverstone-FP2,477,20,7,82,0,178,92,"HARD,INTERMEDIATE,MEDIUM,SOFT",23.0,True,25.0-32.7,17.5-18.9
+2024-silverstone-R,960,19,5,46,9,110,0,"HARD,INTERMEDIATE,MEDIUM,SOFT",28.0,True,20.7-37.9,14.5-16.8
+2024-zandvoort-FP2,589,20,7,81,0,163,66,"HARD,MEDIUM,SOFT",26.0,False,29.8-31.9,21.1-21.6
+2024-zandvoort-R,1426,20,3,26,4,72,0,"HARD,MEDIUM,SOFT",57.0,False,27.5-32.4,18.2-19.7

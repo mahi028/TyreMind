@@ -1,0 +1,73 @@
+{
+  "laps": {
+    "_source": "session.laps — one row per driver per lap, from FastF1's parsed timing feed",
+    "Time": "timedelta64. Session time at which this lap's time was registered (i.e. when the car crossed the line to complete the lap).",
+    "Driver": "3-letter driver code (e.g. VER, HAM).",
+    "DriverNumber": "Car number as a string (e.g. '1', '44').",
+    "LapTime": "timedelta64. Total time to complete the lap. Null for in-laps/out-laps/installation laps where the sector chain didn't close cleanly.",
+    "LapNumber": "float. Lap count within the session, shared reference frame across all drivers (does not reset at pit stops).",
+    "Stint": "float. Increments each time the driver's tyre is changed; starts at 1. Distinct from tyre age — a new stint always starts a new tyre-age count from FreshTyre state.",
+    "PitOutTime": "timedelta64, non-null only on the lap a car leaves the pits (an out-lap). NaT otherwise.",
+    "PitInTime": "timedelta64, non-null only on the lap a car enters the pits (an in-lap). NaT otherwise.",
+    "Sector1Time / Sector2Time / Sector3Time": "timedelta64. Duration of each of the three timing sectors.",
+    "Sector1SessionTime / Sector2SessionTime / Sector3SessionTime": "timedelta64. Absolute session time at which each sector split was recorded (not a duration).",
+    "SpeedI1": "float, km/h. Speed trap reading at intermediate timing point 1.",
+    "SpeedI2": "float, km/h. Speed trap reading at intermediate timing point 2.",
+    "SpeedFL": "float, km/h. Speed trap reading at the finish line.",
+    "SpeedST": "float, km/h. Speed trap reading on the straight designated as the 'speed trap' for that circuit.",
+    "IsPersonalBest": "bool. Whether this lap was that driver's best of the session at the time it was set.",
+    "Compound": "str. SOFT / MEDIUM / HARD / INTERMEDIATE / WET / UNKNOWN. Relative labels re-assigned by Pirelli each event — see data/reference/compound_allocation.json for the physical C1-C5 mapping.",
+    "TyreLife": "float. Cumulative laps completed on this physical tyre set, INCLUDING laps run in a prior session if the set wasn't fresh. This is the tyre-age signal degradation models key off.",
+    "FreshTyre": "bool. Whether the set was new (never used before) when fitted for this stint.",
+    "Team": "str. Constructor name at time of session.",
+    "LapStartTime": "timedelta64. Session time at which the lap began (previous lap's finish line crossing).",
+    "LapStartDate": "datetime64, wall-clock timestamp of lap start. Frequently unpopulated depending on what FastF1 could reconstruct from the feed — do not rely on it being present.",
+    "TrackStatus": "str, one or more concatenated digit codes describing conditions during the lap: 1=AllClear, 2=Yellow, 3=?(unused), 4=SCDeployed, 5=Red, 6=VSCDeployed, 7=VSCEnding. A lap spanning a status change carries multiple digits, e.g. '12'.",
+    "Position": "float. Track position (1st, 2nd, ...) at the end of the lap.",
+    "Deleted": "bool. Whether stewards deleted this lap time (most commonly a track-limits infringement).",
+    "DeletedReason": "str, free text from race control explaining a deletion (empty string if not deleted). e.g. 'TRACK LIMITS AT TURN 4 LAP 31'.",
+    "FastF1Generated": "bool. True if FastF1 synthesized this row itself (e.g. interpolated) rather than reading it directly off the official timing feed.",
+    "IsAccurate": "bool. FastF1's own internal consistency check (sector times sum correctly, no timing anomalies). The primary trust flag used to exclude laps before any degradation analysis."
+  },
+  "weather": {
+    "_source": "session.weather_data — one row roughly every 60 seconds through the session, independent of the laps table",
+    "Time": "timedelta64. Session time of the reading.",
+    "AirTemp": "float, °C.",
+    "Humidity": "float, %.",
+    "Pressure": "float, mbar.",
+    "Rainfall": "bool. Rain sensor flag — can trip briefly on light drizzle that doesn't change tyre choice, so treat as a hint not a verdict on 'wet session'.",
+    "TrackTemp": "float, °C. Track surface temperature — the more physically relevant temperature for tyre degradation than air temp.",
+    "WindDirection": "int, degrees 0-359.",
+    "WindSpeed": "float, m/s."
+  },
+  "results": {
+    "_source": "session.results — one row per driver, session-final classification",
+    "DriverNumber / Abbreviation / TeamName / FullName / etc.": "identity fields.",
+    "Position": "float. Finishing position (numeric).",
+    "ClassifiedPosition": "str. Position as officially classified — can be 'R' (retired), 'D' (disqualified), 'W' (withdrawn) instead of a number.",
+    "GridPosition": "float. Starting grid position (race only).",
+    "Q1 / Q2 / Q3": "timedelta64. Qualifying segment best times (qualifying sessions only, NaT for race/practice).",
+    "Time": "timedelta64. Race time — absolute for the winner, gap-to-winner for others.",
+    "Status": "str. 'Finished', '+1 Lap', or a retirement reason ('Accident', 'Engine', ...).",
+    "Points": "float. Championship points scored.",
+    "Laps": "float. Laps completed."
+  },
+  "track_status": {
+    "_source": "session.track_status — sparse event log, one row per status CHANGE (not per lap)",
+    "Time": "timedelta64. Session time the status changed.",
+    "Status": "str digit code, same scheme as laps.TrackStatus (1=AllClear, 2=Yellow, 4=SC, 5=Red, 6=VSC, 7=VSCEnding).",
+    "Message": "str. Human-readable label, e.g. 'AllClear'."
+  },
+  "race_control_messages": {
+    "_source": "session.race_control_messages — the official FIA race control log",
+    "Time": "datetime64, wall-clock timestamp.",
+    "Category": "str. 'Flag', 'Drs', 'CarEvent', 'Other', 'SafetyCar', etc.",
+    "Message": "str. Free-text message as issued by race control.",
+    "Status": "str, nullable. e.g. 'ENABLED'/'DISABLED' for DRS messages.",
+    "Flag": "str, nullable. e.g. 'GREEN', 'YELLOW', 'CHEQUERED'.",
+    "Scope": "str, nullable. 'Track', 'Sector', 'Driver' — what the message applies to.",
+    "Sector": "nullable. Which sector, if Scope == 'Sector'.",
+    "RacingNumber": "nullable. Car number, if the message targets one driver.",
+    "Lap": "int. Lap number the message was issued on."
+  }
+}
