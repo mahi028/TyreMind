@@ -29,8 +29,8 @@ import { BeyondRacing } from './components/BeyondRacing'
 import { Explainer } from './components/Explainer'
 import { StintDecomposition, TrackEvolutionChart } from './components/charts'
 import { CircuitView } from './components/CircuitView'
-import { RaceView } from './components/RaceView'
 import { Briefing } from './components/briefing/Briefing'
+import { RaceTheatre } from './components/track3d'
 import { Orchestration } from './components/evidence/Orchestration'
 import { AskPanel } from './components/AskPanel'
 import { ThemeToggle } from './lib/theme'
@@ -351,6 +351,11 @@ export default function App() {
             <Loading what="the session catalogue" />
           ) : view === 'briefing' ? (
             <Briefing sessionId={sessionId} session={current} />
+          ) : view === 'race' ? (
+            // Self-contained: it picks its own session and driver, because the
+            // case it demonstrates is a specific race, and the session rail
+            // would otherwise silently change what is being shown.
+            <RaceTheatre />
           ) : view === 'router' ? (
             // Session-independent: the routing table and the experiments behind
             // it are corpus-wide results, and scoping them to whichever session
@@ -430,17 +435,6 @@ function RunScopedView({
   if (view === 'tyre') {
     return (
       <TyreStateView
-        sessionId={sessionId}
-        circuit={circuit}
-        runs={runs}
-        selected={selected}
-        onSelect={setSelected}
-      />
-    )
-  }
-  if (view === 'race') {
-    return (
-      <RaceView
         sessionId={sessionId}
         circuit={circuit}
         runs={runs}
