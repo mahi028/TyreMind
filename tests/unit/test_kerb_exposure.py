@@ -380,6 +380,18 @@ class TestPreregisteredVerdict:
         assert lines[0].startswith("MEASUREMENT:")
         assert "G3_cars_not_coincident" in lines[0]
 
+    def test_a_non_null_negative_control_is_announced(self, exp33):
+        """The control failing is itself a result, and it must appear in the
+        verdict rather than only in a table nobody reads to the bottom of."""
+        _, lines = exp33.verdict(self.GATE_FAIL, self.measure_b(0.01, 0.8),
+                                 {"helps": False}, ["2m0/cell", "1m0/cell"])
+        assert any(line.startswith("CONTROL NOT NULL") for line in lines)
+
+    def test_a_null_control_says_nothing(self, exp33):
+        _, lines = exp33.verdict(self.GATE_FAIL, self.measure_b(0.01, 0.8),
+                                 {"helps": False}, [])
+        assert not any(line.startswith("CONTROL NOT NULL") for line in lines)
+
     def test_a_missing_correlation_does_not_crash_the_rule(self, exp33):
         """Every test in this experiment can legitimately return None. The verdict
         must survive that rather than raising and losing the whole run."""

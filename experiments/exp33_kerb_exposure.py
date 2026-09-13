@@ -233,6 +233,7 @@ def build_stints() -> pd.DataFrame:
                 "limits_rate": float(flagged.mean()),
                 "n_limits": int(flagged.sum()),
                 "any_limits": bool(flagged.any()),
+                "mean_lap_time": float(np.nanmean(stint["lap_time"].to_numpy(dtype=float))),
                 "mean_abs_dev_m": float(stint["mean_abs_dev_m"].mean()),
                 "max_abs_dev_m": float(stint["max_abs_dev_m"].max()),
                 "reference_stability_m": float(stint["reference_stability_m"].iloc[0]),
@@ -403,6 +404,53 @@ def measure_a_control(stints: pd.DataFrame) -> dict:
     return out
 
 
+def artefact_floor(stints: pd.DataFrame, control: dict, b: dict) -> dict:
+    """POST-HOC. Not pre-registered. Run because the negative control was not null.
+
+    The pre-registration says a significant negative control discounts everything
+    else, and it does -- but it also hands over something the design could not
+    otherwise have: a calibration. Measure A carries no information about where the
+    car was, so any correlation it produces is the size of correlation this
+    corpus, these contrasts and this sample size manufacture from nothing. That is
+    an *empirical* false-positive floor, and it is the right thing to read a null
+    against, because the nominal alpha plainly is not.
+
+    A partial mechanism is reported alongside. Apparent deviation from the racing
+    line tracks how slow the lap was -- a slower lap is sampled more times and its
+    samples land where the reference spline is least like the feed's own path --
+    and slow stints degrade faster, so the artefact inherits a correlation with
+    degradation it has no business having. Partialling pace out does not remove all
+    of it, so this is a partial explanation and is labelled as one.
+    """
+    floor, worst = 0.0, None
+    for threshold, entry in control.items():
+        for contrast in ("within_circuit", "within_driver_and_circuit"):
+            rho = entry[contrast]["rho"]
+            if rho is not None and abs(rho) > floor:
+                floor, worst = abs(rho), f"{threshold}/{contrast}"
+
+    pace = {}
+    for by, name in ((["circuit"], "within_circuit"),
+                     (["circuit", "driver"], "within_driver_and_circuit")):
+        block = demean(stints, by, ["exposure_1m0", "mean_lap_time", "slope"],
+                       min_size=MIN_CELL_STINTS if len(by) > 1 else 1)
+        pace[name] = {
+            "exposure_vs_mean_lap_time": spearman(block["exposure_1m0"], block["mean_lap_time"]),
+            "mean_lap_time_vs_slope": spearman(block["mean_lap_time"], block["slope"]),
+        }
+
+    measured = [abs(b[k]["rho"]) for k in ("T2_within_circuit", "T3_within_driver_and_circuit")
+                if b[k]["rho"] is not None]
+    return {
+        "declared": "post-hoc, prompted by a non-null negative control",
+        "empirical_false_positive_floor_rho": floor,
+        "floor_set_by": worst,
+        "measure_b_max_abs_rho": max(measured) if measured else None,
+        "measure_b_below_floor": bool(measured and max(measured) < floor),
+        "pace_association": pace,
+    }
+
+
 def where_do_they_go_off() -> dict:
     """The descriptive answer the judge's question deserves regardless of H1.
 
@@ -441,7 +489,8 @@ def where_do_they_go_off() -> dict:
     }
 
 
-def verdict(gate: dict, b: dict, t5: dict) -> tuple[str, list[str]]:
+def verdict(gate: dict, b: dict, t5: dict,
+            survivors: list[str] | tuple[()] = ()) -> tuple[str, list[str]]:
     """The pre-registered decision rule, applied without discretion."""
     alpha = 0.05
     t3 = b["T3_within_driver_and_circuit"]
@@ -461,6 +510,16 @@ def verdict(gate: dict, b: dict, t5: dict) -> tuple[str, list[str]]:
             "position along a single path; the lateral coordinate is not in it. "
             "Lateral deviation from the racing line cannot be measured from public "
             "F1 data, and the sweep below is a negative control, not a result.")
+
+    if survivors and not gate["measure_a_valid"]:
+        lines.append(
+            "CONTROL NOT NULL: a measure that provably carries no information about "
+            f"where the car was still reaches significance in {len(survivors)} of "
+            f"{MEASURE_A_TESTS} pre-registered contrasts. Within-circuit and "
+            "within-driver demeaning does not immunise this corpus against "
+            "artefacts, so the nominal alpha understates the false-positive rate "
+            "and every correlation below must be read against the empirical floor "
+            "rather than against 0.05.")
 
     if t3_ok and t4_ok and t5_ok:
         lines.append("H1 SUPPORTED: kerb exposure predicts degradation on all three "
@@ -587,6 +646,23 @@ def main() -> None:
         print("  nothing survives Bonferroni"
               + ("" if gate["measure_a_valid"] else " -- the control behaves as a control should"))
 
+    floor = artefact_floor(stints, control, b)
+    if survivors:
+        print("\nPOST-HOC, prompted by the non-null control (not pre-registered)")
+        print(f"  an information-free measure reaches |rho| = "
+              f"{floor['empirical_false_positive_floor_rho']:.4f} "
+              f"({floor['floor_set_by']}) through these same contrasts")
+        print(f"  the largest |rho| Measure B reaches is "
+              f"{floor['measure_b_max_abs_rho']:.4f}"
+              + (" -- below the floor, so the null is a null against a calibrated "
+                 "noise level and not merely against alpha"
+                 if floor["measure_b_below_floor"] else
+                 " -- at or above the floor, which is not enough to call an effect"))
+        pace = floor["pace_association"]["within_circuit"]
+        print(f"  partial mechanism: apparent deviation tracks stint pace "
+              f"(rho {pace['exposure_vs_mean_lap_time']['rho']:+.3f}) and pace tracks "
+              f"degradation (rho {pace['mean_lap_time_vs_slope']['rho']:+.3f})")
+
     geography = where_do_they_go_off()
     retained = int(stints["n_limits"].sum())
     geography["n_events_on_analysed_laps"] = retained
@@ -617,7 +693,7 @@ def main() -> None:
         print(f"\n  excursions fall at lap {at:.1f} of a stint whose mean lap is "
               f"{mid:.1f} -- {direction} the fitted slope")
 
-    label, lines = verdict(gate, b, t5)
+    label, lines = verdict(gate, b, t5, survivors)
     print()
     for line in lines:
         print(line)
@@ -647,6 +723,7 @@ def main() -> None:
         "measure_a_role": role,
         "bonferroni_alpha": bonferroni,
         "measure_a_survivors": survivors,
+        "post_hoc_artefact_floor": floor,
         "where_they_go_off": geography,
         "verdict": label,
         "verdict_lines": lines,
