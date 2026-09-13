@@ -49,7 +49,7 @@ EXPOSE 8077
 # every cached session has been fit. Sessions fit lazily on first request
 # instead -- slower for that one click, never for the boot.
 #
-# Shell form so $PORT expands: Railway (and Render) assign the port at
-# runtime and route traffic to it, so a hard-coded --port would leave the
-# process listening somewhere the platform's health check never looks.
-CMD python -m tyremind.serve --host 0.0.0.0 --no-browser --no-warm --port ${PORT:-8077}
+# Fixed at 8077 rather than reading $PORT: set Railway's service networking
+# target port to 8077 once (Settings -> Networking -> Port) and it never
+# needs touching again, even if Railway's own generated $PORT changes.
+CMD ["python", "-m", "tyremind.serve", "--host", "0.0.0.0", "--no-browser", "--no-warm", "--port", "8077"]
