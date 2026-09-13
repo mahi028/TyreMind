@@ -16,8 +16,8 @@
  * calibrated by widening: a window of ±30 laps covers everything and decides
  * nothing. The differentiator is calibrated *and narrow*, which is why the
  * width comparison gets more room on this screen than the reliability figures
- * do. For the same 90% guarantee we need 13 laps where the nearest published
- * model needs 17 and the naive estimator needs 22.
+ * do. For the same 90% guarantee we need 13 laps where Cappello & Hoegh's
+ * published model needs 17 and Heilmeier's needs 26.
  */
 
 import { useMemo } from 'react'

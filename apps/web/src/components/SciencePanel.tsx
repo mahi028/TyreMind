@@ -205,28 +205,7 @@ export function SciencePanel({ sessionId }: { sessionId: string }) {
               degradation rate and buried under realistic confounding.
             </p>
 
-            <div className="mb-5 grid grid-cols-2 gap-5 sm:grid-cols-4">
-              <Stat
-                label="TyreMind error"
-                value={recovery.summary.overall.ssm_mae.toFixed(4)}
-                unit="s/lap"
-                tone="warm"
-              />
-              <Stat
-                label="Naive error"
-                value={recovery.summary.overall.naive_mae.toFixed(4)}
-                unit="s/lap"
-                tone="dim"
-              />
-              <Stat
-                label="Error reduction"
-                value={`${recovery.summary.overall.error_reduction_pct.toFixed(1)}%`}
-              />
-              <Stat
-                label="95% coverage"
-                value={`${(recovery.summary.overall.interval_coverage_95 * 100).toFixed(0)}%`}
-              />
-            </div>
+            <PublishedHeadline field={field} recovery={recovery} />
 
             <table className="w-full text-[12px]">
               <thead>
@@ -254,18 +233,19 @@ export function SciencePanel({ sessionId }: { sessionId: string }) {
             </table>
 
             <p className="mt-3 max-w-[72ch] text-[11.5px] leading-relaxed text-ink-faint">
-              The naive estimator&rsquo;s bias is{' '}
-              <span className="num">{signed(recovery.summary.overall.naive_bias, 4)}</span> s/lap
-              &mdash; almost exactly the fuel burn-off rate of 0.081 s/lap, and in the direction
-              theory predicts. That is not a coincidence; it is the collinearity showing up as a
-              measured quantity.
+              The naive column is the floor of the field, not the benchmark &mdash; the benchmark is
+              the published models above. It is kept because its bias is{' '}
+              <span className="num">{signed(recovery.summary.overall.naive_bias, 4)}</span> s/lap,
+              almost exactly the fuel burn-off rate of 0.081 s/lap and in the direction theory
+              predicts. That is not a coincidence; it is the collinearity showing up as a measured
+              quantity.
             </p>
           </>
         )}
       </Panel>
 
       <Panel
-        title="Does a Friday curve predict Sunday?"
+        title="Does a Friday curve predict Sunday? (superseded — see exp27)"
         aside={transfer ? `${transfer.overall.n_events} events, 2024` : 'not yet run'}
       >
         {!transfer ? (
@@ -275,6 +255,20 @@ export function SciencePanel({ sessionId }: { sessionId: string }) {
           </Empty>
         ) : (
           <>
+            <div className="mb-4 border-l-2 border-alert pl-3.5">
+              <div className="mb-1 text-[11px] font-semibold text-alert">
+                This number is kept for comparison, not as a result
+              </div>
+              <p className="max-w-[72ch] text-[12px] leading-relaxed text-ink-dim">
+                The error below is scored against a race rate <em>our own model</em> fitted, so the
+                metric partly rewarded agreeing with us. exp27 rebuilt the test without that
+                circularity &mdash; each model against its own race fit and its own climatology
+                &mdash; and the respectable number did not survive it. The decircularised result is
+                on the Orchestration screen and it is the one to quote: every model on the bench,
+                ours included, scores negative skill. This panel stays visible because deleting a
+                number we later found to be flattering would be the wrong way to handle it.
+              </p>
+            </div>
             <p className="mb-4 max-w-[72ch] text-[12.5px] leading-relaxed text-ink-dim">
               Degradation is estimated from each event&rsquo;s practice session and scored against
               its race. No race data reaches the practice fit. Practice and race differ in fuel
@@ -290,9 +284,8 @@ export function SciencePanel({ sessionId }: { sessionId: string }) {
                 tone="warm"
               />
               <Stat
-                label="Naive error"
-                value={transfer.overall.naive_mae?.toFixed(4) ?? '—'}
-                unit="s/lap"
+                label="Superseded by"
+                value="exp27"
                 tone="dim"
               />
               <Stat
@@ -540,6 +533,97 @@ const OURS = 'TyreMind state-space'
  * open; finding the ranking here first is the difference between a limitation
  * and a thing that was being hidden.
  */
+/**
+ * The headline comparison on rate recovery, measured against published models.
+ *
+ * This used to lead with the naive estimator, and a mentor was right to push
+ * back on it: beating a two-parameter regression that nobody publishes is not
+ * an achievement, and leading with it invites the reader to assume it is the
+ * only thing we beat. The benchmark that means something is the field-standard
+ * simulator and the closest published state-space model, both rebuilt from
+ * their papers and scored on the same seeds.
+ *
+ * All four figures come from exp19 so the ratio between them is a real ratio.
+ * The exp01 table below keeps the naive column as the floor of the field, which
+ * is a different claim and is labelled as one.
+ */
+function PublishedHeadline({
+  field,
+  recovery,
+}: {
+  field?: FieldComparison
+  recovery: Recovery
+}) {
+  const rate = field?.degradation_recovery
+  const ours = rate?.find((r) => r.model === OURS)
+  // Named rather than positional: "the closest published model" has to keep
+  // meaning Cappello & Hoegh even if a re-run reorders the table.
+  const published = rate?.find((r) => r.model.startsWith('Cappello'))
+  const standard = rate?.find((r) => r.model.startsWith('Heilmeier'))
+
+  if (!ours || !published) {
+    // exp19 not on disk. Fall back to exp01's own numbers rather than inventing
+    // a comparison, and say which experiment is speaking.
+    return (
+      <div className="mb-5 grid grid-cols-2 gap-5 sm:grid-cols-4">
+        <Stat
+          label="TyreMind error"
+          value={recovery.summary.overall.ssm_mae.toFixed(4)}
+          unit="s/lap"
+          tone="warm"
+        />
+        <Stat
+          label="95% coverage"
+          value={`${(recovery.summary.overall.interval_coverage_95 * 100).toFixed(0)}%`}
+        />
+      </div>
+    )
+  }
+
+  return (
+    <div className="mb-5">
+      <div className="mb-2.5 text-[11px] text-ink-faint">
+        Scored against the published field &middot;{' '}
+        <span className="num">exp19</span>, {ours.n} held-out truths
+      </div>
+      <div className="grid grid-cols-2 gap-5 sm:grid-cols-4">
+        <Stat
+          label="TyreMind error"
+          value={ours.rate_mae.toFixed(4)}
+          unit="s/lap"
+          tone="warm"
+        />
+        <Stat
+          label="Cappello &amp; Hoegh (2025)"
+          value={published.rate_mae.toFixed(4)}
+          unit="s/lap"
+          tone="dim"
+        />
+        {standard && (
+          <Stat
+            label="Heilmeier et al. (field standard)"
+            value={standard.rate_mae.toFixed(4)}
+            unit="s/lap"
+            tone="dim"
+          />
+        )}
+        <Stat
+          label="Better than the closest paper"
+          value={`${(published.rate_mae / ours.rate_mae).toFixed(1)}×`}
+        />
+      </div>
+      <p className="mt-3 max-w-[74ch] text-[12px] leading-relaxed text-ink-dim">
+        The interval matters as much as the error. Ours covered{' '}
+        <span className="num text-ink">{(ours.coverage * 100).toFixed(0)}%</span> of those held-out
+        truths against{' '}
+        <span className="num text-ink">{(published.coverage * 100).toFixed(0)}%</span> for the
+        closest published model. An interval that is wrong most of the time is worse than no
+        interval at all, because a pit wall acts on it.
+      </p>
+    </div>
+  )
+}
+
 function FieldComparisonPanel({ field }: { field: FieldComparison }) {
   const noParameter = new Set(field.models_without_degradation_parameter)
   const lapTime = field.lap_time_prediction
@@ -554,13 +638,16 @@ function FieldComparisonPanel({ field }: { field: FieldComparison }) {
 
   return (
     <Panel
-      title="Against every reasonable alternative"
+      title="Against the published models, rebuilt from their own papers"
       aside={`9 models · ${field.sessions.length} races · ${field.n_synthetic_seeds} synthetic seeds`}
     >
       <p className="mb-4 max-w-[74ch] text-[12.5px] leading-relaxed text-ink-dim">
-        A state-space model is more complicated than a regression, so it has to earn that on the
-        same data with the same validation. Two things are scored, and they disagree — which is the
-        point, and which is why both tables are here in full.
+        Every rung is a real method: the field-standard race-strategy simulator (Heilmeier et al.),
+        the closest published state-space model (Cappello &amp; Hoegh, 2025), ARIMA, gradient
+        boosting and a neural network. Each was rebuilt from its own paper and given the same data
+        and the same validation, with ambiguous choices resolved in the published model&rsquo;s
+        favour. Two things are scored and they disagree, which is the point, and which is why both
+        tables are here in full.
       </p>
 
       <div className="grid gap-5 lg:grid-cols-2">

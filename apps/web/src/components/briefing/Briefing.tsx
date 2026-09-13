@@ -1155,9 +1155,9 @@ function Provenance() {
     { value: '203', label: 'real sessions fitted' },
     { value: '91,867', label: 'clean laps, 4 seasons' },
     { value: '0.0037', label: 's/lap error against known truth — best of 9 models tested' },
-    { value: '0.0158', label: "s/lap for the closest published model on the same test" },
+    { value: '4.3×', label: 'better than Cappello & Hoegh (2025), the closest published model, on that test' },
     { value: '95.2%', label: 'live interval coverage over 69,206 laps, against 95% claimed' },
-    { value: '74%', label: 'of 77 races where the naive method returns a physically impossible answer' },
+    { value: '74%', label: 'of 77 races where fitting lap time against tyre age alone returns a physically impossible answer — tyres that get faster as they wear' },
     { value: '2,827', label: 'stints behind the four measured degradation regimes' },
     { value: '12 s', label: 'to fit a session. Laptop, no GPU, no network' },
   ]
