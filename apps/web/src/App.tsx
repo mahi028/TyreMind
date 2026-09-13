@@ -36,10 +36,12 @@ import { RaceTheatre } from './components/track3d'
 import { Orchestration } from './components/evidence/Orchestration'
 import { AskPanel } from './components/AskPanel'
 import { SummaryPage } from './components/SummaryPage'
+import { PitchPage } from './components/PitchPage'
 import { ThemeToggle } from './lib/theme'
 
 type View =
   | 'summary'
+  | 'pitch'
   | 'briefing'
   | 'race'
   | 'router'
@@ -58,6 +60,9 @@ const VIEWS: { key: View; label: string; blurb: string }[] = [
   // eight minutes and no motorsport background; every other screen assumes a
   // reader who wants the method.
   { key: 'summary', label: 'Summary', blurb: 'Start here — what this is and why it can be trusted' },
+  // The narrative version of the same argument, one chart per beat, for a
+  // panel deciding whether to concentrate rather than one already reading.
+  { key: 'pitch', label: 'The pitch', blurb: 'The problem, the fix, and the proof — in pictures' },
   { key: 'briefing', label: 'The five questions', blurb: 'The whole product, one screen' },
   { key: 'race', label: 'Run the race', blurb: 'Our call against his, live' },
   // High in the rail on purpose: the routing table is the single strongest
@@ -228,6 +233,8 @@ export default function App() {
         <main className="min-w-0 flex-1 p-3 lg:overflow-y-auto">
           {!sessionId ? (
             <Loading what="the session catalogue" />
+          ) : view === 'pitch' ? (
+            <PitchPage sessionId={sessionId} session={current} />
           ) : view === 'summary' ? (
             <SummaryPage
               sessionId={sessionId}
