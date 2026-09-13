@@ -34,7 +34,7 @@ and not a neural network?"*, the answer is no longer our opinion.
 
 **And the gap between their work and ours is large, in our favour.** §6 is the
 full comparison. In short: they fit **one driver in one race**; we fit **203
-sessions and 92,326 laps across four seasons**. They assume their uncertainty is
+sessions and 91,867 laps across four seasons**. They assume their uncertainty is
 correct; we measured ours and found it wasn't, then fixed it. And the
 identifiability problem that their model quietly resolves with a strong prior is
 the problem we **measured, bounded and published a number for**.
@@ -356,7 +356,7 @@ statistically distinct, which they attribute to lack of data.
 |---|---|---|
 | **Model class** | Bayesian linear-Gaussian state space | Hierarchical linear-Gaussian state space |
 | **Inference** | Stan / MCMC | Hand-written Kalman filter + RTS smoother, exact likelihood, L-BFGS-B |
-| **Scale** | **1 driver, 1 race** | **203 sessions, 92,326 laps, 84 event-seasons, 4 seasons** |
+| **Scale** | **1 driver, 1 race** | **203 sessions, 91,867 laps, 84 event-seasons, 4 seasons** |
 | **Fuel term** | derived fuel mass in kg, coefficient `γ` | laps-completed-in-run proxy — *same information, different scaling* |
 | **Traffic** | ❌ absorbed into observation noise `ε_t` | ✅ explicit covariate, derived from lap start times |
 | **Track evolution** | ❌ not modelled | ✅ explicit term |

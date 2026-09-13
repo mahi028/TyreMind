@@ -746,7 +746,7 @@ function PitStopPanel({ validation }: { validation: PitStopValidation }) {
 
   return (
     <Panel
-      title="On real pit stops, we tie — we do not win"
+      title="On real pit stops, we match the best published model"
       aside={`${validation.n_stops_scored} stops · ${validation.n_sessions} races`}
     >
       <p className="mb-4 max-w-[76ch] text-[12.5px] leading-relaxed text-ink-dim">

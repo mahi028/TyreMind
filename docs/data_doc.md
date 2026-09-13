@@ -39,7 +39,7 @@ is exactly what makes it useful for preparing for questions.
 We are solving Problem 3: *pull the true tyre wear rate out of a practice session,
 after removing fuel weight, traffic and track evolution.*
 
-- **203 real F1 sessions, 92,326 clean laps, 84 event-seasons, 2022–2025.** All
+- **203 real F1 sessions, 91,867 clean laps, 84 event-seasons, 2022–2025.** All
   public timing data. We downloaded it ourselves.
 - The **one thing nobody on Earth can download** is the answer key: measured tyre
   wear. Pirelli and the teams have it; the public does not. Part 3 is entirely
@@ -81,7 +81,7 @@ Simple words. Short lines. Read straight from this page.
 
 | # | Point | Number to say |
 |---|---|---|
-| 1 | We have a lot of real data | **203 sessions, 92,326 laps, 4 seasons** |
+| 1 | We have a lot of real data | **203 sessions, 91,867 laps, 4 seasons** |
 | 2 | The simple method is not a little wrong. It is broken. | **74% of races give an impossible answer** |
 | 3 | When a true answer exists, we find it | **Our error 0.0044, theirs 0.0966** |
 | 4 | Our error bars are honest | **We say 95%, we are right 95.2% of the time** |
@@ -117,7 +117,7 @@ If you only get 5 minutes, say these 5 lines and stop.
 ## 4. Questions they will ask
 
 **Q. What data do you have?**
-> "203 real F1 sessions. 92,326 clean laps. Four seasons, 2022 to 2025. It comes
+> "203 real F1 sessions. 91,867 clean laps. Four seasons, 2022 to 2025. It comes
 > from FastF1, which reads F1's official timing feed. Each lap gives us the driver,
 > lap time, tyre compound, tyre age, and lap number. Eight columns. That is all
 > anyone has in public."
@@ -265,7 +265,7 @@ There are five separate bodies of data. They are listed in order of importance.
 | | |
 |---|---|
 | Sessions | **203** usable |
-| Clean racing laps | **92,326** |
+| Clean racing laps | **91,867** |
 | Event-seasons covered | **84** (e.g. "Monza 2024" is one event-season) |
 | Seasons | 2022, 2023, 2024, 2025 |
 

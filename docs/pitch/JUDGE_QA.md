@@ -315,7 +315,7 @@ Gaussian intervals sit 0.189 from the calibration diagonal, adaptive conformal a
 
 **For the benchmark, yes. For the corpus, no.**
 
-The corpus is **203 sessions, 92,326 clean laps, 84 event-seasons, 2022–2025**, all
+The corpus is **203 sessions, 91,867 clean laps, 84 event-seasons, 2022–2025**, all
 downloaded by us from the official timing feed.
 
 Sample sizes scale with what each experiment costs:
@@ -620,7 +620,7 @@ data poverty.
 
 | | Them | Us |
 |---|---|---|
-| **Scale** | One driver, one race (Hamilton, 2025 Austria) | 203 sessions, 92,326 laps, 84 event-seasons, 4 seasons — roughly 200× |
+| **Scale** | One driver, one race (Hamilton, 2025 Austria) | 203 sessions, 91,867 laps, 84 event-seasons, 4 seasons — roughly 200× |
 | **Positivity** | Imposed by a half-normal prior, because the unconstrained rate goes negative | **Measured**: `exp14`, 74.0% of 77 races, 53.4% of 208 stints |
 | **Uncertainty** | Assumed — Bayesian credible intervals are correct *if the model is* | **Measured**: ours claimed 95% and delivered 75.5%; fixed to 94.7% offline and 95.2% over 69,206 laps live. Theirs covers **37.5%** on our recovery leg. |
 | **Identifiability** | *"we lean on moderately strong priors since we are relatively data poor"* — never quantified | **Quantified**: only **6.0%** data-driven, 1.38× the Cramér–Rao floor. Their result rests on a prior doing **94%** of the work, and the paper does not say so **because it does not know**. |
@@ -921,7 +921,7 @@ Keep this where you can see it. Everything here is in `experiments/results/`.
 
 | Claim | Number | File |
 |---|---|---|
-| Corpus | 203 sessions · 92,326 laps · 84 event-seasons · 2022–2025 | `data/season/` |
+| Corpus | 203 sessions · 91,867 laps · 84 event-seasons · 2022–2025 | `data/season/` |
 | Naive method gives an impossible answer | **74.0%** of 77 races · 53.4% of 208 stints | `exp14` |
 | Degradation-rate recovery, ours | **0.0037 s/lap**, best of 9 | `exp19` |
 | Closest published model | 0.0158 — **4.3× worse** | `exp19` |

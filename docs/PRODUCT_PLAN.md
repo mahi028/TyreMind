@@ -125,7 +125,7 @@ classic failure of this kind of system.
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │ L0  DATA                                                            │
-│     Phase 1: 203 historical sessions, 92,326 laps   ← WE ARE HERE    │
+│     Phase 1: 203 historical sessions, 91,867 laps   ← WE ARE HERE    │
 │     Phase 2: live timing stream                                      │
 ├─────────────────────────────────────────────────────────────────────┤
 │ L1  ESTIMATOR    state-space + Kalman filter / RTS smoother          │

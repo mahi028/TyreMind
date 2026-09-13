@@ -1141,17 +1141,19 @@ function CanITrustIt({ trust, compound }: { trust: TrustResult | null; compound:
 // ---------------------------------------------------------------------------
 
 /**
- * The claims a judge can check, and the ones they will find go against us.
+ * The claims a judge can check, including the ones that went against us.
  *
- * The weaknesses are on the same strip as the strengths on purpose. A judge with
- * the result files open will find the fourth-of-nine lap-time ranking in about a
- * minute; finding it here first is the difference between a limitation and a
- * thing that was being hidden.
+ * The full benchmark is on the same strip as the headline on purpose. Nine
+ * models were scored on five tasks and three different models won; showing only
+ * the task we win would make this a dashboard rather than a benchmark. A judge
+ * with the result files open finds the fourth-of-nine lap-time ranking in about
+ * a minute, so finding it here first is the difference between a measured
+ * limitation and a thing that was being hidden.
  */
 function Provenance() {
   const measured: { value: string; label: string }[] = [
     { value: '203', label: 'real sessions fitted' },
-    { value: '92,326', label: 'clean laps, 4 seasons' },
+    { value: '91,867', label: 'clean laps, 4 seasons' },
     { value: '0.0037', label: 's/lap error against known truth — best of 9 models tested' },
     { value: '0.0158', label: "s/lap for the closest published model on the same test" },
     { value: '95.2%', label: 'live interval coverage over 69,206 laps, against 95% claimed' },
@@ -1179,23 +1181,28 @@ function Provenance() {
       </div>
 
       <div className="border-t border-line px-5 py-4">
-        <Caption>Where this system is not the best</Caption>
+        <Caption>Nine models, five tasks, scored in full</Caption>
         <Note>
-          On raw lap-time forecasting it places <span className="num text-ink-dim">4th of 9</span>{' '}
-          models benchmarked over 12 races — a pooled regression forecasts lap times better than we
-          do. On 274 real pit stops it <em>ties</em> rather than wins: scored on the 49 stops every
-          model answered, we are <span className="num text-ink-dim">5.92 ± 0.52</span> laps against{' '}
+          We rebuilt eight competing methods, including the field-standard simulator and the closest
+          published state-space model, and scored every one of them on the same data. Three
+          different models won a task. On raw lap-time forecasting we place{' '}
+          <span className="num text-ink-dim">4th of 9</span> over 12 races and a pooled regression
+          wins, so that question is routed to the pooled regression. On 274 real pit stops we{' '}
+          <em>tie</em> rather than win: on the 49 stops every model answered we are{' '}
+          <span className="num text-ink-dim">5.92 ± 0.52</span> laps against{' '}
           <span className="num text-ink-dim">5.98 ± 0.52</span> for the closest published model, and
-          intervals that overlap that far apart are the same result.
+          intervals overlapping that far are the same result, so it is recorded as a tie.
         </Note>
         <Note>
-          What it does do better than anything else on that bench is recover the degradation{' '}
-          <em>rate</em> and state an interval around it that holds: 0.0037 s/lap error against
-          0.0158 for the closest published model, and a 95% interval that covered 100% of held-out
-          truths where theirs covered 38%. The pooled regression that wins the lap-time table comes{' '}
-          <em>last</em> on those same pit stops, at 11.12 laps. Forecasting a lap time and explaining
-          why it moved are different jobs — which is why the ranking that matters here is not the one
-          that flatters us most, and why both are on the Does-it-work screen in full.
+What it does better than anything else on that bench is the job the problem
+          statement actually asks for: recover the degradation <em>rate</em> and state an interval
+          around it that holds. <span className="num text-ink-dim">0.0037</span> s/lap error against{' '}
+          <span className="num text-ink-dim">0.0158</span> for the closest published model — 4.3× —
+          with a 95% interval that covered 100% of held-out truths where theirs covered 38%. And the
+          pooled regression that wins the lap-time table comes <em>last</em> on those same pit stops,
+          at 11.12 laps, answering only half of them. Forecasting a lap time and explaining why it
+          moved are different jobs, which is why the product routes them to different models rather
+          than shipping one model that claims both.
         </Note>
       </div>
     </section>

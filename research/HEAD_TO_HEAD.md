@@ -173,7 +173,7 @@ Priors:       ν ~ N⁺(0.05, 0.1²)   σ_ε ~ N⁺(0.3, 0.1²)   α_reset ~ N(6
 
 | # | Failure | Proof |
 |---|---|---|
-| 1 | **One driver, one race** (Hamilton, 2025 Austria). | Our corpus: **203 sessions, 92,326 laps, 84 event-seasons, 4 seasons.** Roughly 200× the data. |
+| 1 | **One driver, one race** (Hamilton, 2025 Austria). | Our corpus: **203 sessions, 91,867 laps, 84 event-seasons, 4 seasons.** Roughly 200× the data. |
 | 2 | **Traffic is absorbed into observation noise** — `ε_t` covers "driver mistakes and the presence of other cars". | Lumping a systematic confounder into i.i.d. noise biases `ν`. We model it explicitly. |
 | 3 | **No track-evolution term.** | Same omission as Heilmeier. |
 | 4 | **Positivity is imposed, not measured.** A half-normal prior forces `ν > 0` because "a negative overall degradation rate would be" implausible. | Our exp14 **measures** how often the unconstrained estimate goes negative: **74.0% of 77 races, 53.4% of 208 stints.** A prior hides the symptom; an experiment quantifies it. |

@@ -285,7 +285,7 @@ These are measured, reproducible from `experiments/results/`, and safe to quote.
 
 | Claim | Number |
 |---|---|
-| Real sessions / clean laps | 203 / 92,326 |
+| Real sessions / clean laps | 203 / 91,867 |
 | Degradation-rate error vs known truth | **0.0037 s/lap** — best of 9 models |
 | Closest published model's error | 0.0158 (4.3× worse) |
 | Our 95% interval actually covers | **100%** — theirs 38% |

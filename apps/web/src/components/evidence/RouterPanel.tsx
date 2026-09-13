@@ -323,10 +323,9 @@ export function RouterPanel({ experiments }: { experiments: Record<string, unkno
         <Tile label="Tasks routed" value={String(ROUTES.length)} />
         <Tile label="Distinct models used" value={String(models.size)} />
         <Tile
-          label="Routed away from ours"
+          label="Sent to a competitor's model"
           value={String(away)}
-          tone="alert"
-          foot="lap-time forecasting, practice-to-race"
+          foot="lap-time forecasting and practice-to-race, because the evidence says so"
         />
         <Tile label="Recorded as ties" value={String(ties)} foot="pit timing, confidence" />
       </div>

@@ -116,7 +116,7 @@ bare number with a plus-or-minus appended.
 Every figure below is produced by a script in `experiments/` and read from
 `experiments/results/*.json`. Nothing here is typed by hand.
 
-The evidence base is **203 sessions and 92,326 laps** across 2022, 2023, 2024 and 2025
+The evidence base is **203 sessions and 91,867 laps** across 2022, 2023, 2024 and 2025
 (`scripts/build_corpus.py` builds it into `data/season/`, which is gitignored
 because it is large and rebuildable). The eight sessions committed under
 `data/demo/` are a presentation set chosen to span circuit types, so a fresh
@@ -517,7 +517,7 @@ Both of those also take `--corpus season` once the corpus below exists, which
 scores the model ladder and the interval calibration on twenty races instead of
 four.
 
-**Needs the season corpus.** It is ~203 sessions and 92,326 laps, gitignored
+**Needs the season corpus.** It is ~203 sessions and 91,867 laps, gitignored
 because it is large and rebuildable. Build it once, then everything below is
 offline too:
 
