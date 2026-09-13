@@ -1,7 +1,7 @@
-"""Render `docs/data_doc.md` to a printable HTML page and a PDF.
+"""Render a Markdown document in `docs/` to a printable HTML page and a PDF.
 
-The data document is the one we hand to mentors and read from in the room, so it
-has to survive being printed: no table cut in half across a page break, no code
+These are the documents we hand to mentors and read from in the room, so they
+have to survive being printed: no table cut in half across a page break, no code
 block orphaned from its heading, and headings that start a new page rather than
 sitting two lines from the bottom.
 
@@ -9,7 +9,12 @@ sitting two lines from the bottom.
 This one starts from Markdown instead, so it needs its own converter and its own
 print stylesheet.
 
-    python scripts/render_data_doc.py
+    python scripts/render_data_doc.py                  # docs/data_doc.md
+    python scripts/render_data_doc.py docs/MASTER_DOC.md
+
+Two documents share this renderer rather than each carrying a copy of the print
+CSS, because a stylesheet duplicated is a stylesheet that drifts -- one gets a
+page-break fix and the other silently does not.
 
 Needs Chromium via Playwright, the same dependency the other renderer uses:
 
@@ -18,12 +23,18 @@ Needs Chromium via Playwright, the same dependency the other renderer uses:
 
 from __future__ import annotations
 
+import argparse
 import sys
 from pathlib import Path
 
-SOURCE = Path("docs/data_doc.md")
-HTML = Path("docs/data_doc.html")
-PDF = Path("docs/data_doc.pdf")
+DEFAULT_SOURCE = Path("docs/data_doc.md")
+
+#: Browser-tab and PDF titles, keyed by source stem. A document not listed here
+#: falls back to its first H1, which is what a new document usually wants anyway.
+TITLES = {
+    "data_doc": "TyreMind — Data & Progress Document",
+    "MASTER_DOC": "TyreMind — The Complete Explanation",
+}
 
 # Print rules matter more than screen rules here. `break-inside: avoid` on tables
 # and code blocks is what stops a five-row table being split across two pages,
@@ -117,10 +128,18 @@ blockquote p { margin: 0.4em 0; }
 """
 
 
-def to_html(markdown_text: str) -> str:
+def first_heading(markdown_text: str) -> str | None:
+    """The document's own H1, used as the title when none is registered."""
+    for line in markdown_text.splitlines():
+        if line.startswith("# "):
+            return line[2:].strip()
+    return None
+
+
+def to_html(markdown_text: str, title: str) -> str:
     """Convert the document to standalone HTML.
 
-    Tables and fenced code are both load-bearing in this document -- the
+    Tables and fenced code are both load-bearing in these documents -- the
     experiment results are tables and the reproduction steps are shell blocks --
     so the converter has to support GitHub-flavoured Markdown, not the original
     1.0 syntax.
@@ -130,9 +149,10 @@ def to_html(markdown_text: str) -> str:
     md = MarkdownIt("commonmark", {"html": False, "linkify": False})
     md.enable(["table", "strikethrough"])
     body = md.render(markdown_text)
+    safe = title.replace("&", "&amp;").replace("<", "&lt;")
     return (
         "<!doctype html><html lang='en'><head><meta charset='utf-8'>"
-        "<title>TyreMind — Data &amp; Progress Document</title>"
+        f"<title>{safe}</title>"
         f"<style>{STYLE}</style></head><body><div class='page'>{body}</div></body></html>"
     )
 
@@ -167,15 +187,26 @@ def render_pdf(source_html: Path, destination: Path, *, timeout_ms: int = 120_00
 
 
 def main() -> int:
-    if not SOURCE.exists():
-        print(f"missing {SOURCE}", file=sys.stderr)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("source", nargs="?", type=Path, default=DEFAULT_SOURCE,
+                        help="Markdown file to render (default docs/data_doc.md)")
+    args = parser.parse_args()
+
+    source: Path = args.source
+    if not source.exists():
+        print(f"missing {source}", file=sys.stderr)
         return 1
 
-    HTML.write_text(to_html(SOURCE.read_text(encoding="utf-8")), encoding="utf-8")
-    print(f"{HTML}  {HTML.stat().st_size / 1024:.0f} KB")
+    html_path = source.with_suffix(".html")
+    pdf_path = source.with_suffix(".pdf")
+    text = source.read_text(encoding="utf-8")
+    title = TITLES.get(source.stem) or first_heading(text) or source.stem
 
-    size = render_pdf(HTML, PDF)
-    print(f"{PDF}  {size / 1024:.0f} KB")
+    html_path.write_text(to_html(text, title), encoding="utf-8")
+    print(f"{html_path}  {html_path.stat().st_size / 1024:.0f} KB")
+
+    size = render_pdf(html_path, pdf_path)
+    print(f"{pdf_path}  {size / 1024:.0f} KB")
     return 0
 
 
