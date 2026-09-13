@@ -130,7 +130,7 @@ is exactly what makes it useful for preparing for questions.</p>
 </tr>
 <tr>
 <td>5</td>
-<td>All 18 experiments — question, method, result</td>
+<td>All 32 experiments — question, method, result</td>
 <td>The core of the work</td>
 </tr>
 <tr>
@@ -190,7 +190,7 @@ public timing data. We downloaded it ourselves.</li>
 <li>The <strong>one thing nobody on Earth can download</strong> is the answer key: measured tyre
 wear. Pirelli and the teams have it; the public does not. Part 3 is entirely
 about how we worked around that.</li>
-<li>We ran <strong>18 experiments</strong>. <strong>Six of our own ideas failed</strong> and we kept the
+<li>We ran <strong>32 experiments</strong>. <strong>Thirteen of our own ideas failed</strong> and we kept the
 negative results rather than hiding them.</li>
 <li>Every headline number is reproducible from a script in this repo.</li>
 </ul>
@@ -2398,7 +2398,7 @@ validated our magnitude against measured wear, because we did not.</p>
 </tr>
 </tbody>
 </table>
-<p>Six refuted hypotheses is not a weakness in the write-up — it is the evidence that
+<p>Thirteen refuted hypotheses is not a weakness in the write-up — it is the evidence that
 the surviving claims were actually tested.</p>
 <h2>6.3 Things we said and then had to take back</h2>
 <p>Listing these is deliberate. If the team knows what we retracted, nobody will
@@ -2519,7 +2519,7 @@ python -m venv .venv
 .venv/Scripts/pip install -r requirements.txt -r requirements-dev.txt
 
 # Everything below works OFFLINE using data/demo/
-.venv/Scripts/python -m pytest                     # all 326 tests
+.venv/Scripts/python -m pytest                     # all 615 tests
 .venv/Scripts/python -m uvicorn tyremind.api.main:app --reload   # the dashboard API
 
 # Rebuild the full four-season corpus (needs internet, takes hours, rate-limited)

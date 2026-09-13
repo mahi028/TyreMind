@@ -19,7 +19,7 @@ Do this **the day before**, not on the day.
 |---|---|---|
 | **Day before** | `cd "D:\TrackShift Innovation Challenge"` then `pip install -r requirements.txt && pip install -e .` | The server will not start otherwise. |
 | **Day before** | `cd apps/web && npm run build` | The shipped `dist/` bundle predates the latest CSS and the new pit-confidence fields. Build it *now*, never on the day. |
-| **Day before** | `pytest -q` | 81 tests. This is your fallback if the server dies. Know that it passes. |
+| **Day before** | `pytest -q` | 615 tests. This is your fallback if the server dies. Know that it passes. |
 | **T-20 min** | Launch (§1) and wait for `8 ready` | Cold start warms 8 sessions in ~22 s. |
 | **T-15 min** | **PRE-WARM THE HIDDEN CACHE** (§1.2) | **The single biggest live risk in the product.** Read §1.2. |
 | **T-10 min** | Confirm the header status dot reads **"runs offline"** in green | Your offline claim is on screen. If it reads "needs network", something is missing from `data/demo/`. |
@@ -107,7 +107,7 @@ thing that breaks.
 | **3D canvas is black, no error** | WebGL context exhausted after many circuit switches | Hard-refresh the tab (Ctrl+Shift+R). Do not switch circuits on that screen again. |
 | **Live replay never finishes** | You picked a race session at slow pace — Zandvoort race is 1,350 laps ≈ 68 s | Drag the **pace** slider to **max** *before* pressing Start. It cannot be moved once streaming. Or use Monza **FP2** (143 laps ≈ 7 s). |
 | **"When to pit" is slow or the window panel vanishes** | `/pit-window` sweeps every remaining lap at 1,200 sims each, with no debounce on the slider; and it correctly returns 400 at the end of a stint | Move the lap slider in **one deliberate drag**, or click the track once. Do not scrub. |
-| **Server will not start at all** | Environment | Run `pytest -q` on screen. 81 tests. Say: *"The science is in the library, not the browser. Here it is, passing. Let me walk you through the code and the result files instead."* Then open `experiments/results/` and the STORY. |
+| **Server will not start at all** | Environment | Run `pytest -q` on screen. 615 tests. Say: *"The science is in the library, not the browser. Here it is, passing. Let me walk you through the code and the result files instead."* Then open `experiments/results/` and the STORY. |
 | **Browser is broken but the server is up** | Frontend build | Go to **`/docs`**. The FastAPI interactive docs hit every real endpoint and return real numbers. Fire `/api/session/2024-monza-R` live. It is less pretty and equally convincing. |
 | **Anything at all, and the clock is running** | — | Open the second tab: **`http://127.0.0.1:8077/demo.html`**, press **Space**. A self-driving 4:55 tour that captions itself and skips any control it cannot find. Press **R** to restart, **F11** first for fullscreen. |
 

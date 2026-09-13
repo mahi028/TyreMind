@@ -417,7 +417,7 @@ interval visibly collapsing as evidence arrives. Every view is deep-linkable —
 **Verify the install:**
 
 ```bash
-pytest              # 326 tests, about 30 s
+pytest              # 615 tests, about 30 s
 ruff check .        # lint
 ```
 

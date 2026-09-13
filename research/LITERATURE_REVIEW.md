@@ -368,7 +368,7 @@ statistically distinct, which they attribute to lack of data.
 | **Identifiability** | ❌ not addressed; resolved implicitly by strong priors | ✅ **proven exactly collinear** (520/520 runs, r = 1.000, 11/11 singular information matrices); **Cramér–Rao bound computed**; we sit at **1.38×** optimal; **only 6.0%** of the separation is data-driven |
 | **Cross-domain** | none | NASA C-MAPSS turbofans, unmodified code, RMSE 22.7 cycles |
 | **Baselines** | ARIMA(2,1,2) | naive, fuel-corrected, pooled, LightGBM, MLP — and a physical-impossibility test |
-| **Negative results** | 1 (compounds not distinct) | 6 refuted hypotheses |
+| **Negative results** | 1 (compounds not distinct) | 13 refuted hypotheses |
 | **Validation** | cross-validation within one race | 25-seed synthetic ground truth; practice→race across 42 events; leave-one-circuit-out across 26 circuits |
 
 ### 7.3 What we must do because of this paper

@@ -138,7 +138,7 @@ dashboard reads. No number in the product is typed by hand.
 | Failure | Response |
 |---|---|
 | No network | Everything already runs offline. Say so; it is a feature. |
-| Server will not start | `pytest -q` (81 tests) shows the science is intact; walk the code. |
+| Server will not start | `pytest -q` (615 tests) shows the science is intact; walk the code. |
 | Browser trouble | `/docs` gives the interactive API. Every endpoint returns real numbers. |
 | Asked something not built | Say so. `13_LIMITATIONS_AND_FAILURE_MODES.md` lists what was cut and why. |
 

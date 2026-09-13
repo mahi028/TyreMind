@@ -21,7 +21,7 @@ is exactly what makes it useful for preparing for questions.
 | 2 | Which real sensors produce each field at a real Grand Prix | They ask "where does this come from?" |
 | 3 | What does not exist anywhere on the internet | They ask "why not just measure the tyre?" |
 | 4 | What each dataset was used for | Quick reference table |
-| 5 | All 18 experiments — question, method, result | The core of the work |
+| 5 | All 32 experiments — question, method, result | The core of the work |
 | 6 | Every claim, graded real / caveated / refuted | They ask "how sure are you?" |
 | 7 | The 326 automated tests | They ask "how do you know it still works?" |
 | 8 | How to rebuild anything | For the team |
@@ -44,7 +44,7 @@ after removing fuel weight, traffic and track evolution.*
 - The **one thing nobody on Earth can download** is the answer key: measured tyre
   wear. Pirelli and the teams have it; the public does not. Part 3 is entirely
   about how we worked around that.
-- We ran **18 experiments**. **Six of our own ideas failed** and we kept the
+- We ran **32 experiments**. **Thirteen of our own ideas failed** and we kept the
   negative results rather than hiding them.
 - Every headline number is reproducible from a script in this repo.
 
@@ -1614,7 +1614,7 @@ validated our magnitude against measured wear, because we did not.
 | Matching stint depth fixes the bias | exp11: bias 6.9% **worse**, MAE 13.8% worse, p = 0.016 |
 | Driver style is a usable feature | exp15: prediction 0.88% **worse** |
 
-Six refuted hypotheses is not a weakness in the write-up — it is the evidence that
+Thirteen refuted hypotheses is not a weakness in the write-up — it is the evidence that
 the surviving claims were actually tested.
 
 ## 6.3 Things we said and then had to take back
@@ -1681,7 +1681,7 @@ python -m venv .venv
 .venv/Scripts/pip install -r requirements.txt -r requirements-dev.txt
 
 # Everything below works OFFLINE using data/demo/
-.venv/Scripts/python -m pytest                     # all 326 tests
+.venv/Scripts/python -m pytest                     # all 615 tests
 .venv/Scripts/python -m uvicorn tyremind.api.main:app --reload   # the dashboard API
 
 # Rebuild the full four-season corpus (needs internet, takes hours, rate-limited)
