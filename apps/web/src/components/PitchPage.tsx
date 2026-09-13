@@ -14,10 +14,9 @@
  * from the screen that owns it, not a picture of one, so a sceptic can open that
  * screen and find the same thing.
  *
- * **The problem before the product.** Nothing here describes what we built until
- * the reader has seen the thing that is broken. Beat 2 is the standard method
- * failing, drawn from the race in the rail, and it is the whole pitch: if that
- * chart does not land, no amount of method afterwards will.
+ * **The problem before the product.** Beat 1 is the four causes tangled inside
+ * one lap time, drawn from the race in the rail, and nothing describes what we
+ * built until the reader has seen that.
  *
  * **Where we are weak, we still say so**, in one line at the end rather than in
  * a footnote nobody reaches. A panel that later finds an unmentioned weakness
@@ -35,10 +34,10 @@ import {
   type PitWindow,
   type RunRow,
   type SessionRef,
-  type SessionSummary,
   type TrustResult,
 } from '../lib/api'
 import { DegradationRegimes, PitWindowChart, ReliabilityCurve, RulScatter } from './charts'
+import { cornerEnergy, type CornerEnergy } from '../lib/api'
 import {
   ConsensusSpread,
   ContributionStack,
@@ -119,13 +118,13 @@ export function PitchPage({
   sessionId: string
   session: SessionRef | undefined
 }) {
-  const [summary, setSummary] = useState<SessionSummary | null>(null)
   const [runs, setRuns] = useState<RunRow[]>([])
   const [rates, setRates] = useState<DegradationRow[]>([])
   const [decomp, setDecomp] = useState<DecompositionRow[]>([])
   const [projection, setProjection] = useState<ProjectionResult | null>(null)
   const [pit, setPit] = useState<PitWindow | null>(null)
   const [trust, setTrust] = useState<TrustResult | null>(null)
+  const [corners, setCorners] = useState<CornerEnergy | null>(null)
   const [experiments, setExperiments] = useState<Record<string, any>>({})
 
   useEffect(() => {
@@ -133,10 +132,16 @@ export function PitchPage({
   }, [])
 
   useEffect(() => {
+    const circuit = session?.grand_prix
+    if (!circuit) return
+    setCorners(null)
+    cornerEnergy(circuit).then(setCorners).catch(() => undefined)
+  }, [session?.grand_prix])
+
+  useEffect(() => {
     if (!sessionId) return
-    setSummary(null); setRuns([]); setRates([]); setDecomp([])
-    setProjection(null); setPit(null); setTrust(null)
-    api.summary(sessionId).then(setSummary).catch(() => undefined)
+    setRuns([]); setRates([]); setDecomp([])
+    setProjection(null); setPit(null); setTrust(null); setCorners(null)
     api.runs(sessionId).then(setRuns).catch(() => undefined)
     api.degradation(sessionId, false).then((d) => setRates(d.rows)).catch(() => undefined)
   }, [sessionId])
@@ -166,14 +171,6 @@ export function PitchPage({
   const heroRates = useMemo(
     () => (hero ? rates.filter((r) => r.driver === hero.driver && r.run_id === hero.run_id) : []),
     [rates, hero],
-  )
-
-  const backwards = useMemo(
-    () =>
-      Object.entries(summary?.compounds ?? {}).filter(
-        ([, c]) => c.naive_estimate != null && c.naive_estimate < 0,
-      ),
-    [summary],
   )
 
   const cliff = experiments['exp17_degradation_cliff']
@@ -254,26 +251,23 @@ export function PitchPage({
         )}
       </Beat>
 
-      {/* ── 02 the failure ───────────────────────────────────────────────── */}
+      {/* ── 02 the physics check ─────────────────────────────────────────── */}
       <Beat
         n="02"
-        kicker="Why it is still unsolved"
-        claim="So the obvious method says tyres get faster as they wear out."
-        read="Anything reaching into the red half means a tyre reported as improving with age. The textbook bars land there. Ours do not."
-        line={
-          backwards.length
-            ? `Fit a line through lap time against tyre age — the textbook approach — and on this race it reports tyres improving with age on ${backwards.length} of ${Object.keys(summary?.compounds ?? {}).length} compounds. Fuel is hiding the tyre, and it is bigger than the tyre. This is not a corner case. It happens in roughly three races out of four.`
-            : 'Fit a line through lap time against tyre age — the textbook approach — and fuel burn cancels the tyre out. On most races it reports tyres improving with age, which is impossible. Try a longer race in the sidebar to see it.'
-        }
+        kicker="How we know the physics is right"
+        claim="We can tell which way a circuit turns, just from how the tyres worked."
+        read="The two dark tyres did the most work. Lean on right-hand corners all lap and the left-hand tyres carry the load — so the heavier side tells you which way the track goes."
+        line="A sanity check nobody can fudge. We never tell the model which direction the circuit runs. It reads the load through each of the four tyres and infers it, and it gets this right on seven of the eight circuits we tested. If the physics underneath were wrong, it would not be able to."
+        tone="var(--color-traffic)"
       >
-        {summary ? (
-          <NaiveVersusOurs summary={summary} />
+        {corners?.measured && corners.corner_share ? (
+          <CornerLoadCar data={corners} />
         ) : (
-          <Waiting what="Fitting the race…" />
+          <Waiting what="Reading the load through each tyre…" />
         )}
       </Beat>
 
-      {/* ── 03 the solution ──────────────────────────────────────────────── */}
+      {/* ── 02 the solution ──────────────────────────────────────────────── */}
       <Beat
         n="03"
         kicker="What we built"
@@ -289,7 +283,7 @@ export function PitchPage({
         )}
       </Beat>
 
-      {/* ── 04 the decision ──────────────────────────────────────────────── */}
+      {/* ── 03 the decision ──────────────────────────────────────────────── */}
       <Beat
         n="04"
         kicker="What a strategist gets"
@@ -305,7 +299,7 @@ export function PitchPage({
         )}
       </Beat>
 
-      {/* ── 05 the decision ──────────────────────────────────────────────── */}
+      {/* ── 04 the decision ──────────────────────────────────────────────── */}
       <Beat
         n="05"
         kicker="The decision it exists to make"
@@ -332,7 +326,7 @@ export function PitchPage({
         )}
       </Beat>
 
-      {/* ── 06 why the simple fix fails ──────────────────────────────────── */}
+      {/* ── 05 why the simple fix fails ──────────────────────────────────── */}
       <Beat
         n="06"
         kicker="Why a simpler tool cannot do this"
@@ -348,7 +342,7 @@ export function PitchPage({
         )}
       </Beat>
 
-      {/* ── 07 four methods, one answer ──────────────────────────────────── */}
+      {/* ── 06 four methods, one answer ──────────────────────────────────── */}
       <Beat
         n="07"
         kicker="Why you can trust the number"
@@ -369,7 +363,7 @@ export function PitchPage({
         )}
       </Beat>
 
-      {/* ── 08 calibration ───────────────────────────────────────────────── */}
+      {/* ── 07 calibration ───────────────────────────────────────────────── */}
       <Beat
         n="08"
         kicker="And why you can trust the confidence"
@@ -467,119 +461,130 @@ export function PitchPage({
   )
 }
 
-/**
- * The one chart the whole pitch rests on: what the textbook method reports for
- * this race, against what we report, on one axis through zero.
- *
- * Built by hand rather than reached for from `charts.tsx` because none of those
- * answers this question. Beat 2 originally showed `DegradationCurves`, which
- * draws *our* fitted curves rising correctly -- a chart that quietly contradicted
- * the headline above it. A panel reads the claim, looks at the picture, and finds
- * the picture showing tyres wearing normally. That is worse than no chart.
- *
- * Everything left of the zero line is a physical impossibility: a tyre reported
- * as getting faster the longer it runs. Drawing both on one axis is what makes
- * the point without a sentence of explanation.
- */
-function NaiveVersusOurs({ summary }: { summary: SessionSummary }) {
-  const rows = Object.entries(summary.compounds)
-    .filter(([, c]) => c.naive_estimate != null && Number.isFinite(c.naive_estimate))
-    .map(([compound, c]) => ({
-      compound,
-      naive: c.naive_estimate as number,
-      ours: c.degradation_rate,
-    }))
 
-  if (!rows.length) {
-    return <Waiting what="This race reports no comparison." />
+/**
+ * The four-corner load check, drawn as a car seen from above.
+ *
+ * A bar chart of four numbers would be technically identical and would land on
+ * nobody. Drawn as tyres in their real positions, the asymmetry is immediate --
+ * the loaded side is simply darker and fatter, and a reader with no motorsport
+ * background can see which way the car has been leaning.
+ *
+ * The claim underneath is the part that cannot be fudged. The model is never
+ * told which way a circuit runs; it reads the energy through each tyre and
+ * infers it, and exp06 got that right on seven of eight circuits. The published
+ * direction is shown beside the inferred one so a reader can see the check
+ * passing rather than take our word for it.
+ */
+function CornerLoadCar({ data }: { data: CornerEnergy }) {
+  const share = data.corner_share!
+  const values = [share.FL, share.FR, share.RL, share.RR]
+  const peak = Math.max(...values)
+  const quiet = Math.min(...values)
+  const span = Math.max(peak - quiet, 1e-6)
+
+  const tyre = (key: 'FL' | 'FR' | 'RL' | 'RR', label: string) => {
+    const v = share[key]
+    // Normalised within this circuit, because the interesting quantity is which
+    // corner worked hardest here, not how this circuit compares with another.
+    const heat = (v - quiet) / span
+    const width = 26 + heat * 12
+    const height = 54 + heat * 14
+    return (
+      <div className="flex flex-col items-center gap-1.5">
+        <div
+          className="rounded-[3px]"
+          style={{
+            width,
+            height,
+            background: `color-mix(in oklab, var(--color-alert) ${18 + heat * 72}%, var(--color-raised))`,
+            border: '1px solid var(--color-line-bright)',
+          }}
+        />
+        <span className="text-[10.5px] text-ink-faint">{label}</span>
+        <span className="num text-[12px] font-medium text-ink">{(v * 100).toFixed(1)}%</span>
+      </div>
+    )
   }
 
-  // A symmetric axis so the zero line sits in the middle and "left of zero"
-  // reads as wrong without needing a caption to say so.
-  const extent = Math.max(
-    0.05,
-    ...rows.flatMap((r) => [Math.abs(r.naive), Math.abs(r.ours)]),
-  ) * 1.15
-  const x = (v: number) => ((v + extent) / (2 * extent)) * 100
+  const agrees =
+    data.predicted_direction != null &&
+    data.published_direction != null &&
+    data.predicted_direction === data.published_direction
 
   return (
-    <div>
-      <div className="flex items-baseline justify-between text-[11px]">
-        <span className="font-medium text-alert">← physically impossible</span>
-        <span className="text-ink-faint">seconds lost per lap</span>
-        <span className="font-medium" style={{ color: 'var(--color-good)' }}>
-          real wear →
-        </span>
-      </div>
-
-      <div className="mt-3 space-y-4">
-        {rows.map((r) => (
-          <div key={r.compound}>
-            <div className="mb-1.5 text-[12.5px] font-semibold text-ink">{r.compound}</div>
-            {[
-              { name: 'Textbook method', v: r.naive, bad: r.naive < 0 },
-              { name: 'TyreMind', v: r.ours, bad: false },
-            ].map((bar) => {
-              const zero = x(0)
-              const here = x(bar.v)
-              const left = Math.min(zero, here)
-              const width = Math.max(Math.abs(here - zero), 0.4)
-              const colour = bar.bad ? 'var(--color-alert)' : 'var(--color-good)'
-              return (
-                <div
-                  key={bar.name}
-                  className="grid grid-cols-[104px_1fr_66px] items-center gap-3 py-[3px]"
-                >
-                  <span className="text-[11.5px] text-ink-dim">{bar.name}</span>
-                  <div className="relative h-6 overflow-hidden bg-raised">
-                    {/* The impossible half, washed once behind every bar so the
-                        reader sees the region before reading a label. */}
-                    <div
-                      className="absolute top-0 bottom-0 left-0"
-                      style={{
-                        width: `${zero}%`,
-                        background: 'color-mix(in oklab, var(--color-alert) 13%, transparent)',
-                      }}
-                    />
-                    <div
-                      className="absolute top-0 bottom-0 w-px"
-                      style={{ left: `${zero}%`, background: 'var(--color-ink-faint)' }}
-                    />
-                    <div
-                      className="absolute top-[4px] bottom-[4px] rounded-[1px]"
-                      style={{ left: `${left}%`, width: `${width}%`, background: colour }}
-                    />
-                  </div>
-                  <span
-                    className="num text-right text-[11.5px]"
-                    style={{ color: bar.bad ? 'var(--color-alert)' : 'var(--color-ink)' }}
-                  >
-                    {bar.v >= 0 ? '+' : '−'}
-                    {Math.abs(bar.v).toFixed(3)}
-                  </span>
-                </div>
-              )
-            })}
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-1.5 grid grid-cols-[104px_1fr_66px] gap-3">
-        <span />
-        <div className="relative h-4">
-          <span
-            className="num absolute -translate-x-1/2 text-[10px] text-ink-faint"
-            style={{ left: `${x(0)}%` }}
-          >
-            0
-          </span>
+    <div className="grid items-center gap-6 sm:grid-cols-[auto_1fr]">
+      <div className="border border-line bg-raised/30 px-7 py-5">
+        <div className="mb-3 text-center text-[10px] tracking-[0.16em] text-ink-faint uppercase">
+          Front
         </div>
-        <span />
+        <div className="flex flex-col gap-3">
+          <div className="flex items-end gap-9">
+            {tyre('FL', 'Front left')}
+            {tyre('FR', 'Front right')}
+          </div>
+          {/* The chassis, drawn only so the four blocks read as a car. */}
+          <div
+            className="mx-auto w-[86px] rounded-[2px]"
+            style={{ height: 4, background: 'var(--color-line-bright)' }}
+          />
+          <div className="flex items-start gap-9">
+            {tyre('RL', 'Rear left')}
+            {tyre('RR', 'Rear right')}
+          </div>
+        </div>
+        <div className="mt-3 text-center text-[10px] tracking-[0.16em] text-ink-faint uppercase">
+          Rear
+        </div>
       </div>
-      <p className="mt-1.5 text-[11.5px] leading-relaxed text-ink-faint">
-        Both are fitted on exactly the same laps of this race. The only difference is that ours
-        accounts for the fuel burning off underneath.
-      </p>
+
+      <div className="space-y-3">
+        <div className="border border-line bg-raised/30 px-4 py-3.5">
+          <div className="text-[11px] text-ink-faint">Which side worked harder</div>
+          <div className="num mt-1.5 text-[24px] leading-none font-semibold text-ink">
+            {((data.left_side_energy_share ?? 0.5) * 100).toFixed(1)}%
+            <span className="ml-2 text-[12px] font-normal text-ink-faint">
+              of the load went through the left
+            </span>
+          </div>
+        </div>
+
+        <div
+          className="border px-4 py-3.5"
+          style={{
+            borderColor: agrees ? 'var(--color-good)' : 'var(--color-line)',
+            background: agrees
+              ? 'color-mix(in oklab, var(--color-good) 8%, transparent)'
+              : 'transparent',
+          }}
+        >
+          <div className="text-[11px] text-ink-faint">
+            Which way the circuit runs
+          </div>
+          <div className="mt-2 flex flex-wrap items-baseline gap-x-6 gap-y-1">
+            <span>
+              <span className="text-[11px] text-ink-faint">we inferred </span>
+              <span
+                className="text-[15px] font-semibold"
+                style={{ color: agrees ? 'var(--color-good)' : 'var(--color-ink)' }}
+              >
+                {data.predicted_direction ?? '—'}
+              </span>
+            </span>
+            <span>
+              <span className="text-[11px] text-ink-faint">it is actually </span>
+              <span className="text-[15px] font-semibold text-ink">
+                {data.published_direction ?? '—'}
+              </span>
+            </span>
+          </div>
+          {agrees && (
+            <div className="mt-1.5 text-[11.5px]" style={{ color: 'var(--color-good)' }}>
+              Correct — and nothing about the circuit was given to the model.
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
