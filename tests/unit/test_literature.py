@@ -22,6 +22,51 @@ from tyremind.models.literature import (
 )
 
 
+def _statsmodels_available() -> tuple[bool, str]:
+    """Whether statsmodels' compiled state-space extension will load.
+
+    It is a hard dependency of `ArimaBaseline` and nothing else in the project,
+    and on locked-down Windows installs the import fails at the DLL rather than
+    in Python:
+
+        ImportError: DLL load failed while importing _representation:
+        An Application Control policy has blocked this file.
+
+    That is a property of the machine, not of the code, and the same class of
+    block already cost this project a day over pyarrow. The ARIMA rung genuinely
+    cannot be exercised there, so those tests skip with the real reason attached
+    instead of failing and burying an actual regression in the noise.
+
+    **The model itself is not softened.** `ArimaBaseline.fit` still raises, so a
+    benchmark run on such a machine fails loudly rather than scoring ARIMA as
+    absent and flattering everything else -- which is exactly the rigging
+    `TestFairness` exists to prevent.
+    """
+    try:
+        from statsmodels.tsa.arima.model import ARIMA  # noqa: F401
+    except Exception as exc:  # noqa: BLE001
+        return False, f"statsmodels state-space extension unavailable: {exc}"
+    return True, ""
+
+
+_STATSMODELS_OK, _STATSMODELS_WHY = _statsmodels_available()
+needs_statsmodels = pytest.mark.skipif(not _STATSMODELS_OK, reason=_STATSMODELS_WHY)
+
+
+def ladder_params() -> list:
+    """The literature ladder as parametrize entries, ARIMA marked skippable.
+
+    Only the ARIMA rung carries the mark. Every other model on the ladder is pure
+    numpy and scipy and must keep running everywhere, so a blocked statsmodels
+    can never quietly take the whole comparison down with it.
+    """
+    out = []
+    for model in literature_ladder():
+        marks = [needs_statsmodels] if model.name.startswith("ARIMA") else []
+        out.append(pytest.param(model, marks=marks, id=model.name))
+    return out
+
+
 @pytest.fixture(scope="module")
 def session() -> pd.DataFrame:
     """A synthetic stint set with a known linear degradation of 0.10 s/lap."""
@@ -46,7 +91,7 @@ def session() -> pd.DataFrame:
 
 
 class TestContract:
-    @pytest.mark.parametrize("model", literature_ladder(), ids=lambda m: m.name)
+    @pytest.mark.parametrize("model", ladder_params())
     def test_fits_and_predicts_finite_values(self, model, session):
         model.fit(session)
         mean, sd = model.predict(session)
@@ -102,6 +147,7 @@ class TestCappelloHoegh:
         assert model.compound_rates() == {}
 
 
+@needs_statsmodels
 class TestArima:
     def test_reports_no_degradation_rate(self, session):
         """ARIMA has no such parameter. Inventing one would be dishonest."""
@@ -117,14 +163,14 @@ class TestFairness:
     their own mean. Strictness must not be a competitive advantage.
     """
 
-    @pytest.mark.parametrize("model", literature_ladder(), ids=lambda m: m.name)
+    @pytest.mark.parametrize("model", ladder_params())
     def test_a_null_tyre_age_raises_rather_than_returning_nan(self, model, session):
         poisoned = session.copy()
         poisoned.loc[poisoned.index[:5], "tyre_age"] = np.nan
         with pytest.raises(ValueError, match="null"):
             model.fit(poisoned)
 
-    @pytest.mark.parametrize("model", literature_ladder(), ids=lambda m: m.name)
+    @pytest.mark.parametrize("model", ladder_params())
     def test_predictions_are_finite_on_clean_data(self, model, session):
         model.fit(session)
         mean, sd = model.predict(session)
